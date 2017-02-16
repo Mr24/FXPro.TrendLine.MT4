@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVHL - Ver.0.0.2 Update:2017.01.16"
+#property description "VsV.MT4.VsVHL - Ver.0.0.3 Update:2017.02.16"
 #property strict
 
 
@@ -45,28 +45,28 @@ int OnInit(void)
   IndicatorBuffers(3);
 
 //*--- Middle line
-   	SetIndexStyle(0,DRAW_LINE);
-   	SetIndexBuffer(0,BufMed);
-   	SetIndexLabel(0,"HL.Med("+string(BandPeriod)+")");
+    SetIndexStyle(0,DRAW_LINE);
+    SetIndexBuffer(0,BufMed);
+    SetIndexLabel(0,"HL.Med("+string(BandPeriod)+")");
 //*--- Hight band
-   	SetIndexStyle(1,DRAW_LINE);
-   	SetIndexBuffer(1,BufHigh);
-   	SetIndexLabel(1,"HL.Hight("+string(BandPeriod)+")");
+    SetIndexStyle(1,DRAW_LINE);
+    SetIndexBuffer(1,BufHigh);
+    SetIndexLabel(1,"HL.Hight("+string(BandPeriod)+")");
 //*--- Low band
-   	SetIndexStyle(2,DRAW_LINE);
-   	SetIndexBuffer(2,BufLow);
-   	SetIndexLabel(2,"HL.Low("+string(BandPeriod)+")");
+    SetIndexStyle(2,DRAW_LINE);
+    SetIndexBuffer(2,BufLow);
+    SetIndexLabel(2,"HL.Low("+string(BandPeriod)+")");
 
 //--- check for input parameter
-   	if(BandPeriod<=0)
-   	{
-    	Print("Wrong input parameter Band Period=",BandPeriod);
-      	return(INIT_FAILED);
+    if(BandPeriod<=0)
+    {
+      Print("Wrong input parameter Band Period=",BandPeriod);
+        return(INIT_FAILED);
     }
 //---
-   	SetIndexDrawBegin(0,BandPeriod);
-   	SetIndexDrawBegin(1,BandPeriod);
-   	SetIndexDrawBegin(2,BandPeriod);
+    SetIndexDrawBegin(0,BandPeriod);
+    SetIndexDrawBegin(1,BandPeriod);
+    SetIndexDrawBegin(2,BandPeriod);
 
 //--- initialization done
    return(INIT_SUCCEEDED);
@@ -107,7 +107,7 @@ int OnCalculate(const int rates_total,
   }
 
 //---- OnCalculate done. Return new prev_calculated.
-  	return(rates_total);
+    return(rates_total);
 }
 
 //+------------------------------------------------------------------+
