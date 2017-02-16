@@ -13,14 +13,15 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVHL - Ver.0.0.1 Update:2017.01.15"
+#property description "VsV.MT4.VsVHL - Ver.0.0.2 Update:2017.01.16"
 #property strict
 
 
 //--- HLBand : Initial Setup ---//
 #property indicator_chart_window
 #property indicator_buffers 3
-#property indicator_color1 Silver
+#property indicator_color1 White
+#property indicator_width1 2
 #property indicator_color2 Blue
 #property indicator_color3 Red
 
@@ -108,6 +109,5 @@ int OnCalculate(const int rates_total,
 //---- OnCalculate done. Return new prev_calculated.
   	return(rates_total);
 }
-
 
 //+------------------------------------------------------------------+
