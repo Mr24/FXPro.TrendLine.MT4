@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsSAR - Ver.0.0.1 Update:2017.02.16"
+#property description "VsV.MT4.VsVSAR - Ver.0.0.2 Update:2017.02.16"
 #property strict
 
 
@@ -22,12 +22,11 @@
 #property indicator_buffers 1
 #property indicator_type1 DRAW_ARROW
 #property indicator_color1 White
-// #property indicator_width1 2
+
 
 //--- SAR_Band : indicator parameters
 input double SAR_Step = 0.02;
 input double SAR_Max  = 0.2;
-
 
 //--- SAR_Band : Indicator buffer
 double BufSAR[];
@@ -47,19 +46,6 @@ int OnInit(void)
    	SetIndexBuffer(0,BufSAR);
    	SetIndexLabel(0,"SAR("+DoubleToStr(SAR_Step,2)+","+DoubleToStr(SAR_Max,1)+")");
     SetIndexArrow(0,159);
-
-/*
-//--- check for input parameter
-   	if(BandPeriod<=0)
-   	{
-    	Print("Wrong input parameter Band Period=",BandPeriod);
-      	return(INIT_FAILED);
-    }
-//---
-   	SetIndexDrawBegin(0,BandPeriod);
-   	SetIndexDrawBegin(1,BandPeriod);
-   	SetIndexDrawBegin(2,BandPeriod);
-*/
 
 //--- initialization done
    return(INIT_SUCCEEDED);
