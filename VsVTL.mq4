@@ -7,123 +7,67 @@
 //|                       https://opensource.org/licenses/Apache-2.0 |
 //|                                                            &     |
 //+------------------------------------------------------------------+
-//|                                               AutoTrendLines.mq5 |
-//|                                            Copyright 2012, Rone. |
-//|                                            rone.sergey@gmail.com |
-//|                                https://www.mql5.com/en/code/1220 |
+//|                                       Ind-WSO+WRO+Trend Line.mq4 |
+//|                    Copyright © 2004, http://www.expert-mt4.nm.ru |
+//|                                      http://www.expert-mt4.nm.ru |
+//| Индикатор был разработан на основе индикатора Widners Oscilator. |
+//|          Мною была разработана торговая стратегия, основанная на |
+//|        показаниях Ind-WSO+WRO+Trend Line индикатора. Подробности |
+//|                          вы можете узнать в форуме на моем сайте |
+//|                          http://www.expert-mt4.nm.ru/forum.dhtml |
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVTL - Ver.0.0.1 Update:2017.02.18"
+#property description "VsV.MT4.VsVTL - Ver.0.1.0 Update:2017.02.18"
 #property strict
 
 
 //--- Auto_TrendLine : Initial Setup ---//
 #property indicator_chart_window
 
-//*--
-enum AUTO_LINE_TYPE {
-  TL_EXM,    // 1: By 2 Extremums
-  TL_DELTA   // 2: Extremum and Delta
-};
-
-
-//+------------------------------------------------------------------+
-//| Class Current Point                                              |
-//+------------------------------------------------------------------+
-class CPoint
-{
-//--- Current Point : Initial Setup ---//
-  private:
-    double cPrice;
-    datetime cTime;
-  public:
-    CPoint();
-    CPoint(const double p, const datetime t);
-    ~CPoint() {};
-
-    void setPoint(const double p, const datetime t);
-    bool operator==(const CPoint &other) const;
-    bool operator!=(const CPoint &other) const;
-    void operator=(const CPoint &other);
-    double getPrice() const;
-    datetime getTime() const;
-};
-
-//---
-CPoint::CPoint(void)
-{
-   cPrice = 0;
-   cTime = 0;
-}
-//---
-CPoint::CPoint(const double p, const datetime t)
-{
-  cPrice=p;
-  cTime=t;
-}
-//---
-void CPoint::setPoint(const double p, const datetime t)
-{
-  cPrice=p;
-  cTime=t;
-}
-//---
-bool CPoint::operator==(const CPoint &other) const
-{
-  return cPrice == other.cPrice && cTime == other.cTime;
-}
-//---
-bool CPoint::operator!=(const CPoint &other) const
-{
-  return !operator==(other);
-}
-//---
-void CPoint::operator=(const CPoint &other)
-{
-  cPrice=other.cPrice;
-  cTime=other.cTime;
-}
-//---
-double CPoint::getPrice(void) const 
-{
-  return(cPrice);
-}
-//---
-datetime CPoint::getTime(void) const
-{
-  return(cTime);
-}
-
-
-//+------------------------------------------------------------------+
-//| CPoint Drow Line (Ver.0.0.1)                                     |
-//+------------------------------------------------------------------+
-CPoint curLeftSup, curRightSup, curleftRes, curRightRes, nullPoint;
 
 //--- Auto_TrendLine : input parameters
-input AUTO_LINE_TYPE  TLLineType    = TL_DELTA; // Line Type
-input int             TLLeftExm     = 10;       // Left Extremum (Type1,2)
-input int             TLRightExm    = 3;        // Right Extremum (Type1)
-input int             TLFromCurrent = 3;        // Offset from the Current (Type2)
-input bool            TLPrevExm     = false;    // Account for bar before Extremum (Type2)
-//*---
-input int             TLLinesWidth  = 2;
-input color           TLSupColor    = clrRed;   // Support Line Color
-input color           TLResColor    = clrBlue;  // Resistance Line Color
-//*--- Global Variables
-int minRequiredBars;
+extern int TLPeriod=9;  // TrendLine Period
+extern int Limit=350;   // TrendLine Limit
+
+
+//--- Auto_TrendLine : Widners Osilator
+int cnt, TLCurBar=0;
 
 
 //+------------------------------------------------------------------+
-//| Custom indicator initialization function (Ver.0.0.1)             |
+//| Custom indicator initialization function (Ver.0.1.0)             |
 //+------------------------------------------------------------------+
 int OnInit(void)
 {
 //--- Auto_TrendLine.Initial.Setup ---//
-//--- Indicator Buffers Mapping
-  minRequiredBars = TLLeftExm * 2 + MathMax( TLRightExm, TLFromCurrent ) * 2;
+//--- Output in Char
+  for( cnt=0; cnt<=5; cnt++)
+  {
+    //*--- HLine.Support.Setup
+    ObjectCreate( "WSO:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
+    ObjectSet( "WSO:" + string(cnt), OBJPROP_COLOR, Red );
+    //*--- Trend.Down.Setup
+    if(cnt<5)
+    {
+      ObjectCreate( "Trend.Down:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
+      ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Red );
+    }
 
+    //*--- HLine.Resistant.Setup
+    ObjectCreate( "WRO:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
+    ObjectSet( "WRO:" + string(cnt), OBJPROP_COLOR, Blue );
+    //*--- Trend.Up.Setup
+    if(cnt<5)
+    {
+      ObjectCreate( "Trend.Up:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
+      ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Blue );
+    }
+
+    //--- Default.Trend.Setup
+    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Maroon );
+    ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Green );
+  }
 
 //--- initialization done
    return(INIT_SUCCEEDED);
@@ -133,18 +77,25 @@ int OnInit(void)
 
 
 //+------------------------------------------------------------------+
-//| Custom Deindicator initialization function (Ver.0.0.1)           |
+//| Custom Deindicator initialization function (Ver.0.1.0)           |
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-  ObjectsDeleteAll( 0, 0, OBJ_TREND);
+//--- ToDo & Code Here
+  for(cnt=0; cnt<=5; cnt++)
+  {
+    ObjectDelete( "Trend.Up:" + string(cnt) );
+    ObjectDelete( "Trend.Down:" + string(cnt) );
+    ObjectDelete( "WSO:" + string(cnt) );
+    ObjectDelete( "WRO:" + string(cnt) );
+  }
 }
 
 //***//
 
 
 //+------------------------------------------------------------------+
-//| Auto_TrendLine (Ver.0.0.1)                                       |
+//| Auto_TrendLine (Ver.1.0.0)                                       |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -158,196 +109,80 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
 {
 //--- Auto_TrendLine.Calculate.Setup ---//
-  int LeftIndex, RightIndex, TmpIndex;
-  double Delta, tmpDelta;
+//--- ToDo & Code Here
+  //*--- Support Initial
+  double  s1=0.00, s2=0.00, s3=0.00, s4=0.00, s5=0.00, s6=0.00;
+  int     st1=0, st2=0, st3=0, st4=0, st5=0, st6=0;
+  //*--- Resistance Initial
+  double  r1=0.00, r2=0.00, r3=0.00, r4=0.00, r5=0.00, r6=0.00;
+  int     rt1=0, rt2=0, rt3=0, rt4=0, rt5=0, rt6=0;
 
-//---
-  if(rates_total < minRequiredBars)
+//--- Line Support & Resistance
+  if(Bars<Limit) Limit = Bars - TLPeriod;
+
+  for( TLCurBar=Limit; TLCurBar>0; TLCurBar--)
   {
-    Print( "Not Enough data to Calculate!!" );
-    return(0);
+    //--- Line Support.Setup
+    if(low[TLCurBar+(TLPeriod-1)/2] == low[Lowest(NULL, 0, MODE_LOW,TLPeriod, TLCurBar)])
+    {
+      s6=s5; s5=s4; s4=s3; s3=s2; s2=s1; s1=low[TLCurBar+(TLPeriod-1)/2];
+      st6=st5; st5=st4; st4=st3; st3=st2; st2=st1; st1=TLCurBar+(TLPeriod-1)/2;
+    }
+    //--- Line Resistance.Setup
+    if(high[TLCurBar+(TLPeriod-1)/2] == high[Highest(NULL, 0, MODE_HIGH, TLPeriod, TLCurBar)])
+    {
+      r6=r5; r5=r4; r4=r3; r3=r2; r2=r1; r1=high[TLCurBar+(TLPeriod-1)/2];
+      rt6=rt5; rt5=rt4; rt4=rt3; rt3=rt2; rt2=rt1; rt1=TLCurBar+(TLPeriod-1)/2;
+    }
   }
 
-//---
-  if(prev_calculated != rates_total)
-  {
-    switch(TLLineType)
-    {
-      case TL_DELTA:
-        //*--- Suport Left Point
-        LeftIndex= rates_total - TLLeftExm - 2;
-        
-        for( ; !isLowestLow(LeftIndex, TLLeftExm, low) && LeftIndex > minRequiredBars; LeftIndex--);
-        curLeftSup.setPoint(low[LeftIndex], time[LeftIndex]);
-        
-        //*--- Suport Right Point
-        RightIndex = rates_total - TLFromCurrent - 2;
+//--- Move Object in Chart
+  //*--- WSO & Trend.Down Setup
+  ObjectMove( "WSO:0", 0, Time[st1], s1 );
+  ObjectMove( "Trend.Down:0", 1, Time[st1], s1 );
+  ObjectMove( "Trend.Down:0", 0, Time[st2], s2 );
 
-        //*--- Delta Value
-        Delta = (low[RightIndex] - low[LeftIndex]) / (RightIndex - LeftIndex);
+  ObjectMove( "WSO:1", 0, Time[st2], s2 );
+  ObjectMove( "Trend.Down:1", 1, Time[st2], s2 );
+  ObjectMove( "Trend.Down:1", 0, Time[st3], s3 );
 
-        //---  
-        if(!TLPrevExm)
-        {
-          LeftIndex +=1;
-        }
+  ObjectMove( "WSO:2", 0, Time[st3], s3 );
+  ObjectMove( "Trend.Down:2", 1, Time[st3], s3 );
+  ObjectMove( "Trend.Down:2", 0, Time[st4], s4 );
 
-        TmpIndex = 0;
-        for(TmpIndex = RightIndex - 1 ; TmpIndex>LeftIndex; TmpIndex--)
-        {
-          tmpDelta=(low[TmpIndex] - curLeftSup.getPrice()) / (TmpIndex - LeftIndex);
+  ObjectMove( "WSO:3", 0, Time[st4], s4 );
+  ObjectMove( "Trend.Down:3", 1, Time[st4], s4 );
+  ObjectMove( "Trend.Down:3", 0, Time[st5], s5 );
 
-          if(tmpDelta<Delta)
-          {
-            Delta=tmpDelta;
-            RightIndex=TmpIndex;
-          }
-        }
-        curRightSup.setPoint(low[RightIndex], time[RightIndex]);
+  ObjectMove( "WSO:4", 0, Time[st5], s5 );
+  ObjectMove( "Trend.Down:4", 1, Time[st5], s5 );
+  ObjectMove( "Trend.Down:4", 0, Time[st6], s6 );
+  ObjectMove( "WSO:5", 0, Time[st6], s6 );
 
-        //*--- Resistance Left Point
-        LeftIndex = rates_total - TLLeftExm - 2;
+  //*-- WRO & Trend.Up Setup
+  ObjectMove( "WRO:0", 0, Time[rt1], r1 );
+  ObjectMove( "Trend.Up:0", 1, Time[rt1], r1 );
+  ObjectMove( "Trend.Up:0", 0, Time[rt2], r2 );
 
-        for( ; !isHighestHigh(LeftIndex, TLLeftExm, high) && LeftIndex>minRequiredBars; LeftIndex--);
-        curleftRes.setPoint(high[LeftIndex], time[LeftIndex]);
+  ObjectMove( "WRO:1", 0, Time[rt2], r2 );
+  ObjectMove( "Trend.Up:1", 1, Time[rt2], r2 );
+  ObjectMove( "Trend.Up:1", 0, Time[rt3], r3 );
 
-        //*--- Resistance Right Point
-        RightIndex = rates_total - TLFromCurrent - 2;
+  ObjectMove( "WRO:2", 0, Time[rt3], r3 );
+  ObjectMove( "Trend.Up:2", 1, Time[rt3], r3 );
+  ObjectMove( "Trend.Up:2", 0, Time[rt4], r4 );
 
-        //*--- Delta Value
-        Delta = (high[LeftIndex] - high[RightIndex]) / (RightIndex - LeftIndex);
+  ObjectMove( "WRO:3", 0, Time[rt4], r4 );
+  ObjectMove( "Trend.Up:3", 1, Time[rt4], r4 );
+  ObjectMove( "Trend.Up:3", 0, Time[rt5], r5 );
 
-        //---
-        if(!TLPrevExm)
-        {
-          LeftIndex += 1;
-        }
-
-        TmpIndex = 0;
-        for(TmpIndex = RightIndex - 1; TmpIndex > LeftIndex; TmpIndex--)
-        {
-          tmpDelta = (curleftRes.getPrice() - high[TmpIndex]) / (TmpIndex - LeftIndex);
-
-          if(tmpDelta<Delta)
-          {
-            Delta = tmpDelta;
-            RightIndex = TmpIndex;
-          }
-        }
-        curRightRes.setPoint(high[RightIndex], time[RightIndex]);
-
-      //---
-      break;
-
-      case TL_EXM:
-        default:
-        //*--- Support Right Point
-        RightIndex = rates_total - TLRightExm - 2;
-
-        for( ; !isLowestLow(RightIndex, TLRightExm, low) && RightIndex > minRequiredBars; RightIndex--);
-        curRightSup.setPoint(low[RightIndex], time[RightIndex]);
-
-        //*--- Support Light Point
-        LeftIndex = RightIndex - TLRightExm;
-
-        for( ; !isLowestLow(LeftIndex, TLLeftExm, low) && LeftIndex > minRequiredBars; LeftIndex--);
-        curLeftSup.setPoint(low[LeftIndex], time[LeftIndex]);
-
-        //*--- Resistance Right Point
-        RightIndex = rates_total - TLRightExm - 2;
-
-        for( ; !isHighestHigh(RightIndex, TLRightExm, high) && RightIndex > minRequiredBars; RightIndex--);
-        curRightRes.setPoint(high[RightIndex], time[RightIndex]);
-
-        //*--- Resistance Left Point
-        LeftIndex = RightIndex - TLRightExm;
-
-        for( ; !isHighestHigh(LeftIndex, TLLeftExm, high) && LeftIndex > minRequiredBars; LeftIndex--);
-        curleftRes.setPoint(high[LeftIndex], time[LeftIndex]);
-
-      //---
-      break;
-
-    }
-
-    //--- Draw Support & Resistance
-    if(curLeftSup != nullPoint && curRightSup != nullPoint)
-    {
-      TL_DrawLine("Current_Support", curRightSup, curLeftSup, TLSupColor);
-    }
-    if(curleftRes != nullPoint && curRightRes != nullPoint)
-    {
-      TL_DrawLine("Current_Resistance", curRightRes, curleftRes, TLResColor);
-    }
-
-  }
+  ObjectMove( "WRO:4", 0, Time[rt5], r5 );
+  ObjectMove( "Trend.Up4", 1, Time[rt5], r5 );
+  ObjectMove( "Trend.Up4", 0, Time[rt6], r6 );
+  ObjectMove( "WRO:5", 0, Time[rt6], r6 );
 
 //---- OnCalculate done. Return new prev_calculated.
   return(rates_total);
-}
-
-//***//
-
-
-//+------------------------------------------------------------------+
-//| The Local Low search function                                    |
-//+------------------------------------------------------------------+
-bool isLowestLow(int bar, int side, const double &low[])
-{
-  //---
-  for(int i=1; i<=side; i++)
-  {
-    if(low[bar]>low[bar-i] || low[bar]>low[bar+i])
-    {
-      return(false);
-    }
-  }
-
-  //---
-  return(true);
-}
-
-//***//
-
-
-//+------------------------------------------------------------------+
-//| The Local High search function                                   |
-//+------------------------------------------------------------------+
-bool isHighestHigh(int bar, int side, const double &high[])
-{
-  //---
-  for(int i=1; i<=side; i++)
-  {
-    if(high[bar]<high[bar-i] || high[bar]<high[bar+i])
-    {
-      return(false);
-    }
-  }
-
-  //---
-  return(true);
-}
-
-//***//
-
-
-//+------------------------------------------------------------------+
-//| Draw trend line function                                         |
-//+------------------------------------------------------------------+
-void TL_DrawLine(string name, CPoint &right, CPoint &left, color clr)
-{
-  //---
-  ObjectDelete(0, name);
-
-  //---
-  ObjectCreate(0, name, OBJ_TREND, 0,
-    right.getTime(), right.getPrice(), left.getTime(), left.getPrice());
-  ObjectSetInteger(0, name, OBJPROP_WIDTH, TLLinesWidth);
-  ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
-  ObjectSetInteger(0, name, OBJPROP_RAY_LEFT, true);
-  ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
-  //---
-
 }
 
 //+------------------------------------------------------------------+
