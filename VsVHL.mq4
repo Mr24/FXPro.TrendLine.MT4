@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVHL - Ver.0.0.3 Update:2017.02.16"
+#property description "VsV.MT4.VsVHL - Ver.0.0.4 Update:2017.02.20"
 #property strict
 
 
@@ -97,7 +97,7 @@ int OnCalculate(const int rates_total,
     if(PriceField==0)
     {
       BufHigh[i]=High[iHighest(NULL, 0, MODE_HIGH, BandPeriod, i)];
-      BufLow[i] =Low[iLowest(NULL, 0, MODE_CLOSE, BandPeriod, i)];
+      BufLow[i] =Low[iLowest(NULL, 0, MODE_LOW, BandPeriod, i)];
     }
     else{
       BufHigh[i]=Close[iHighest(NULL, 0, MODE_CLOSE, BandPeriod, i)];
