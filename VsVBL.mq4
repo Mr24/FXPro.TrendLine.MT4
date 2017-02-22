@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVBL - Ver.0.7.1 Update:2017.02.20"
+#property description "VsV.MT4.VsVBL - Ver.0.7.2 Update:2017.02.22"
 #property strict
 
 
@@ -84,7 +84,7 @@ int OnInit(void)
 
 
 //+------------------------------------------------------------------+
-//| Custom Deindicator initialization function (Ver.0.7.1)           |
+//| Custom Deindicator initialization function (Ver.0.7.2)           |
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
@@ -183,16 +183,14 @@ int OnCalculate(const int rates_total,
   // Print( "Time.Sup.00=" + TimeToStr( Time[st0], TIME_DATE )+"."+TimeToStr( Time[st0] ,TIME_MINUTES )
   // Print( "Time.Sup.00=" + TimeToStr( Time[stime0], TIME_DATE )+"."+TimeTod( Time[stime0], TIME_MINUTES )
   Print( "Time.Sup.00=" + TimeToStr( time[ (int)stime0 ], TIME_DATE ) + "." + TimeToStr( time[ (int)stime0 ], TIME_MINUTES )
-    // + "/" + DoubleToStr( s0, Digits ) + "/" + string( st0 ) + "/" + string(stime0) + "/" + string(limit) );
-    // + "/" + DoubleToStr( s0, Digits ) + "/" + string( st0 ) + "/" + DoubleToStr( stime0, Digits ) + "/" + string(limit) );
-    + "/" + DoubleToStr( s0, 0 ) + "/" + string( st0 ) + "/" + DoubleToStr( stime0, 0 ) + "/" + string(limit) );
+    + "/" + DoubleToStr( s0, Digits ) + "/" + string( st0 ) + "/" + DoubleToStr( stime0, 0 ) + "/" + string(limit) );
 
   //*--- Resistance.Maximum Moved Draw
   ObjectMove( "BaseRes:0", 0, time[rt0], r0 );
   // Print( "Time.Res.00=" + TimeToStr( Time[rt0], TIME_DATE )+"."+TimeToStr( Time[rt0] ,TIME_MINUTES )
   Print( "Time.Res.00=" + TimeToStr( time[ (int)rtime0 ], TIME_DATE ) + "." + TimeToStr( time[ (int)rtime0 ], TIME_MINUTES )
     // + "/" + DoubleToStr( r0, Digits ) + "/" + string( rt0 ) + "/" + DoubleToStr( rtime0, Digits )  );
-    + "/" + DoubleToStr( r0, 0 ) + "/" + string( rt0 ) + "/" + DoubleToStr( rtime0, 0 )  );
+    + "/" + DoubleToStr( r0, Digits ) + "/" + string( rt0 ) + "/" + DoubleToStr( rtime0, 0 )  );
     // + "/" + DoubleToStr( r0, Digits ) + "/" + string( rt0 )  );
     // + "/" + DoubleToStr( r0, Digits ) + "/" + string( rt0 ) + "/!" + string( rd0 ) );
 
