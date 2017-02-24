@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX - Ver.0.11.0 Update:2017.02.23"
+#property description "VsV.MT4.VsVFX - Ver.0.11.1 Update:2017.02.25"
 #property strict
 
 
@@ -100,7 +100,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.0)                                        |
+//| FX.TrendLine (Ver.0.11.1)                                        |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -161,7 +161,7 @@ int OnCalculate(const int rates_total,
 
   //---* Resistance.Maximum Moved Draw
   ObjectMove( "BaseRes:0", 0, time[rt0], r0 );
-  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
+  Print( "Time.Res.00=" + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0+(rTime0-rt0+1))], TIME_DATE ) + "." + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0-(rTime0-rt0+1))], TIME_MINUTES ) 
     + "/" + DoubleToStr( r0, Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0, 0 ) );
 
 
@@ -169,6 +169,5 @@ int OnCalculate(const int rates_total,
   return(rates_total);
 
 }
-
 
 //+------------------------------------------------------------------+
