@@ -18,7 +18,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVTL - Ver.0.1.0 Update:2017.02.18"
+#property description "VsV.MT4.VsVTL - Ver.0.1.1 Update:2017.03.21"
 #property strict
 
 
@@ -28,7 +28,7 @@
 
 //--- Auto_TrendLine : input parameters
 extern int TLPeriod=9;  // TrendLine Period
-extern int Limit=350;   // TrendLine Limit
+extern int Limit=360;   // TrendLine Limit
 
 
 //--- Auto_TrendLine : Widners Osilator
@@ -46,7 +46,7 @@ int OnInit(void)
   {
     //*--- HLine.Support.Setup
     ObjectCreate( "WSO:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
-    ObjectSet( "WSO:" + string(cnt), OBJPROP_COLOR, Red );
+    ObjectSet( "WSO:" + string(cnt), OBJPROP_COLOR, Goldenrod );
     //*--- Trend.Down.Setup
     if(cnt<5)
     {
@@ -56,7 +56,8 @@ int OnInit(void)
 
     //*--- HLine.Resistant.Setup
     ObjectCreate( "WRO:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
-    ObjectSet( "WRO:" + string(cnt), OBJPROP_COLOR, Blue );
+    ObjectSet( "WRO:" + string(cnt), OBJPROP_COLOR, Goldenrod );
+    ObjectSet( "WRO:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
     //*--- Trend.Up.Setup
     if(cnt<5)
     {
@@ -65,7 +66,7 @@ int OnInit(void)
     }
 
     //--- Default.Trend.Setup
-    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Maroon );
+    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Gold );
     ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Green );
   }
 
@@ -123,7 +124,7 @@ int OnCalculate(const int rates_total,
   for( TLCurBar=Limit; TLCurBar>0; TLCurBar--)
   {
     //--- Line Support.Setup
-    if(low[TLCurBar+(TLPeriod-1)/2] == low[Lowest(NULL, 0, MODE_LOW,TLPeriod, TLCurBar)])
+    if(low[TLCurBar+(TLPeriod-1)/2] == low[Lowest(NULL, 0, MODE_LOW, TLPeriod, TLCurBar)])
     {
       s6=s5; s5=s4; s4=s3; s3=s2; s2=s1; s1=low[TLCurBar+(TLPeriod-1)/2];
       st6=st5; st5=st4; st4=st3; st3=st2; st2=st1; st1=TLCurBar+(TLPeriod-1)/2;
