@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2.1 Update:2017.03.31"
+#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2.2 Update:2017.03.31"
 #property strict
 
 
@@ -89,7 +89,8 @@ int OnInit(void)
 
     //*--- 1. Base.TrendLine : Resistance.Setup
     ObjectCreate( "BaseRes:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
-    ObjectSet( "BaseRes:" + string(cnt), OBJPROP_COLOR, Goldenrod );  
+    ObjectSet( "BaseRes:" + string(cnt), OBJPROP_COLOR, Goldenrod );
+    ObjectSet( "BaseRes:" + string(cnt), OBJPROP_STYLE, STYLE_DOT ); 
   }
 
 
