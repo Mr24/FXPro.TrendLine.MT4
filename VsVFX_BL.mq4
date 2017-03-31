@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2 Update:2017.02.25"
+#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2.1 Update:2017.03.31"
 #property strict
 
 
@@ -174,8 +174,10 @@ int OnCalculate(const int rates_total,
   // rTime0[0] = BufLowPos[rt0];
   // rTime0[0] = (MaxLimit-1)/2+rTime0[0]+(rTime0[0]-rt0+1);
   // rTime0[0] = (MaxLimit-1)/2+BufLowPos[rt0]+(BufLowPos[rt0]-rt0+1);
-  rTime0[1] = BufLowPos[rt0];
-  rTime0[0] = (MaxLimit-1)/2+rTime0[1]-(rTime0[1]-rt0+1);
+  // (NG) rTime0[1] = BufLowPos[rt0];
+  // rTime0[1] = BufHighPos[rt0];
+  rTime0[0] = BufHighPos[rt0];
+  // rTime0[0] = (MaxLimit-1)/2+rTime0[1]-(rTime0[1]-rt0+1);
 
 
 
@@ -188,9 +190,11 @@ int OnCalculate(const int rates_total,
   //---* Resistance.Maximum Moved Draw
   ObjectMove( "BaseRes:0", 0, time[rt0], r0[0] ); 
   // Print( "Time.Res.00=" + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) + "." + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
-  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES ) 
+  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES )
+  // Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[1]], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0[1]], TIME_MINUTES )
     // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
-    + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
+    // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
+    + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
 
 
 //---- OnCalculate done. Return new prev_calculated.
