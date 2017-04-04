@@ -21,14 +21,15 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.0 Update:2017.03.31"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.1 Update:2017.04.04"
 #property strict
 
 
 //--- FX.Indicator : Setup ---//
-//*--- FX_BL.0.11.2.2 : Base.TrendeLine : 3 TrendLine
-//*--- 2. TrendLine(TL) : TL Cross * HL TrendLine
-//*--- 3-1. EntryPoint & Exitpoint : RSI & Sto
+//*--- FX_BL.0.11.2.2 : Base.TrendeLine : 1x Base.TrendLine
+//*--- 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
+//*--- 2-2. TrendLine(TL) : TL Cross * HL TrendLine
+//*--- 3-1. EntryPoint & Exitpoint : RSI & Sto & HL
 //*--- 3-2. EntryPoint & ExitPoint : SAR & BB & MA
 
 //--- FX.Indicator : Initial Setup ---//
@@ -36,18 +37,23 @@
 
 
 //--- 1. Base.TrendLine : Indicator Setup ---//
-extern int BLPeriod = 3;
-input int MaxLimit = 360;
+// (0.11.3.0) extern int BLPeriod = 3;
+// (0.11.3.0) input int MaxLimit = 360;
 int cnt;
 
 //--- 1. Base.TrendLine : Indicator Buffer ---//
-double BufLow[];
-double BufLowPos[];
-double BufHigh[];
-double BufHighPos[];
-// int st0[];
-double s0[], sTime0[];
-double r0[], rTime0[];
+// (0.11.3.0) double BufLow[];
+// (0.11.3.0) double BufLowPos[];
+// (0.11.3.0) double BufHigh[];
+// (0.11.3.0) double BufHighPos[];
+/// int st0[];
+// (0.11.3.0) double s0[], sTime0[];
+// (0.11.3.0) double r0[], rTime0[];
+
+//--- 2-1. TrendLine : TL & Base.TL : 3x Base.TL & TL
+extern int SupportTime, ResistanceTime;
+extern double sTime0, sPrice0, SupportPrice;
+extern double rTime0, rPrice0, ResistancePrice;
 
 
 //+------------------------------------------------------------------+
@@ -57,6 +63,7 @@ int OnInit(void)
 {
 //--- 1. Base.TrendLine.Initial.Setup ---//
   //--- 2 Additional Buffer used for Conting.
+  /* (0.11.3.0)
   IndicatorBuffers( 8 );
 
   //*--- Lowest Buffer
@@ -86,7 +93,7 @@ int OnInit(void)
   ArraySetAsSeries( r0, true );
   SetIndexBuffer( 7, rTime0 );
   ArraySetAsSeries( rTime0, true );
-
+  */
 
   //--- OUtput in Char
   for( cnt=0; cnt<=2; cnt++ )
@@ -127,7 +134,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.1)                                        |
+//| FX.TrendLine (Ver.0.11.3)                                        |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -143,21 +150,22 @@ int OnCalculate(const int rates_total,
 //--- 1. Base.TrendLine : Caluculate.Setup ---//
   //---* ToDo & Code Here
   //---* Support.Initial
-  // int     st0=0,    st1=0,    st2=0, sPos;
-  int st0=0, sPos;
-  // double  s0=0.00,  s1=0.00,  s2=0.00;
-  // double  sTime0;
+  /// int     st0=0,    st1=0,    st2=0, sPos;
+  // (0.11.3.0) int st0=0, sPos;
+  /// double  s0=0.00,  s1=0.00,  s2=0.00;
+  /// double  sTime0;
 
   //---* Resistance.Initial
-  // int     rt0=0,    rt1=0,    rt2=0, rPos;
-  int rt0=0, rPos;
-  // double  r0=0.00,  r1=0.00,  r2=0.00;
-  // double  rTime0;
+  /// int     rt0=0,    rt1=0,    rt2=0, rPos;
+  // (0.11.3.0) int rt0=0, rPos;
+  /// double  r0=0.00,  r1=0.00,  r2=0.00;
+  ///  double  rTime0;
 
   ArraySetAsSeries( low, true );
   ArraySetAsSeries( high, true );
 
   //---* Support & Resistance : Calculate ---//
+  /* (0.11.3.0)
   for( int i=MaxLimit-1; i>=0; i-- )
   {
     //---* Support Calculate ---//
@@ -170,34 +178,54 @@ int OnCalculate(const int rates_total,
     rPos = (int)BufHighPos[i];
     BufHigh[i]=high[rPos];
   }
+  */
 
   //---* Support & Resistance : Data
   //---* Support.Minimum Data ---//
+  sTime0  = iCustom( NULL, 0, "VsVFX_BL", 5, 0 );
+  sPrice0 = iCustom( NULL, 0, "VsVFX_BL", 4, 0 );
+  /* (0.11.3.0)
   st0 = ArrayMinimum( BufLow, MaxLimit-1, 0 );
   s0[0] = BufLow[st0];
   sTime0[0] = BufLowPos[st0];
+  */
+  
 
   //---* Resistance.Maximum Data ---//
+  rTime0  = iCustom( NULL, 0, "VsVFX_BL", 7, 0 );
+  rPrice0 = iCustom( NULL, 0, "VsVFX_BL", 6, 0 ); 
+  /* (0.11.3.0)
   rt0 = ArrayMaximum( BufHigh, MaxLimit-1, 0 );
   r0[0] = BufHigh[rt0];
   // rTime0[1] = BufLowPos[rt0];
   // rTime0[0] = (MaxLimit-1)/2+rTime0[1]-(rTime0[1]-rt0+1);
   rTime0[0] = BufHighPos[rt0];
+  */
 
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
+  // ObjectMove( "BaseSup:0", 0, time[sTime0], sPrice0 );
+  Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
+      + "/" + DoubleToStr( sPrice0, Digits ) + "/" + DoubleToStr( sTime0, 0 ) );
+  /* (0.11.3.0)
   ObjectMove( "BaseSup:0", 0, time[st0], s0[0] );
   Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
     + "/" + DoubleToStr( s0[0], Digits ) + "/" + string(st0) + "/" + DoubleToStr( sTime0[0], 0 ) );
+  */
 
   //---* Resistance.Maximum Moved Draw
+  Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
+    + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
+  /* (0.11.3.0)
   ObjectMove( "BaseRes:0", 0, time[rt0], r0[0] ); 
   // Print( "Time.Res.00=" + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) + "." + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
   Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES ) 
     + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
     // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
+  */
 
 //--- 2. TrendLine : Setup
+/*
   if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up
   {
     // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) + " > rTIme0:" + DoubleToStr( rTime0[0], 0 ) );
@@ -206,6 +234,7 @@ int OnCalculate(const int rates_total,
   {
     // Print( "rTime0:" + DoubleToStr( rTime0[0], 0 ) + " > sTime0:" + DoubleToStr( sTime0[0], 0 ) );
   }
+*/
 
 
 
