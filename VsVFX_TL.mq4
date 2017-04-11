@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.1 Update:2017.04.04"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.2 Update:2017.04.04"
 #property strict
 
 
@@ -40,6 +40,7 @@
 // (0.11.3.0) extern int BLPeriod = 3;
 // (0.11.3.0) input int MaxLimit = 360;
 int cnt;
+int UpTL, DwTL;
 
 //--- 1. Base.TrendLine : Indicator Buffer ---//
 // (0.11.3.0) double BufLow[];
@@ -54,10 +55,17 @@ int cnt;
 extern int SupportTime, ResistanceTime;
 extern double sTime0, sPrice0, SupportPrice;
 extern double rTime0, rPrice0, ResistancePrice;
+extern double vSAR, vSAR01;
+extern double vLow, vLow01;
+extern double vHigh, vHigh01;
+
+//--- SAR_Band : indicator parameters
+extern double SAR_Step = 0.02;
+extern double SAR_Max  = 0.2;
 
 
 //+------------------------------------------------------------------+
-//| Custom indicator initialization function (Ver.0.11.0)            |
+//| Custom indicator initialization function (Ver.0.11.3.1)          |
 //+------------------------------------------------------------------+
 int OnInit(void)
 {
@@ -134,7 +142,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.3)                                        |
+//| FX.TrendLine (Ver.0.11.3.1) -> (Ver.0.11.3.2) vSAR               |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -225,7 +233,91 @@ int OnCalculate(const int rates_total,
   */
 
 //--- 2. TrendLine : Setup
-/*
+  //---* 2-1. Trend Check : iSAR
+  // for( int i=MaxLimit-1; i>=0; i-- )
+  int limit=Bars-IndicatorCounted();
+
+  for( int i=limit-1; i>=0; i-- )
+  {
+    vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
+    vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
+
+    vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
+    vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
+ 
+
+    /* (Default.Setup)
+    if(iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) <= Low[i+1]
+        && iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) < High[i+1]
+        && iSAR( NULL, 0, SAR_Step, SAR_Max, i ) >= High[i+1])
+    {
+      Print( "TL.SAR=Down.TrendLine." );
+    }
+
+    if(iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) >= High[i+1]
+        && iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) > Low[i+1]
+        && iSAR( NULL, 0, SAR_Step, SAR_Max, i ) <= Low[i+1])
+    {
+      Print( "TL.SAR=Up.TrendLine." );
+    }
+    */
+
+
+    /*
+    vSAR = iCustom( NULL, 0, "VsVSAR", 0, i );
+    vSAR01=iCustom( NULL, 0, "VsVSAR", 0, i+1 );
+ 
+    //---* Down.TrendLine : Setup
+    if(vSAR01 <= low[i+1] && vSAR01 < high[i+1] && vSAR >= high[i+1] )
+    {
+      // Print( "TL.SAR=Up.TrendLine." );
+      DwTL = -1;
+    }
+    //---* Up.TrendLine : Setup
+    if(vSAR01 >= high[i+1] && vSAR01 > low[i+1] && vSAR <= low[i+1] )
+    {
+      // Print( "TL.SAR= Donw.TrendLine." );
+      UpTL = 1;
+    }
+    */
+  }
+
+  // (OK) Print( "TL.SAR=" + DoubleToStr( low[0], Digits ) );
+
+  Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) );
+  Print( "TL.SAR01=" + DoubleToStr( vSAR01, 4 ) );
+
+  Print( "TL.Low01=" + DoubleToStr( vLow01, 4 ) );
+  Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) );
+
+  if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
+  {
+    Print( "TL.Trend.Down" );
+  }
+  if( vSAR01 >= vHigh01 && vSAR01 > vLow01 && vSAR <= vLow01 )
+  {
+    Print( "TL.Trend.Up" );
+  }
+
+
+
+
+  /*
+  if ( DwTL == -1)
+  {
+    Print( "TL.vLow=" + DoubleToStr( vLow, 4 ) );  
+  }  
+  if ( UpTL == 1)
+  {
+    Print( "TL.vHigh=" + DoubleToStr( vHigh, 4 ) );  
+  }
+  */
+
+  
+
+
+
+/* (Ver.0.11.3)
   if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up
   {
     // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) + " > rTIme0:" + DoubleToStr( rTime0[0], 0 ) );
