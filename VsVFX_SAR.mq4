@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_SAR - Ver.0.0.1 Update:2017.04.04"
+#property description "VsV.MT4.VsVFX_SAR - Ver.0.0.2 Update:2017.05.29"
 #property strict
 
 
@@ -37,7 +37,7 @@ double BufHigh01[];
 
 
 //+------------------------------------------------------------------+
-//| Custom indicator initialization function (Ver.0.0.3)             |
+//| Custom indicator initialization function (Ver.0.0.1)             |
 //+------------------------------------------------------------------+
 int OnInit(void)
 {
@@ -67,7 +67,7 @@ int OnInit(void)
 
 
 //+------------------------------------------------------------------+
-//| SAR Bands (Ver.0.0.1)                                            |
+//| SAR Bands (Ver.0.0.1) -> (Ver.0.0.2)                             |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -81,7 +81,7 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
 {
 
-//--- HLBand.Calculate.Setup ---//
+//--- SAR_Band.Calculate.Setup ---//
   int limit=Bars-IndicatorCounted();
 
   for(int i=limit-1; i>=0; i--)
@@ -91,7 +91,7 @@ int OnCalculate(const int rates_total,
     BufHigh01[i]=high[i];
   }
 
-//---- OnCalculate done. Return new prev_calculated.
+//---- OnCalculate done. Return rates_total.
   return(rates_total);
 }
 
