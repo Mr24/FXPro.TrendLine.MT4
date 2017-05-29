@@ -21,16 +21,27 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.3 Update:2017.05.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.4 Update:2017.05.30"
 #property strict
 
 
 //--- FX.Indicator : Setup ---//
-//*--- FX_BL.0.11.2.2 : Base.TrendeLine : 1x Base.TrendLine
-//*--- 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
-//*--- 2-2. TrendLine(TL) : TL Cross * HL TrendLine
-//*--- 3-1. EntryPoint & Exitpoint : RSI & Sto & HL
-//*--- 3-2. EntryPoint & ExitPoint : SAR & BB & MA
+//*--- VsVFX_BL.0.11.2.2 : Base.TrendeLine : 1x Base.TrendLine
+//*--- (OLD) 1. Base.TrendeLine(BL) : 3 TrendLine
+
+//*--- VsVFX_SAR.0.0.2 & VsVFX_TL.0.11.3.3 : TL.Up&Down.TrendCheck : Up+1.Down-1
+//*--- 2-2. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
+//*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+//*--- (OLD) 2. TrendLIne(TL) : TL Cross * HL TrendLine
+//*--- (OLD) 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
+//*--- (OLD) 2-2. TrendLine(TL) : TL Cross * HL TrendLine
+
+//*--- 3-1. EntryPoint & ExitPoint : TL Cross * HL TrendLine
+//*--- 3-2. EntryPoint & Exitpoint : Tick * HL
+//*--- 3-3. EntryPoint & Exitpoint : RSI & Sto & MACD
+//*--- 3-4. EntryPoint & ExitPoint : SAR & BB & MA
+//*--- (OLD) 3-1. EntryPoint & Exitpoint : RSI & Sto & HL
+//*--- (OLD) 3-2. EntryPoint & ExitPoint : SAR & BB & MA
 
 //--- FX.Indicator : Initial Setup ---//
 #property indicator_chart_window
@@ -51,7 +62,7 @@ int UpTL, DwTL;
 // (0.11.3.0) double s0[], sTime0[];
 // (0.11.3.0) double r0[], rTime0[];
 
-//--- 2-1. TrendLine : TL & Base.TL : 3x Base.TL & TL
+//--- 2-1. TrendLine : TL.Up&Down.TrendCheck
 extern int SupportTime, ResistanceTime;
 extern double sTime0, sPrice0, SupportPrice;
 extern double rTime0, rPrice0, ResistancePrice;
@@ -63,6 +74,11 @@ extern double tLots;		// TrendCheckLots
 //--- SAR_Band : indicator parameters
 extern double SAR_Step = 0.02;
 extern double SAR_Max  = 0.2;
+
+//--- 2-2. TrendLine : Next.Point
+extern double vMACD, vMACD01;
+extern double vMACDSig, vMACDSig01;
+extern double macdCheck;	// MACD & Signal.Up&Down.Check
 
 
 
@@ -238,16 +254,23 @@ int OnCalculate(const int rates_total,
   //---* 2-1. Trend Check : iSAR
   // for( int i=MaxLimit-1; i>=0; i-- )
   int limit=Bars-IndicatorCounted();
-  tLots = 0.0;
+  // tLots = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
+    //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
     vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
     vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
 
     vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
     vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
- 
+
+	//*--- 2-2. TrendLine : Next.Point
+	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
+	vMACD01	= iCustom( NULL, 0, "VsVMACD", 0, i+1 );
+
+	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );
+	vMACDSig01	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
 
     /* (Default.Setup)
     if(iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) <= Low[i+1]
@@ -285,13 +308,15 @@ int OnCalculate(const int rates_total,
     */
   }
 
+  //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
   // (OK) Print( "TL.SAR=" + DoubleToStr( low[0], Digits ) );
 
-  Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) );
-  Print( "TL.SAR01=" + DoubleToStr( vSAR01, 4 ) );
+  Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
+  		+ " / TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
+  // (OK) Print( "TL.SAR01=" + DoubleToStr( vSAR01, 4 ) );
 
-  Print( "TL.Low01=" + DoubleToStr( vLow01, 4 ) );
-  Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) );
+  // (OK) Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
+  // (OK) Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) );
 
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
   {
@@ -306,6 +331,27 @@ int OnCalculate(const int rates_total,
     Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
   }
 
+  //*--- 2-2. TrendLine : Next.Point
+  // (OK) Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) );
+  // (OK) Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
+  Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
+  	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
+  // (OK) Print( "TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
+
+  if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
+  {
+  	//*--- MACD.Trend.Up
+  	macdCheck = 1;
+  	Print( "TL.MACD.Up=" + DoubleToStr( macdCheck, 0 ) );
+  }
+  if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig01 )
+  {
+  	//*--- MACD.Trend.Down
+  	macdCheck = -1;
+  	Print( "TL.MACD.Down=" + DoubleToStr( macdCheck, 0 ));
+  }
+  Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
+  		+ " / TL.MACDCheck=" + DoubleToStr( macdCheck, 0 )  );
 
   /*
   if ( DwTL == -1)
