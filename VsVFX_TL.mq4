@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.3 Update:2017.05.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.2 Update:2017.04.04"
 #property strict
 
 
@@ -58,12 +58,10 @@ extern double rTime0, rPrice0, ResistancePrice;
 extern double vSAR, vSAR01;
 extern double vLow, vLow01;
 extern double vHigh, vHigh01;
-extern double tLots;		// TrendCheckLots
 
 //--- SAR_Band : indicator parameters
 extern double SAR_Step = 0.02;
 extern double SAR_Max  = 0.2;
-
 
 
 //+------------------------------------------------------------------+
@@ -105,7 +103,7 @@ int OnInit(void)
   ArraySetAsSeries( rTime0, true );
   */
 
-  //--- Output in Char
+  //--- OUtput in Char
   for( cnt=0; cnt<=2; cnt++ )
   {
     //*--- 1. Base.TrendLine : Support.Setup
@@ -209,7 +207,7 @@ int OnCalculate(const int rates_total,
   r0[0] = BufHigh[rt0];
   // rTime0[1] = BufLowPos[rt0];
   // rTime0[0] = (MaxLimit-1)/2+rTime0[1]-(rTime0[1]-rt0+1);
-  rTime0[0] = BufHighPos[rt0];ƒ
+  rTime0[0] = BufHighPos[rt0];
   */
 
   //---* Support & Resistance : Moved Draw
@@ -234,11 +232,10 @@ int OnCalculate(const int rates_total,
     // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
   */
 
-//--- 2. TrendLine : Caluculate.Setup ---//
+//--- 2. TrendLine : Setup
   //---* 2-1. Trend Check : iSAR
   // for( int i=MaxLimit-1; i>=0; i-- )
   int limit=Bars-IndicatorCounted();
-  tLots = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -295,16 +292,14 @@ int OnCalculate(const int rates_total,
 
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
   {
-    //*--- TL.Trend.Down
-    tLots = -1;
-    Print( "TL.Trend.Down.tLots=" + DoubleToStr( tLots, 0 ) );
+    Print( "TL.Trend.Down" );
   }
   if( vSAR01 >= vHigh01 && vSAR01 > vLow01 && vSAR <= vLow01 )
   {
-    //*--- TL.Trend.Up
-    tLots = 1;
-    Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
+    Print( "TL.Trend.Up" );
   }
+
+
 
 
   /*
@@ -317,6 +312,9 @@ int OnCalculate(const int rates_total,
     Print( "TL.vHigh=" + DoubleToStr( vHigh, 4 ) );  
   }
   */
+
+  
+
 
 
 /* (Ver.0.11.3)
