@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.5 Update:2017.05.30"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.6 Update:2017.05.30"
 #property strict
 
 
@@ -81,6 +81,10 @@ extern double vMACD, vMACD01;
 extern double vMACDSig, vMACDSig01;
 extern double mdCheck;		// MACD & Signal.Up&Down.Check
 extern double mdCheckC00;	// MACD & Signal & C-0.Up&Down.Check
+//--- Stochastic & Sto.Center ---//
+extern double vSto, vSto01;
+extern double vStoSig, vStoSig01;
+extern double stoCheck;
 
 
 //+------------------------------------------------------------------+
@@ -261,64 +265,31 @@ int OnCalculate(const int rates_total,
   for( int i=limit-1; i>=0; i-- )
   {
     //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
-    vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
+	vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
     vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
 
     vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
     vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
 
 	//*--- 2-2. TrendLine : Next.Point
+	//*--- MACD ---//
 	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
 	vMACD01	= iCustom( NULL, 0, "VsVMACD", 0, i+1 );
 
 	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );
 	vMACDSig01	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
+	//*--- Stochastic ---//
+	vSto 	= iCustom( NULL, 0, "VsVSto", 0, i );
+	vSto01 	= iCustom( NULL, 0, "VsVSto", 0, i+1 );
 
-    /* (Default.Setup)
-    if(iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) <= Low[i+1]
-        && iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) < High[i+1]
-        && iSAR( NULL, 0, SAR_Step, SAR_Max, i ) >= High[i+1])
-    {
-      Print( "TL.SAR=Down.TrendLine." );
-    }
+	vStoSig 	= iCustom( NULL, 0, "VsVSto", 1, i );
+	vStoSig01	= iCustom( NULL, 0, "VsVSto", 1, i+1 );
 
-    if(iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) >= High[i+1]
-        && iSAR( NULL, 0, SAR_Step, SAR_Max, i+1 ) > Low[i+1]
-        && iSAR( NULL, 0, SAR_Step, SAR_Max, i ) <= Low[i+1])
-    {
-      Print( "TL.SAR=Up.TrendLine." );
-    }
-    */
-
-
-    /*
-    vSAR = iCustom( NULL, 0, "VsVSAR", 0, i );
-    vSAR01=iCustom( NULL, 0, "VsVSAR", 0, i+1 );
- 
-    //---* Down.TrendLine : Setup
-    if(vSAR01 <= low[i+1] && vSAR01 < high[i+1] && vSAR >= high[i+1] )
-    {
-      // Print( "TL.SAR=Up.TrendLine." );
-      DwTL = -1;
-    }
-    //---* Up.TrendLine : Setup
-    if(vSAR01 >= high[i+1] && vSAR01 > low[i+1] && vSAR <= low[i+1] )
-    {
-      // Print( "TL.SAR= Donw.TrendLine." );
-      UpTL = 1;
-    }
-    */
   }
 
   //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
-  // (OK) Print( "TL.SAR=" + DoubleToStr( low[0], Digits ) );
-
   Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
   		+ " / TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
-  // (OK) Print( "TL.SAR01=" + DoubleToStr( vSAR01, 4 ) );
-
-  // (OK) Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
-  // (OK) Print( "TL.High01=" + DoubleToStr( vHigh01, 4 ) );
 
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
   {
@@ -334,55 +305,56 @@ int OnCalculate(const int rates_total,
   }
 
   //*--- 2-2. TrendLine : Next.Point
-  //--- MACD ---//
-  // (OK) Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) );
-  // (OK) Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
+  //*--- MACD ---//
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
   	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
-  // (OK) Print( "TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
 
-  //*--- MACD.Trend.Up
+  //--- MACD.Trend.Up ---//
   if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
   {
-  	// (OK) macdCheck = 1;
   	mdCheck = 1;
-  	// (OK) Print( "TL.MACD.Up=" + DoubleToStr( macdCheck, 0 ) );
   	Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
   }
-  //*--- MACD.Trend.Down
+  //--- MACD.Trend.Down ---//
   if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
   {
-  	// (OK) macdCheck = -1;
   	mdCheck = -1;
-  	// (OK) Print( "TL.MACD.Down=" + DoubleToStr( macdCheck, 0 ));
   	Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
   }
 
-  //*--- MACD.Center.Up
+  //--- MACD.Center.Up ---//
   if( vMACD01 < 0 && vMACD > vMACDSig && vMACD > 0) mdCheckC00 = 1;
-  // Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
-  //*--- MACD.Center.Down
+  //--- MACD.Center.Down ---//
   if( vMACD01 > 0 && vMACD < vMACDSig && vMACD < 0) mdCheckC00 = -1;
   Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
-  
 
-  Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
-  // (OK)		+ " / TL.MACDCheck=" + DoubleToStr( macdCheck, 0 )  );
-  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
-  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 ) );
 
-  /*
-  if ( DwTL == -1)
+  //*--- Stochastic ---//
+  Print( "TL.Sto=" + DoubleToStr( vSto, 4 ) + " / TL.Sto01=" + DoubleToStr( vSto01, 4 ) 
+  	+ " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) + " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
+
+  //--- Stochastic.Trend.Up ---//
+  // if(   vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
+  if( vSto01 <= vStoSig01 && vSto > vStoSig )
   {
-    Print( "TL.vLow=" + DoubleToStr( vLow, 4 ) );  
-  }  
-  if ( UpTL == 1)
-  {
-    Print( "TL.vHigh=" + DoubleToStr( vHigh, 4 ) );  
+  	stoCheck = 1;
+  	Print( "TL.Sto.Up=" + DoubleToStr( stoCheck, 0 ) );
   }
-  */
+  //--- Stochastic.Trend.Down ---//
+  if( vSto01 >= vStoSig01 && vSto < vStoSig )
+  {
+  	stoCheck = -1;
+  	Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
+  }
+
+  //*--- SAR & MACD & Sto & RSI ---//
+  Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
+  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
+  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+  		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 ) );
 
 
+ 
 /* (Ver.0.11.3)
   if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up
   {
