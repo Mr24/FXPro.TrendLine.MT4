@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.4 Update:2017.05.30"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.5 Update:2017.05.30"
 #property strict
 
 
@@ -76,10 +76,11 @@ extern double SAR_Step = 0.02;
 extern double SAR_Max  = 0.2;
 
 //--- 2-2. TrendLine : Next.Point
+//--- MACD & MACD.Center ---//
 extern double vMACD, vMACD01;
 extern double vMACDSig, vMACDSig01;
-extern double macdCheck;	// MACD & Signal.Up&Down.Check
-
+extern double mdCheck;		// MACD & Signal.Up&Down.Check
+extern double mdCheckC00;	// MACD & Signal & C-0.Up&Down.Check
 
 
 //+------------------------------------------------------------------+
@@ -255,6 +256,7 @@ int OnCalculate(const int rates_total,
   // for( int i=MaxLimit-1; i>=0; i-- )
   int limit=Bars-IndicatorCounted();
   // tLots = 0.0;
+  mdCheckC00 = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -332,26 +334,42 @@ int OnCalculate(const int rates_total,
   }
 
   //*--- 2-2. TrendLine : Next.Point
+  //--- MACD ---//
   // (OK) Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) );
   // (OK) Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
   	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
   // (OK) Print( "TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) );
 
+  //*--- MACD.Trend.Up
   if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
   {
-  	//*--- MACD.Trend.Up
-  	macdCheck = 1;
-  	Print( "TL.MACD.Up=" + DoubleToStr( macdCheck, 0 ) );
+  	// (OK) macdCheck = 1;
+  	mdCheck = 1;
+  	// (OK) Print( "TL.MACD.Up=" + DoubleToStr( macdCheck, 0 ) );
+  	Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
   }
-  if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig01 )
+  //*--- MACD.Trend.Down
+  if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
   {
-  	//*--- MACD.Trend.Down
-  	macdCheck = -1;
-  	Print( "TL.MACD.Down=" + DoubleToStr( macdCheck, 0 ));
+  	// (OK) macdCheck = -1;
+  	mdCheck = -1;
+  	// (OK) Print( "TL.MACD.Down=" + DoubleToStr( macdCheck, 0 ));
+  	Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
   }
+
+  //*--- MACD.Center.Up
+  if( vMACD01 < 0 && vMACD > vMACDSig && vMACD > 0) mdCheckC00 = 1;
+  // Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
+  //*--- MACD.Center.Down
+  if( vMACD01 > 0 && vMACD < vMACDSig && vMACD < 0) mdCheckC00 = -1;
+  Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
+  
+
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
-  		+ " / TL.MACDCheck=" + DoubleToStr( macdCheck, 0 )  );
+  // (OK)		+ " / TL.MACDCheck=" + DoubleToStr( macdCheck, 0 )  );
+  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
+  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 ) );
 
   /*
   if ( DwTL == -1)
