@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.6 Update:2017.05.30"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.7 Update:2017.05.31"
 #property strict
 
 
@@ -84,7 +84,8 @@ extern double mdCheckC00;	// MACD & Signal & C-0.Up&Down.Check
 //--- Stochastic & Sto.Center ---//
 extern double vSto, vSto01;
 extern double vStoSig, vStoSig01;
-extern double stoCheck;
+extern double stoCheck;		// Sto & Signal.Up.Down.Check
+extern double stoCheckC00;	// Sto & Singnal & C-50.Up&Down.Check
 
 
 //+------------------------------------------------------------------+
@@ -260,7 +261,8 @@ int OnCalculate(const int rates_total,
   // for( int i=MaxLimit-1; i>=0; i-- )
   int limit=Bars-IndicatorCounted();
   // tLots = 0.0;
-  mdCheckC00 = 0.0;
+  mdCheckC00  = 0.0;
+  stoCheckC00 = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -334,7 +336,6 @@ int OnCalculate(const int rates_total,
   	+ " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) + " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
 
   //--- Stochastic.Trend.Up ---//
-  // if(   vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
   if( vSto01 <= vStoSig01 && vSto > vStoSig )
   {
   	stoCheck = 1;
@@ -347,11 +348,19 @@ int OnCalculate(const int rates_total,
   	Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
   }
 
+  //--- Stochastic.Center.Up ---//
+  if( vSto01 < 50 && vSto > vStoSig && vSto > 50 ) stoCheckC00 = 1;
+  //--- Stochastic.Center.Down ---//
+  if( vSto01 > 50 && vSto < vStoSig && vSto < 50 ) stoCheckC00 = -1;
+  Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
+
+
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
   		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
   		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
-  		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 ) );
+  		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
+  		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 ) );
 
 
  
