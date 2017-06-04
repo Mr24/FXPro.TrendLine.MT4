@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.7 Update:2017.05.31"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.8 Update:2017.06.04"
 #property strict
 
 
@@ -86,6 +86,7 @@ extern double vSto, vSto01;
 extern double vStoSig, vStoSig01;
 extern double stoCheck;		// Sto & Signal.Up.Down.Check
 extern double stoCheckC00;	// Sto & Singnal & C-50.Up&Down.Check
+extern double stoPos;		// Sto & Signal & C-50.CurrentPosition
 
 
 //+------------------------------------------------------------------+
@@ -166,7 +167,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.3.1) -> (Ver.0.11.3.2) vSAR               |
+//| FX.TrendLine (Ver.0.11.3.8) vSAR + vMACD + vSto                  |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -237,8 +238,10 @@ int OnCalculate(const int rates_total,
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
   // ObjectMove( "BaseSup:0", 0, time[sTime0], sPrice0 );
+  /* (0.11.3.7)
   Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
       + "/" + DoubleToStr( sPrice0, Digits ) + "/" + DoubleToStr( sTime0, 0 ) );
+  */
   /* (0.11.3.0)
   ObjectMove( "BaseSup:0", 0, time[st0], s0[0] );
   Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
@@ -246,8 +249,10 @@ int OnCalculate(const int rates_total,
   */
 
   //---* Resistance.Maximum Moved Draw
+  /* (0.11.3.7)
   Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
     + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
+  */
   /* (0.11.3.0)
   ObjectMove( "BaseRes:0", 0, time[rt0], r0[0] ); 
   // Print( "Time.Res.00=" + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) + "." + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
@@ -290,50 +295,56 @@ int OnCalculate(const int rates_total,
   }
 
   //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
+  /* (0.11.3.7)
   Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
   		+ " / TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
+  */
 
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
   {
     //*--- TL.Trend.Down
     tLots = -1;
-    Print( "TL.Trend.Down.tLots=" + DoubleToStr( tLots, 0 ) );
+    // (0.11.3.7) Print( "TL.Trend.Down.tLots=" + DoubleToStr( tLots, 0 ) );
   }
   if( vSAR01 >= vHigh01 && vSAR01 > vLow01 && vSAR <= vLow01 )
   {
     //*--- TL.Trend.Up
     tLots = 1;
-    Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
+    // (0.11.3.7) Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
   }
 
   //*--- 2-2. TrendLine : Next.Point
   //*--- MACD ---//
+  /* (0.11.3.7)
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
   	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
+  */
 
   //--- MACD.Trend.Up ---//
   if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
   {
   	mdCheck = 1;
-  	Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
+  	// (0.11.3.7) Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
   }
   //--- MACD.Trend.Down ---//
   if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
   {
   	mdCheck = -1;
-  	Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
+  	// (0.11.3.7) Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
   }
 
   //--- MACD.Center.Up ---//
   if( vMACD01 < 0 && vMACD > vMACDSig && vMACD > 0) mdCheckC00 = 1;
   //--- MACD.Center.Down ---//
   if( vMACD01 > 0 && vMACD < vMACDSig && vMACD < 0) mdCheckC00 = -1;
-  Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
+  // (0.11.3.7) Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
 
 
   //*--- Stochastic ---//
+  /* (0.11.3.7)
   Print( "TL.Sto=" + DoubleToStr( vSto, 4 ) + " / TL.Sto01=" + DoubleToStr( vSto01, 4 ) 
   	+ " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) + " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
+  */
 
   //--- Stochastic.Trend.Up ---//
   if( vSto01 <= vStoSig01 && vSto > vStoSig )
@@ -354,13 +365,40 @@ int OnCalculate(const int rates_total,
   if( vSto01 > 50 && vSto < vStoSig && vSto < 50 ) stoCheckC00 = -1;
   Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
 
+  //--- Stochastic.Position ---//
+  //*--- Sto.Center.Up ---//
+  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 1;
+  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -1;
+
+  //*--- vSto01 > 50 & vSto > 50 ---//
+  //*--- 50.UpUp
+  if( vSto01 > 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 2;
+  //*--- 50.DownDown
+  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto > 50 && vSto < vStoSig ) stoPos = -2;
+  //*--- 50.xUp
+  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 3;
+  //*--- 50.xDown
+  if( vSto01 > 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto < vStoSig ) stoPos = -3;
+  
+  //*--- vSto01 < 50 & vSto < 50 ---//
+  //*--- -50.UpUP
+  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 4;
+  //*--- -50.DownDown
+  if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -4;
+  //*--- -50.xUp
+  if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 5;
+  //*--- -50.xDown
+  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -5;
+  Print( "TL.StoPos=" + DoubleToStr( stoPos, 0 ) );
+
 
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
-  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
-  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+  //		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
+  //		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
   		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
-  		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 ) );
+  		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
+  		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 ) );
 
 
  
