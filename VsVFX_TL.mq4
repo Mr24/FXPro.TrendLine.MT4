@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.8 Update:2017.06.04"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.9 Update:2017.06.05"
 #property strict
 
 
@@ -77,8 +77,8 @@ extern double SAR_Max  = 0.2;
 
 //--- 2-2. TrendLine : Next.Point
 //--- MACD & MACD.Center ---//
-extern double vMACD, vMACD01;
-extern double vMACDSig, vMACDSig01;
+extern double vMACD, vMACD01, vMACD02;
+extern double vMACDSig, vMACDSig01, vMACDSig02;
 extern double mdCheck;		// MACD & Signal.Up&Down.Check
 extern double mdCheckC00;	// MACD & Signal & C-0.Up&Down.Check
 //--- Stochastic & Sto.Center ---//
@@ -167,7 +167,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.3.8) vSAR + vMACD + vSto                  |
+//| FX.TrendLine (Ver.0.11.3.9) vSAR + vMACD + vSto                  |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -281,10 +281,22 @@ int OnCalculate(const int rates_total,
 	//*--- 2-2. TrendLine : Next.Point
 	//*--- MACD ---//
 	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
+	vMACD01 = iCustom( NULL, 0, "VsVMACD", 0, i+1 );
+	vMACD02	= iCustom( NULL, 0, "VsVMACD", 0, i+2 );
+
+	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );	
+	vMACDSig01 	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
+	vMACDSig02	= iCustom( NULL, 0, "VsVMACD", 1, i+2 );
+
+	/* (Ver.0.11.3.8)
+	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
 	vMACD01	= iCustom( NULL, 0, "VsVMACD", 0, i+1 );
 
 	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );
 	vMACDSig01	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
+	*/
+
+
 	//*--- Stochastic ---//
 	vSto 	= iCustom( NULL, 0, "VsVSto", 0, i );
 	vSto01 	= iCustom( NULL, 0, "VsVSto", 0, i+1 );
@@ -315,22 +327,33 @@ int OnCalculate(const int rates_total,
 
   //*--- 2-2. TrendLine : Next.Point
   //*--- MACD ---//
+  Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) 
+  	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 )
+  	+ " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
+  	+ " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 )
+  	+ " / TL.MACD02=" + DoubleToStr( vMACD02, 4 ) 
+  	+ " / TL.MACDSig02=" + DoubleToStr( vMACDSig02, 4 ) );
+  
   /* (0.11.3.7)
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
   	+ " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
   */
 
   //--- MACD.Trend.Up ---//
-  if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
+  // (Ver.0.11.3.8) if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
+  if( vMACD02 <= vMACDSig02 && vMACD01 > vMACDSig01 )
   {
   	mdCheck = 1;
-  	// (0.11.3.7) Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
+  	// (0.11.3.7) 
+  	Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
   }
   //--- MACD.Trend.Down ---//
-  if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
+  // (Ver.11.3.8) if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
+  if( vMACD02 >= vMACDSig02 && vMACD01 < vMACDSig01 )
   {
   	mdCheck = -1;
-  	// (0.11.3.7) Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
+  	// (0.11.3.7) 
+  	Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
   }
 
   //--- MACD.Center.Up ---//
@@ -381,7 +404,7 @@ int OnCalculate(const int rates_total,
   if( vSto01 > 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto < vStoSig ) stoPos = -3;
   
   //*--- vSto01 < 50 & vSto < 50 ---//
-  //*--- -50.UpUP
+  //*--- -50.UpUp
   if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 4;
   //*--- -50.DownDown
   if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -4;
@@ -394,8 +417,8 @@ int OnCalculate(const int rates_total,
 
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
-  //		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
-  //		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
+  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
   		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
   		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
   		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 ) );
