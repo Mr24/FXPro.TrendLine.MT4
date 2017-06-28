@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.9 Update:2017.06.05"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.10 Update:2017.06.06"
 #property strict
 
 
@@ -87,6 +87,11 @@ extern double vStoSig, vStoSig01;
 extern double stoCheck;		// Sto & Signal.Up.Down.Check
 extern double stoCheckC00;	// Sto & Singnal & C-50.Up&Down.Check
 extern double stoPos;		// Sto & Signal & C-50.CurrentPosition
+//--- RSI & RSI.Center ---//
+extern double vRSI, vRSI01;
+extern double rsiCheck;		// RSI Up.Down.Check
+extern double rsiCheckC50; 	// RSI & C-50.Up&Down.Check
+extern double rsiOver;		// RSI & 30.70.Over.Up&Down.Check
 
 
 //+------------------------------------------------------------------+
@@ -288,21 +293,16 @@ int OnCalculate(const int rates_total,
 	vMACDSig01 	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
 	vMACDSig02	= iCustom( NULL, 0, "VsVMACD", 1, i+2 );
 
-	/* (Ver.0.11.3.8)
-	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
-	vMACD01	= iCustom( NULL, 0, "VsVMACD", 0, i+1 );
-
-	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );
-	vMACDSig01	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
-	*/
-
-
 	//*--- Stochastic ---//
 	vSto 	= iCustom( NULL, 0, "VsVSto", 0, i );
 	vSto01 	= iCustom( NULL, 0, "VsVSto", 0, i+1 );
 
 	vStoSig 	= iCustom( NULL, 0, "VsVSto", 1, i );
 	vStoSig01	= iCustom( NULL, 0, "VsVSto", 1, i+1 );
+
+	//*--- RSI ---//
+	vRSI 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 0 );
+	vRSI01 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 1 );
 
   }
 
@@ -344,16 +344,14 @@ int OnCalculate(const int rates_total,
   if( vMACD02 <= vMACDSig02 && vMACD01 > vMACDSig01 )
   {
   	mdCheck = 1;
-  	// (0.11.3.7) 
-  	Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
+  	// (0.11.3.7) Print( "TL.MACD.Up=" + DoubleToStr( mdCheck, 0 ) );
   }
   //--- MACD.Trend.Down ---//
   // (Ver.11.3.8) if( vMACD01 >= vMACDSig01 && vMACD < vMACDSig )
   if( vMACD02 >= vMACDSig02 && vMACD01 < vMACDSig01 )
   {
   	mdCheck = -1;
-  	// (0.11.3.7) 
-  	Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
+  	// (0.11.3.7) Print( "TL.MACD.Down=" + DoubleToStr( mdCheck, 0 ));
   }
 
   //--- MACD.Center.Up ---//
@@ -365,9 +363,12 @@ int OnCalculate(const int rates_total,
 
   //*--- Stochastic ---//
   /* (0.11.3.7)
-  Print( "TL.Sto=" + DoubleToStr( vSto, 4 ) + " / TL.Sto01=" + DoubleToStr( vSto01, 4 ) 
-  	+ " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) + " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
+  Print( "TL.Sto=" + DoubleToStr( vSto, 4 ) 
+  	+ " / TL.Sto01=" + DoubleToStr( vSto01, 4 ) 
+  	+ " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) 
+  	+ " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
   */
+
 
   //--- Stochastic.Trend.Up ---//
   if( vSto01 <= vStoSig01 && vSto > vStoSig )
@@ -413,6 +414,12 @@ int OnCalculate(const int rates_total,
   //*--- -50.xDown
   if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -5;
   Print( "TL.StoPos=" + DoubleToStr( stoPos, 0 ) );
+
+  //--- RSI.Position ---//
+  Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
+  	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
+
+  	
 
 
   //*--- SAR & MACD & Sto & RSI ---//
