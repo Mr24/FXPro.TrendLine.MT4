@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.10 Update:2017.06.06"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.11 Update:2017.06.28"
 #property strict
 
 
@@ -267,12 +267,13 @@ int OnCalculate(const int rates_total,
   */
 
 //--- 2. TrendLine : Caluculate.Setup ---//
-  //---* 2-1. Trend Check : iSAR
+  //---* 2-1. Trend Check : iSAR & iMACD & iSto & iRSI
   // for( int i=MaxLimit-1; i>=0; i-- )
   int limit=Bars-IndicatorCounted();
   // tLots = 0.0;
   mdCheckC00  = 0.0;
   stoCheckC00 = 0.0;
+  rsiCheckC50 = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -374,20 +375,20 @@ int OnCalculate(const int rates_total,
   if( vSto01 <= vStoSig01 && vSto > vStoSig )
   {
   	stoCheck = 1;
-  	Print( "TL.Sto.Up=" + DoubleToStr( stoCheck, 0 ) );
+  	// Print( "TL.Sto.Up=" + DoubleToStr( stoCheck, 0 ) );
   }
   //--- Stochastic.Trend.Down ---//
   if( vSto01 >= vStoSig01 && vSto < vStoSig )
   {
   	stoCheck = -1;
-  	Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
+  	// Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
   }
 
   //--- Stochastic.Center.Up ---//
   if( vSto01 < 50 && vSto > vStoSig && vSto > 50 ) stoCheckC00 = 1;
   //--- Stochastic.Center.Down ---//
   if( vSto01 > 50 && vSto < vStoSig && vSto < 50 ) stoCheckC00 = -1;
-  Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
+  // Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
 
   //--- Stochastic.Position ---//
   //*--- Sto.Center.Up ---//
@@ -413,13 +414,27 @@ int OnCalculate(const int rates_total,
   if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 5;
   //*--- -50.xDown
   if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -5;
-  Print( "TL.StoPos=" + DoubleToStr( stoPos, 0 ) );
+  // Print( "TL.StoPos=" + DoubleToStr( stoPos, 0 ) );
 
-  //--- RSI.Position ---//
+
+  //*--- RSI ---//
+  /* (Ver.0.11.3.10)
   Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
   	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
+  */
 
-  	
+  //--- RSI.Trend.Up ---//
+  if( vRSI > vRSI01 )
+  {
+  	rsiCheck = 1;
+  	Print( "TL.RSI.Up=" + DoubleToStr( rsiCheck, 0 ) );
+  }
+  //--- Stochastic.Trend.Down ---//
+  if( vRSI < vRSI01 )
+  {
+  	rsiCheck = -1;
+  	Print( "TL.RSI.Down=" + DoubleToStr( rsiCheck, 0 ));
+  }
 
 
   //*--- SAR & MACD & Sto & RSI ---//
@@ -428,7 +443,8 @@ int OnCalculate(const int rates_total,
   		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
   		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
   		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
-  		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 ) );
+  		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
+  		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 ) );
 
 
  
