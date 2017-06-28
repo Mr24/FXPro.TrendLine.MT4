@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.11 Update:2017.06.28"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.12 Update:2017.06.28"
 #property strict
 
 
@@ -273,7 +273,7 @@ int OnCalculate(const int rates_total,
   // tLots = 0.0;
   mdCheckC00  = 0.0;
   stoCheckC00 = 0.0;
-  rsiCheckC50 = 0.0;
+  // rsiCheckC50 = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -418,23 +418,28 @@ int OnCalculate(const int rates_total,
 
 
   //*--- RSI ---//
-  /* (Ver.0.11.3.10)
+  /* (Ver.0.11.3.10) */
   Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
   	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
-  */
 
   //--- RSI.Trend.Up ---//
   if( vRSI > vRSI01 )
   {
   	rsiCheck = 1;
-  	Print( "TL.RSI.Up=" + DoubleToStr( rsiCheck, 0 ) );
+  	//  Print( "TL.RSI.Up=" + DoubleToStr( rsiCheck, 0 ) );
   }
   //--- Stochastic.Trend.Down ---//
   if( vRSI < vRSI01 )
   {
   	rsiCheck = -1;
-  	Print( "TL.RSI.Down=" + DoubleToStr( rsiCheck, 0 ));
+  	// Print( "TL.RSI.Down=" + DoubleToStr( rsiCheck, 0 ));
   }
+
+  //--- RSI.Center.Up ---//
+  if( vRSI01 < 50 && vRSI > vRSI01 && vRSI > 50 ) rsiCheckC50 = 1;
+  //--- RSI.Center.Down ---//
+  if( vRSI01 > 50 && vRSI < vRSI01 && vRSI < 50 ) rsiCheckC50 = -1;
+  Print( "TL.RSI.Center=" + DoubleToStr( rsiCheckC50, 0 ) );
 
 
   //*--- SAR & MACD & Sto & RSI ---//
@@ -444,7 +449,8 @@ int OnCalculate(const int rates_total,
   		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
   		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
   		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
-  		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 ) );
+  		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 )
+  		+ " / TL.RSI.CenterCheck=" + DoubleToStr( rsiCheckC50, 0 ) );
 
 
  
