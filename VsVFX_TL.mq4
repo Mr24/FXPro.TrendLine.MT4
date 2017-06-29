@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.12 Update:2017.06.28"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.13 Update:2017.06.29"
 #property strict
 
 
@@ -85,7 +85,8 @@ extern double mdCheckC00;	// MACD & Signal & C-0.Up&Down.Check
 extern double vSto, vSto01;
 extern double vStoSig, vStoSig01;
 extern double stoCheck;		// Sto & Signal.Up.Down.Check
-extern double stoCheckC00;	// Sto & Singnal & C-50.Up&Down.Check
+// extern double stoCheckC00;	// Sto & Singnal & C-50.Up&Down.Check
+extern double stoCheckC50;	// Sto & Singnal & C-50.Up&Down.Check
 extern double stoPos;		// Sto & Signal & C-50.CurrentPosition
 //--- RSI & RSI.Center ---//
 extern double vRSI, vRSI01;
@@ -172,7 +173,7 @@ void OnDeinit(const int reason)
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine (Ver.0.11.3.9) vSAR + vMACD + vSto                  |
+//| FX.TrendLine (Ver.0.11.3.10) vSAR + vMACD + vSto + vRSI          |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -272,8 +273,9 @@ int OnCalculate(const int rates_total,
   int limit=Bars-IndicatorCounted();
   // tLots = 0.0;
   mdCheckC00  = 0.0;
-  stoCheckC00 = 0.0;
-  // rsiCheckC50 = 0.0;
+  // stoCheckC00 = 0.0;
+  stoCheckC50 = 0.0;
+  rsiCheckC50 = 0.0;
 
   for( int i=limit-1; i>=0; i-- )
   {
@@ -384,14 +386,20 @@ int OnCalculate(const int rates_total,
   	// Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
   }
 
-  //--- Stochastic.Center.Up ---//
-  if( vSto01 < 50 && vSto > vStoSig && vSto > 50 ) stoCheckC00 = 1;
-  //--- Stochastic.Center.Down ---//
-  if( vSto01 > 50 && vSto < vStoSig && vSto < 50 ) stoCheckC00 = -1;
+  //--- Stochastic.Center.x.Up ---//
+  // if( vSto01 < 50 && vSto > 50 && vSto > vStoSig ) stoCheckC00 = 1;
+  if( vSto01 < 50 && vSto > 50 && vSto > vStoSig ) stoCheckC50 = 1;
+  //--- Stochastic.Center.x.Down ---//
+  // if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC00 = -1;
+  if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC50 = -1;
   // Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
+  Print( "TL.Sto.Center.50=" + DoubleToStr( stoCheckC50, 0 )
+  		 + " / TL.Sto01=" + DoubleToStr( vSto01, 4 )
+  		 + " / TL.Sto=" + DoubleToStr( vSto, 4 )
+  		 + " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) );
 
   //--- Stochastic.Position ---//
-  //*--- Sto.Center.Up ---//
+  //*--- Sto.Center.x ---//
   if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 1;
   if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -1;
 
@@ -428,18 +436,20 @@ int OnCalculate(const int rates_total,
   	rsiCheck = 1;
   	//  Print( "TL.RSI.Up=" + DoubleToStr( rsiCheck, 0 ) );
   }
-  //--- Stochastic.Trend.Down ---//
+  //--- RSI.Trend.Down ---//
   if( vRSI < vRSI01 )
   {
   	rsiCheck = -1;
   	// Print( "TL.RSI.Down=" + DoubleToStr( rsiCheck, 0 ));
   }
 
-  //--- RSI.Center.Up ---//
-  if( vRSI01 < 50 && vRSI > vRSI01 && vRSI > 50 ) rsiCheckC50 = 1;
-  //--- RSI.Center.Down ---//
-  if( vRSI01 > 50 && vRSI < vRSI01 && vRSI < 50 ) rsiCheckC50 = -1;
-  Print( "TL.RSI.Center=" + DoubleToStr( rsiCheckC50, 0 ) );
+  //--- RSI.Center.x.Up ---//
+  if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiCheckC50 = 1;
+  //--- RSI.Center.x.Down ---//
+  if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiCheckC50 = -1;
+  Print( "TL.RSI.Center.50=" + DoubleToStr( rsiCheckC50, 0 )
+  		+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
+  		+ " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
 
 
   //*--- SAR & MACD & Sto & RSI ---//
@@ -447,10 +457,11 @@ int OnCalculate(const int rates_total,
   		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
   		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
   		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
-  		+ " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
+  		// + " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
+  		+ " / TL.Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
   		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
   		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 )
-  		+ " / TL.RSI.CenterCheck=" + DoubleToStr( rsiCheckC50, 0 ) );
+  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 ) );
 
 
  
