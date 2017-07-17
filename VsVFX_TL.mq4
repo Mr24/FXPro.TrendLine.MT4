@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.13 Update:2017.06.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.14 Update:2017.07.17"
 #property strict
 
 
@@ -92,7 +92,7 @@ extern double stoPos;		// Sto & Signal & C-50.CurrentPosition
 extern double vRSI, vRSI01;
 extern double rsiCheck;		// RSI Up.Down.Check
 extern double rsiCheckC50; 	// RSI & C-50.Up&Down.Check
-extern double rsiOver;		// RSI & 30.70.Over.Up&Down.Check
+extern double rsiPos;		// RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 
 
 //+------------------------------------------------------------------+
@@ -427,8 +427,8 @@ int OnCalculate(const int rates_total,
 
   //*--- RSI ---//
   /* (Ver.0.11.3.10) */
-  Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
-  	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
+  // Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
+  // 	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
 
   //--- RSI.Trend.Up ---//
   if( vRSI > vRSI01 )
@@ -451,6 +451,15 @@ int OnCalculate(const int rates_total,
   		+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
   		+ " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
 
+  //--- RSI.Position ---//
+  //*--- RSI.Center.x ---//
+  if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiPos = 50;
+  if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiPos = -50;
+  
+  Print( "TL.RSIPos=" + DoubleToStr( rsiPos, 0 )
+  		+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
+  		+ " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
+
 
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
@@ -461,7 +470,8 @@ int OnCalculate(const int rates_total,
   		+ " / TL.Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
   		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
   		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 )
-  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 ) );
+  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
+  		+ " / TL.RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
 
 
  
