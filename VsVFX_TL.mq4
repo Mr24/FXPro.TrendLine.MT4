@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.13 Update:2017.06.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.14 Update:2017.07.17"
 #property strict
 
 
@@ -92,7 +92,7 @@ extern double stoPos;		// Sto & Signal & C-50.CurrentPosition
 extern double vRSI, vRSI01;
 extern double rsiCheck;		// RSI Up.Down.Check
 extern double rsiCheckC50; 	// RSI & C-50.Up&Down.Check
-extern double rsiOver;		// RSI & 30.70.Over.Up&Down.Check
+extern double rsiPos;		// RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 
 
 //+------------------------------------------------------------------+
@@ -427,8 +427,8 @@ int OnCalculate(const int rates_total,
 
   //*--- RSI ---//
   /* (Ver.0.11.3.10) */
-  Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
-  	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
+  // Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
+  // 	+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
 
   //--- RSI.Trend.Up ---//
   if( vRSI > vRSI01 )
@@ -451,6 +451,69 @@ int OnCalculate(const int rates_total,
   		+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
   		+ " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
 
+  //--- RSI.Position ---//
+  //*--- RSI.Center.x ---//
+  if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiPos = 50;
+  if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiPos = -50;
+
+  //*--- RSI.Resistance.Range ---//
+  //*--- 56.UpUp : 50 < vRSI01 <= 60 && 50 < vRSI <= 60 
+  if( vRSI01 > 50 && vRSI01 <= 60 && vRSI > 50 && vRSI <= 60 && vRSI > vRSI01 ) rsiPos = 56;
+  //*--- 67.UpUp : 60 < vRSI01 <= 70 && 60 < vRSI <= 70
+  if( vRSI01 > 60 && vRSI01 <= 70 && vRSI > 60 && vRSI <= 70 && vRSI > vRSI01 ) rsiPos = 67;
+  //*--- 77.UpUp : 70 < vRSI01 <= 100 && 70 < vRSI <= 100
+  if( vRSI01 > 70 && vRSI01 <= 100 && vRSI > 70 && vRSI <= 100 && vRSI > vRSI01 ) rsiPos = 77;
+  //*--- 60.xUp : 50 < vRSI01 <= 60 && 60 < vRSI <= 70 
+  if( vRSI01 > 50 && vRSI01 <= 60 && vRSI > 60 && vRSI <= 70 && vRSI > vRSI01 ) rsiPos = 60;
+  //*--- 70.xUp : 60 < vRSI01 <= 70 && 70 < vRSI <= 100 
+  if( vRSI01 > 60 && vRSI01 <= 70 && vRSI > 70 && vRSI <= 100 && vRSI > vRSI01 ) rsiPos = 70;
+  //*--- 70.xUp : vRSI01 <= 70 && 70 < vRSI <= 100
+  // if( vRSI01 <= 70 && vRSI > 70 && vRSI <= 100 && vRSI > vRSI01 ) rsiPos = 70;
+
+  //*--- -56.DownDown : 50 < vRSI01 <= 60 && 50 < vRSI <= 60 
+  if( vRSI01 > 50 && vRSI01 <= 60 && vRSI > 50 && vRSI <= 60 && vRSI < vRSI01 ) rsiPos = -56;
+  //*--- -67.DownDown : 60 < vRSI01 <= 70 && 60 < vRSI <= 70
+  if( vRSI01 > 60 && vRSI01 <= 70 && vRSI > 60 && vRSI <= 70 && vRSI < vRSI01 ) rsiPos = -67;
+  //*--- -77.DownDown : 70 < vRSI01 <= 100 && 70 < vRSI <= 100
+  if( vRSI01 > 70 && vRSI01 <= 100 && vRSI > 70 && vRSI <= 100 && vRSI < vRSI01 ) rsiPos = -77;
+  //*--- -60.xDown : 60 < vRSI01 <= 70 && 50 < vRSI <= 60 
+  if( vRSI01 > 60 && vRSI01 <= 70 && vRSI > 50 && vRSI <= 60 && vRSI < vRSI01 ) rsiPos = -60;
+  //*--- -70.xDown : 70 < vRSI01 <= 100 && 60 < vRSI <= 70 
+  if( vRSI01 > 70 && vRSI01 <= 100 && vRSI > 60 && vRSI <= 70 && vRSI < vRSI01 ) rsiPos = -70;
+  //*--- -70.xDown : 70 < vRSI01 <= 100 && vRSI <= 70 
+  // if( vRSI01 > 70 && vRSI01 <= 100 && vRSI <= 70 && vRSI < vRSI01 ) rsiPos = -70;
+
+  //*--- RSI.Support.Range ---//
+  //*--- 45.UpUp : 40 <= vRSI01 < 50 && 40 <= vRSI < 50 
+  if( vRSI01 >= 40 && vRSI01 < 50 && vRSI >= 40 && vRSI < 50 && vRSI > vRSI01 ) rsiPos = 45;
+  //*--- 34.UpUp : 30 <= vRSI01 < 40 && 30 <= vRSI < 40 
+  if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 30 && vRSI < 40 && vRSI > vRSI01 ) rsiPos = 34;
+  //*--- 33.UpUp : 0 <= vRSI01 < 30 && 0 <= vRSI < 30 
+  if( vRSI01 >= 0 && vRSI01 < 30 && vRSI >= 0 && vRSI < 30 && vRSI > vRSI01 ) rsiPos = 33;
+  //*--- 40.xUp : 30 <= vRSI01 < 40 && 40 <= vRSI < 50 
+  if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 40 && vRSI < 50 && vRSI > vRSI01 ) rsiPos = 40;
+  //*--- 30.xUp : 0 <= vRSI01 < 30 && 30 <= vRSI < 40 
+  if( vRSI01 >= 0 && vRSI01 < 30 && vRSI >= 30 && vRSI < 40 && vRSI > vRSI01 ) rsiPos = 30;
+  //*--- 30.xUp : 0 <= vRSI01 < 30 && 30 <= vRSI 
+  // if( vRSI01 >= 0 && vRSI01 < 30 && vRSI >= 30 && vRSI > vRSI01 ) rsiPos = 30;
+  
+  //*--- -45.DownDown : 40 <= vRSI01 < 50 && 40 <= vRSI < 50 
+  if( vRSI01 >= 40 && vRSI01 < 50 && vRSI >= 40 && vRSI < 50 && vRSI < vRSI01 ) rsiPos = -45;
+  //*--- -34.DownDown : 30 <= vRSI01 < 40 && 30 <= vRSI < 40 
+  if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 30 && vRSI < 40 && vRSI < vRSI01 ) rsiPos = -34;
+  //*--- -33.DownDown : 0 <= vRSI01 < 30 && 0 <= vRSI < 30 
+  if( vRSI01 >= 0 && vRSI01 < 30 && vRSI >= 0 && vRSI < 30 && vRSI < vRSI01 ) rsiPos = -33;
+  //*--- -40.xDown : 40 <= vRSI01 < 50 && 30 <= vRSI < 40 
+  if( vRSI01 >= 40 && vRSI01 < 50 && vRSI >= 30 && vRSI < 40 && vRSI < vRSI01 ) rsiPos = -40;
+  //*--- -30.xDown : 30 <= vRSI01 < 40 && 0 <= vRSI < 30 
+  if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 0 && vRSI < 30 && vRSI < vRSI01 ) rsiPos = -30;
+  //*--- -30.xDown : 30 <= vRSI01 < 40 && 0 <= vRSI 
+  // if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 0 && vRSI < vRSI01 ) rsiPos = -30;
+  
+  Print( "TL.RSIPos=" + DoubleToStr( rsiPos, 0 )
+  		+ " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
+  		+ " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
+
 
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
@@ -461,7 +524,8 @@ int OnCalculate(const int rates_total,
   		+ " / TL.Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
   		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
   		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 )
-  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 ) );
+  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
+  		+ " / TL.RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
 
 
  
