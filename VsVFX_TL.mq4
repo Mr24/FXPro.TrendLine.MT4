@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.14 Update:2017.07.17"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.15 Update:2017.09.01"
 #property strict
 
 
@@ -30,7 +30,7 @@
 //*--- (OLD) 1. Base.TrendeLine(BL) : 3 TrendLine
 
 //*--- VsVFX_SAR.0.0.2 & VsVFX_TL.0.11.3.3 : TL.Up&Down.TrendCheck : Up+1.Down-1
-//*--- 2-2. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
+//*--- VsVFx_TL.0.11.3.14. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
 //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //*--- (OLD) 2. TrendLIne(TL) : TL Cross * HL TrendLine
 //*--- (OLD) 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
@@ -279,12 +279,12 @@ int OnCalculate(const int rates_total,
 
   for( int i=limit-1; i>=0; i-- )
   {
-    //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
-	vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
-    vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
+  //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
+  vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
+  vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
 
-    vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
-    vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
+  vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
+  vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
 
 	//*--- 2-2. TrendLine : Next.Point
 	//*--- MACD ---//
@@ -516,16 +516,16 @@ int OnCalculate(const int rates_total,
 
 
   //*--- SAR & MACD & Sto & RSI ---//
-  Print( "TL.tLots=" + DoubleToStr( tLots, 0 ) 
-  		+ " / TL.MACDCheck=" + DoubleToStr( mdCheck, 0 )
-  		+ " / TL.MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
-  		+ " / TL.StoCheck=" + DoubleToStr( stoCheck, 0 )
+  Print( "tLots=" + DoubleToStr( tLots, 0 ) 
+  		+ " / MACDCheck=" + DoubleToStr( mdCheck, 0 )
+  		+ " / MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+  		+ " / StoCheck=" + DoubleToStr( stoCheck, 0 )
   		// + " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
-  		+ " / TL.Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
-  		+ " / TL.Sto.Position=" + DoubleToStr( stoPos, 0 )
-  		+ " / TL.RSICheck=" + DoubleToStr( rsiCheck, 0 )
-  		+ " / TL.RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
-  		+ " / TL.RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
+  		+ " / Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
+  		+ " / Sto.Position=" + DoubleToStr( stoPos, 0 )
+  		+ " / RSICheck=" + DoubleToStr( rsiCheck, 0 )
+  		+ " / RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
+  		+ " / RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
 
 
  
