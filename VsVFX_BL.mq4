@@ -13,7 +13,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2.2 Update:2017.03.31"
+#property description "VsV.MT4.VsVFX_BL - Ver.0.11.2.3 Update:2017.10.11"
 #property strict
 
 
@@ -81,6 +81,7 @@ int OnInit(void)
 
 
   //--- OUtput in Char
+  /*
   for( cnt=0; cnt<=2; cnt++ )
   {
     //*--- 1. Base.TrendLine : Support.Setup
@@ -92,6 +93,7 @@ int OnInit(void)
     ObjectSet( "BaseRes:" + string(cnt), OBJPROP_COLOR, Goldenrod );
     ObjectSet( "BaseRes:" + string(cnt), OBJPROP_STYLE, STYLE_DOT ); 
   }
+  */
 
 
 //--- initialization done
@@ -105,6 +107,7 @@ int OnInit(void)
 //+------------------------------------------------------------------+
 //| Custom Deindicator initialization function (Ver.0.11.0)          |
 //+------------------------------------------------------------------+
+/*
 void OnDeinit(const int reason)
 {
 //--- 1. Base.TrendLine : ToDo & Code Here
@@ -114,6 +117,7 @@ void OnDeinit(const int reason)
   }
 
 }
+*/
 
 //***//
 
@@ -184,6 +188,7 @@ int OnCalculate(const int rates_total,
 
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
+  /*
   ObjectMove( "BaseSup:0", 0, time[st0], s0[0] );
   Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
     + "/" + DoubleToStr( s0[0], Digits ) + "/" + string(st0) + "/" + DoubleToStr( sTime0[0], 0 ) );
@@ -196,6 +201,7 @@ int OnCalculate(const int rates_total,
     // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
     // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
     + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
+  */
 
 
 //---- OnCalculate done. Return new prev_calculated.

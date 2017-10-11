@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.15 Update:2017.09.01"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.17 Update:2017.10.11"
 #property strict
 
 
@@ -94,12 +94,29 @@ extern double rsiCheck;		// RSI Up.Down.Check
 extern double rsiCheckC50; 	// RSI & C-50.Up&Down.Check
 extern double rsiPos;		// RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 
+//--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+//--- Trend Buffer ---//
+double BufTLUp[];
+double BufTLDown[];
+
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function (Ver.0.11.3.1)          |
 //+------------------------------------------------------------------+
 int OnInit(void)
 {
+//--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+  //--- 2 addtional Buffer used for Conting.
+  IndicatorBuffers( 2 );
+
+  //*--- Trend.Up Buffer
+  SetIndexBuffer( 0, BufTLUp );
+  ArraySetAsSeries( BufTLUp, true );
+  //*-- Trend.Down Buffer
+  SetIndexBuffer( 1, BufTLDown );
+  ArraySetAsSeries( BufTLDown, true );
+
+
 //--- 1. Base.TrendLine.Initial.Setup ---//
   //--- 2 Additional Buffer used for Conting.
   /* (0.11.3.0)
@@ -141,10 +158,32 @@ int OnInit(void)
     ObjectCreate( "BaseSup:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
     ObjectSet( "BaseSup:" + string(cnt), OBJPROP_COLOR, Goldenrod );
 
+    //*--- 2-3. TrendLine(TL) : Trend.Up.Setup
+    if(cnt<2)
+    {
+      ObjectCreate( "Trend.Up:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
+      ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Red );
+      ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+    }
+
+
     //*--- 1. Base.TrendLine : Resistance.Setup
     ObjectCreate( "BaseRes:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
     ObjectSet( "BaseRes:" + string(cnt), OBJPROP_COLOR, Goldenrod ); 
     ObjectSet( "BaseRes:" + string(cnt), OBJPROP_STYLE, STYLE_DOT ); 
+
+    //*--- 2-3. TrendLine(TL) : Trend.Down.Setup
+    if(cnt<2)
+    {
+      ObjectCreate( "Trend.Down:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
+      ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Blue );
+      ObjectSet( "Trend.Down" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+    }
+
+    //--- Default.Trend.Setup
+    //*--- 2-3. TrendLine(TL) : New.TrendLine
+    ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Red );
+    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Blue );
   }
 
 
@@ -165,6 +204,10 @@ void OnDeinit(const int reason)
   for( cnt=0; cnt<=2; cnt++ ){
     ObjectDelete( "BaseSup:" + string(cnt) );
     ObjectDelete( "BaseRes:" + string(cnt) );
+
+    //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+    ObjectDelete( "Trend.Up:" + string(cnt) );
+    ObjectDelete( "Trend.Down:" + string(cnt) );
   }
 
 }
@@ -243,7 +286,13 @@ int OnCalculate(const int rates_total,
 
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
-  // ObjectMove( "BaseSup:0", 0, time[sTime0], sPrice0 );
+  ObjectMove( "BaseSup:0", 0, time[(int)sTime0], sPrice0 );
+  Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." 
+    + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( sPrice0, Digits )
+    // + "/" + string(sTime0) 
+    + "/" + DoubleToStr( sTime0, 0 ) );
+
   /* (0.11.3.7)
   Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
       + "/" + DoubleToStr( sPrice0, Digits ) + "/" + DoubleToStr( sTime0, 0 ) );
@@ -255,6 +304,13 @@ int OnCalculate(const int rates_total,
   */
 
   //---* Resistance.Maximum Moved Draw
+  ObjectMove( "BaseRes:0", 0, time[(int)rTime0], rPrice0 );
+  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." 
+    + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( rPrice0, Digits ) 
+    // + "/" + string(rTime0) 
+    + "/" + DoubleToStr( rTime0, 0 ) );
+
   /* (0.11.3.7)
   Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
     + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
@@ -527,12 +583,20 @@ int OnCalculate(const int rates_total,
   		+ " / RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
   		+ " / RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
 
+  //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+  //*--- Base.TL ---//
+  if( sTime0 < rTime0 ) Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( sPrice0, Digits ));
+  if( sTime0 > rTime0 ) Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( rPrice0, Digits ) );
+
+
 
  
 /* (Ver.0.11.3)
   if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up
   {
-    // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) + " > rTIme0:" + DoubleToStr( rTime0[0], 0 ) );
+    // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) + " > rTime0:" + DoubleToStr( rTime0[0], 0 ) );
   }
   if(rTime0[0]>sTime0[0])   // Res.Price(Left) : Trend.Down
   {
