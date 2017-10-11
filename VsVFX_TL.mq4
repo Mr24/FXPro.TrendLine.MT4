@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.16 Update:2017.10.11"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.17 Update:2017.10.12"
 #property strict
 
 
@@ -183,7 +183,9 @@ int OnInit(void)
     //--- Default.Trend.Setup
     //*--- 2-3. TrendLine(TL) : New.TrendLine
     ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Red );
+    ObjectSet( "Trend.Up:0", OBJPROP_STYLE, STYLE_SOLID );
     ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Blue );
+    ObjectSet( "Trend.Down:0", OBJPROP_STYLE, STYLE_SOLID );
   }
 
 
@@ -585,12 +587,30 @@ int OnCalculate(const int rates_total,
 
   //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //*--- Base.TL ---//
-  if( sTime0 < rTime0 ) Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
-    + "/" + DoubleToStr( sPrice0, Digits ));
-  if( sTime0 > rTime0 ) Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
-    + "/" + DoubleToStr( rPrice0, Digits ) );
+  //*--- sTime0 < rTime0
+  if( sTime0 < rTime0 )
+  {
+    //*--- Test.Trend.Down(OK) ---*//
+    /*
+    ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
+    ObjectMove( "Trend.Down:0", 1, time[(int)sTime0], sPrice0 );  
+    */
 
+    Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( sPrice0, Digits )); 
+  }
+  //*--- rTime0 < sTime0
+  if( sTime0 > rTime0 )
+  {
+    //*--- Test.Trend.Up(OK) ---*//
+    /*
+    ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
+    ObjectMove( "Trend.Up:0", 1, time[(int)rTime0], rPrice0 );    
+    */
 
+    Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
+    + "/" + DoubleToStr( rPrice0, Digits ) );  
+  }
 
  
 /* (Ver.0.11.3)
