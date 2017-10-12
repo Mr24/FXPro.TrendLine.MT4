@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.18 Update:2017.10.12"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.19 Update:2017.10.12"
 #property strict
 
 
@@ -586,44 +586,69 @@ int OnCalculate(const int rates_total,
   		+ " / RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
 
   //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
-  //*--- Base.TL ---//
+  //*--- Base.TL (Ver.0.11.3.18) ---//
   //*--- sTime0 < rTime0
+  /*
   if( sTime0 < rTime0 )
   {
-    //*--- Trend.Down ---*//
+    //*--- Trend.Down ---
     if( mdCheck > 0 && mdCheckC00 >0 )
     {
       double NowBid = Bid;
       Print( "NowBid=" + DoubleToStr(NowBid, Digits) );
     }
 
-    //*--- Test.Trend.Down(OK) ---*//
+    //*--- Test.Trend.Down(OK) ---
     /*
     ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
     ObjectMove( "Trend.Down:0", 1, time[(int)sTime0], sPrice0 );  
     */
 
+    /*
     Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_SECONDS ) 
     + "/" + DoubleToStr( sPrice0, Digits )
     + "/" + "NowBid=" + DoubleToStr( Bid, Digits )
     + "/" + TimeToStr( TimeCurrent(), TIME_SECONDS ) ); 
   }
+  */
   //*--- rTime0 < sTime0
+  /*
   if( sTime0 > rTime0 )
   {
-    //*--- Test.Trend.Up(OK) ---*//
+    //*--- Test.Trend.Up(OK) ---
     /*
     ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
     ObjectMove( "Trend.Up:0", 1, time[(int)rTime0], rPrice0 );    
     */
 
+    /*
     Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_SECONDS ) 
     + "/" + DoubleToStr( rPrice0, Digits )
     + "/" + "NowBid=" + DoubleToStr( Bid, Digits )
     + "/" + TimeToStr( TimeCurrent(), TIME_SECONDS ) );  
   }
+  */
 
-  //*--- Trend.Up & Trend.Down ---//
+  //*--- Trend.Up ---//
+  if( mdCheck > 0 && mdCheckC00 > 0 )
+  {
+    ObjectMove( "Trend.Up:1", 0, time[(int)sTime0], sPrice0 );
+    ObjectMove( "Trend.Up:1", 1, TimeCurrent(), Bid );
+
+    Print( "TU1=" + TimeToStr( TimeCurrent(), TIME_SECONDS )
+      + "/" + DoubleToStr( Bid, Digits ));
+  }
+
+  //*--- Trend.Down ---//
+  if( mdCheck < 0 && mdCheckC00 < 0 )
+  {
+    ObjectMove( "Trend.Down:1", 0, time[(int)rTime0], rPrice0 );
+    ObjectMove( "Trend.Down:1", 1, TimeCurrent(), Bid );
+
+    Print( "TD1=" + TimeToStr( TimeCurrent(), TIME_SECONDS )
+      + "/" + DoubleToStr( Bid, Digits ));
+  }
+
 
 
 
