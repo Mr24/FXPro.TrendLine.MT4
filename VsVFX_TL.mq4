@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.17 Update:2017.10.12"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.18 Update:2017.10.12"
 #property strict
 
 
@@ -338,32 +338,32 @@ int OnCalculate(const int rates_total,
   for( int i=limit-1; i>=0; i-- )
   {
   //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
-  vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
-  vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
+    vSAR    = iCustom( NULL, 0, "VsVFX_SAR", 0, i );
+    vSAR01  = iCustom( NULL, 0, "VsVFX_SAR", 0, i+1 );
 
-  vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
-  vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
+    vLow01  = iCustom( NULL, 0, "VsVFX_SAR", 1, i+1 );
+    vHigh01 = iCustom( NULL, 0, "VsVFX_SAR", 2, i+1 );
 
 	//*--- 2-2. TrendLine : Next.Point
-	//*--- MACD ---//
-	vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
-	vMACD01 = iCustom( NULL, 0, "VsVMACD", 0, i+1 );
-	vMACD02	= iCustom( NULL, 0, "VsVMACD", 0, i+2 );
+    //*--- MACD ---//
+    vMACD 	= iCustom( NULL, 0, "VsVMACD", 0, i );
+    vMACD01 = iCustom( NULL, 0, "VsVMACD", 0, i+1 );
+    vMACD02	= iCustom( NULL, 0, "VsVMACD", 0, i+2 );
 
-	vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );	
-	vMACDSig01 	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
-	vMACDSig02	= iCustom( NULL, 0, "VsVMACD", 1, i+2 );
+    vMACDSig 	= iCustom( NULL, 0, "VsVMACD", 1, i );	
+    vMACDSig01 	= iCustom( NULL, 0, "VsVMACD", 1, i+1 );
+    vMACDSig02	= iCustom( NULL, 0, "VsVMACD", 1, i+2 );
 
-	//*--- Stochastic ---//
-	vSto 	= iCustom( NULL, 0, "VsVSto", 0, i );
-	vSto01 	= iCustom( NULL, 0, "VsVSto", 0, i+1 );
+    //*--- Stochastic ---//
+    vSto 	= iCustom( NULL, 0, "VsVSto", 0, i );
+    vSto01 	= iCustom( NULL, 0, "VsVSto", 0, i+1 );
 
-	vStoSig 	= iCustom( NULL, 0, "VsVSto", 1, i );
-	vStoSig01	= iCustom( NULL, 0, "VsVSto", 1, i+1 );
+    vStoSig 	= iCustom( NULL, 0, "VsVSto", 1, i );
+	  vStoSig01	= iCustom( NULL, 0, "VsVSto", 1, i+1 );
 
-	//*--- RSI ---//
-	vRSI 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 0 );
-	vRSI01 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 1 );
+	 //*--- RSI ---//
+    vRSI 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 0 );
+	  vRSI01 	= iCustom( NULL, 0, "VsVFX_RSI", 0, 1 );
 
   }
 
@@ -590,14 +590,23 @@ int OnCalculate(const int rates_total,
   //*--- sTime0 < rTime0
   if( sTime0 < rTime0 )
   {
+    //*--- Trend.Down ---*//
+    if( mdCheck > 0 && mdCheckC00 >0 )
+    {
+      double NowBid = Bid;
+      Print( "NowBid=" + DoubleToStr(NowBid, Digits) );
+    }
+
     //*--- Test.Trend.Down(OK) ---*//
     /*
     ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
     ObjectMove( "Trend.Down:0", 1, time[(int)sTime0], sPrice0 );  
     */
 
-    Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
-    + "/" + DoubleToStr( sPrice0, Digits )); 
+    Print( "sTime0=" + TimeToStr( time[(int)sTime0], TIME_SECONDS ) 
+    + "/" + DoubleToStr( sPrice0, Digits )
+    + "/" + "NowBid=" + DoubleToStr( Bid, Digits )
+    + "/" + TimeToStr( TimeCurrent(), TIME_SECONDS ) ); 
   }
   //*--- rTime0 < sTime0
   if( sTime0 > rTime0 )
@@ -608,9 +617,15 @@ int OnCalculate(const int rates_total,
     ObjectMove( "Trend.Up:0", 1, time[(int)rTime0], rPrice0 );    
     */
 
-    Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
-    + "/" + DoubleToStr( rPrice0, Digits ) );  
+    Print( "rTime0=" + TimeToStr( time[(int)rTime0], TIME_SECONDS ) 
+    + "/" + DoubleToStr( rPrice0, Digits )
+    + "/" + "NowBid=" + DoubleToStr( Bid, Digits )
+    + "/" + TimeToStr( TimeCurrent(), TIME_SECONDS ) );  
   }
+
+  //*--- Trend.Up & Trend.Down ---//
+
+
 
  
 /* (Ver.0.11.3)
