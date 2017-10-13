@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.19 Update:2017.10.12"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.20 Update:2017.10.13"
 #property strict
 
 
@@ -177,7 +177,7 @@ int OnInit(void)
     {
       ObjectCreate( "Trend.Down:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Blue );
-      ObjectSet( "Trend.Down" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+      ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
     }
 
     //--- Default.Trend.Setup
