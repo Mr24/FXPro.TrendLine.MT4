@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.20 Update:2017.10.13"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.21 Update:2017.10.14"
 #property strict
 
 
@@ -164,6 +164,10 @@ int OnInit(void)
       ObjectCreate( "Trend.Up:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
       ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Red );
       ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+
+      ObjectCreate( "EnPos:" + string(cnt), OBJ_ARROW_CHECK, 0, 0, 0 );
+      ObjectSet( "EnPos:" + string(cnt), OBJPROP_COLOR, Goldenrod );
+      ObjectSet( "EnPos:" + string(cnt), OBJPROP_WIDTH, 2 );
     }
 
 
@@ -178,6 +182,10 @@ int OnInit(void)
       ObjectCreate( "Trend.Down:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Blue );
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+
+      ObjectCreate( "ExPos:" + string(cnt), OBJ_ARROW_STOP, 0, 0, 0 );
+      ObjectSet( "ExPos:" + string(cnt), OBJPROP_COLOR, Red );
+      ObjectSet( "ExPos:" + string(cnt), OBJPROP_WIDTH, 2 );
     }
 
     //--- Default.Trend.Setup
@@ -632,6 +640,8 @@ int OnCalculate(const int rates_total,
   //*--- Trend.Up ---//
   if( mdCheck > 0 && mdCheckC00 > 0 )
   {
+    ObjectMove( "EnPos:1", 0, TimeCurrent(), Bid );
+
     ObjectMove( "Trend.Up:1", 0, time[(int)sTime0], sPrice0 );
     ObjectMove( "Trend.Up:1", 1, TimeCurrent(), Bid );
 
@@ -642,6 +652,8 @@ int OnCalculate(const int rates_total,
   //*--- Trend.Down ---//
   if( mdCheck < 0 && mdCheckC00 < 0 )
   {
+    ObjectMove( "ExPos:1", 0, TimeCurrent(), Bid );
+
     ObjectMove( "Trend.Down:1", 0, time[(int)rTime0], rPrice0 );
     ObjectMove( "Trend.Down:1", 1, TimeCurrent(), Bid );
 
