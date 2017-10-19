@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.21 Update:2017.10.14"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.22 Update:2017.10.18"
 #property strict
 
 
@@ -52,6 +52,7 @@
 // (0.11.3.0) input int MaxLimit = 360;
 int cnt;
 int UpTL, DwTL;
+int BaseTL;
 
 //--- 1. Base.TrendLine : Indicator Buffer ---//
 // (0.11.3.0) double BufLow[];
@@ -165,9 +166,13 @@ int OnInit(void)
       ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Red );
       ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
 
-      ObjectCreate( "EnPos:" + string(cnt), OBJ_ARROW_CHECK, 0, 0, 0 );
-      ObjectSet( "EnPos:" + string(cnt), OBJPROP_COLOR, Goldenrod );
+      ObjectCreate( "EnPos:" + string(cnt), OBJ_ARROW_BUY, 0, 0, 0 );
+      ObjectSet( "EnPos:" + string(cnt), OBJPROP_COLOR, Blue );
       ObjectSet( "EnPos:" + string(cnt), OBJPROP_WIDTH, 2 );
+
+      // (Ver.0.11.3.21)
+      // ObjectCreate( "EnPos:" + string(cnt), OBJ_ARROW_CHECK, 0, 0, 0 );
+      // ObjectSet( "EnPos:" + string(cnt), OBJPROP_COLOR, Goldenrod );
     }
 
 
@@ -183,9 +188,12 @@ int OnInit(void)
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Blue );
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
 
-      ObjectCreate( "ExPos:" + string(cnt), OBJ_ARROW_STOP, 0, 0, 0 );
+      ObjectCreate( "ExPos:" + string(cnt), OBJ_ARROW_SELL, 0, 0, 0 );
       ObjectSet( "ExPos:" + string(cnt), OBJPROP_COLOR, Red );
       ObjectSet( "ExPos:" + string(cnt), OBJPROP_WIDTH, 2 );
+
+      // (Ver.0.11.3.21)
+      // ObjectCreate( "ExPos:" + string(cnt), OBJ_ARROW_STOP, 0, 0, 0 );
     }
 
     //--- Default.Trend.Setup
@@ -637,7 +645,26 @@ int OnCalculate(const int rates_total,
   }
   */
 
+  //*--- Base.TrendLine ---//
+  if( rTime0 > sTime0 ) BaseTL = 1;
+  if( sTime0 > rTime0 ) BaseTL = -1;
+  // (Test) BufTLUp[0] = 112.21;
+  // (Test) BufTLDown[0] = 111.08;
+  if( BufTLUp[0] > 2100000000 )   UpTL = 0; else UpTL = 1;
+  if( BufTLDown[0] > 2100000000 ) DwTL = 0; else DwTL = -1;
+
+  Print( "BaseTL=" + string(BaseTL) 
+      + "/" + "UpTL=" + string(UpTL) 
+      + "/" + "DwTL=" + string(DwTL)
+      + "/" + "BufTLUp[0]=" + DoubleToStr( BufTLUp[0], Digits )
+      + "/" + "BufTLDown[0]=" + DoubleToStr( BufTLDown[0], Digits ) );
+
+
   //*--- Trend.Up ---//
+
+  // Print( "BufTLUp=" + string(cnt) + "/" + DoubleToStr( BufTLUp[0], Digits ) );
+
+  /* (Ver.0.11.3.21)
   if( mdCheck > 0 && mdCheckC00 > 0 )
   {
     ObjectMove( "EnPos:1", 0, TimeCurrent(), Bid );
@@ -648,8 +675,13 @@ int OnCalculate(const int rates_total,
     Print( "TU1=" + TimeToStr( TimeCurrent(), TIME_SECONDS )
       + "/" + DoubleToStr( Bid, Digits ));
   }
+  */
 
   //*--- Trend.Down ---//
+
+  // Print( "BufTLDown=" + string(cnt) + "/" + DoubleToStr( BufTLDown[0], Digits ) );
+
+  /* (Ver.0.11.3.21)
   if( mdCheck < 0 && mdCheckC00 < 0 )
   {
     ObjectMove( "ExPos:1", 0, TimeCurrent(), Bid );
@@ -660,6 +692,7 @@ int OnCalculate(const int rates_total,
     Print( "TD1=" + TimeToStr( TimeCurrent(), TIME_SECONDS )
       + "/" + DoubleToStr( Bid, Digits ));
   }
+  */
 
 
 
