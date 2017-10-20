@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.23 Update:2017.10.19"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.24 Update:2017.10.20"
 #property strict
 
 
@@ -100,15 +100,17 @@ extern double rsiPos;   // RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 double BufTLUp[];
 double BufTLDown[];
 //--- Entry & Exit ---//
-int EnCheck, ExCheck;
+extern int EnCheck, ExCheck;
 double BufEnTime[], BufEnPrice[];
 double BufExTime[], BufExPrice[];
 
-double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
-double ExUpTime01, ExUpPrice01, ExUpTime02, ExUpPrice02;
+extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
+extern double ExUpTime01, ExUpPrice01, ExUpTime02, ExUpPrice02;
 
-double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
-double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
+extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
+extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
+//--- HL ---//
+extern double HLMid, HLMid01;
 
 
 
@@ -188,7 +190,7 @@ int OnInit(void)
     if(cnt<2)
     {
       ObjectCreate( "Trend.Up:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
-      ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Red );
+      ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_COLOR, Blue );
       ObjectSet( "Trend.Up:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
 
       ObjectCreate( "EnPos:" + string(cnt), OBJ_ARROW_BUY, 0, 0, 0 );
@@ -210,7 +212,7 @@ int OnInit(void)
     if(cnt<2)
     {
       ObjectCreate( "Trend.Down:" + string(cnt), OBJ_TREND, 0, 0, 0, 0, 0 );
-      ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Blue );
+      ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_COLOR, Red );
       ObjectSet( "Trend.Down:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
 
       ObjectCreate( "ExPos:" + string(cnt), OBJ_ARROW_SELL, 0, 0, 0 );
@@ -223,9 +225,9 @@ int OnInit(void)
 
     //--- Default.Trend.Setup
     //*--- 2-3. TrendLine(TL) : New.TrendLine
-    ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Red );
+    ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Blue );
     ObjectSet( "Trend.Up:0", OBJPROP_STYLE, STYLE_SOLID );
-    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Blue );
+    ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Red );
     ObjectSet( "Trend.Down:0", OBJPROP_STYLE, STYLE_SOLID );
   }
 
@@ -689,6 +691,10 @@ int OnCalculate(const int rates_total,
   );
   */
 
+  //*--- HL.Mid Data ---//
+  HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
+  HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
+
   //*--- Trend.Up ---//
   switch( UpTL )
   {
@@ -699,7 +705,13 @@ int OnCalculate(const int rates_total,
         switch( EnCheck )
         {
           case 0:
-            if( mdCheck == 1 && mdCheckC00 == 1)
+            //*--- HL.TLUp & HL.MidUp
+            // if( tLots == 1 && Ask >= HLMid01 && Ask >= HLMid )
+            if( tLots == 1 && Ask >= HLMid01  )
+            // if( tLots == 1 && Bid >= HLMid01 )
+
+            //*--- MACD.TLUp & MACD.CenterUp ---// 
+            // if( mdCheck == 1 && mdCheckC00 == 1)
             {
               // (OK) BufEnTime[0] = (int)TimeCurrent();
               // (OK) BufEnPrice[0] = Ask;
@@ -750,7 +762,12 @@ int OnCalculate(const int rates_total,
         switch( EnCheck )
         {
           case 0:
-            if( mdCheck == -1 && mdCheckC00 == -1)
+            //*--- HL.TLDw & HL.MidDw
+            // if( tLots == -1 && Bid >= HLMid01 && Bid >= HLMid )
+            if( tLots == -1 && Bid <= HLMid01 )
+
+            //*--- MACD.TLDw & MACD.CenterDw ---// 
+            // if( mdCheck == -1 && mdCheckC00 == -1)
             {
               // (OK) BufEnTime[0] = (int)TimeCurrent();
               // (OK) BufEnPrice[0] = Bid;
@@ -784,6 +801,8 @@ int OnCalculate(const int rates_total,
         + "/" + "dTL=" + string(DwTL)
         + "/" + "ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
         + "/" + "EP=" + DoubleToStr( EnUpPrice01, Digits )
+        + "/" + DoubleToStr( HLMid01, Digits ) 
+        + ":" + DoubleToStr( HLMid, Digits )
     );
   }
   else if( EnDwPrice01 > 0 && EnUpPrice01 == 0 )
@@ -793,13 +812,19 @@ int OnCalculate(const int rates_total,
         + "/" + "dTL=" + string(DwTL)
         + "/" + "ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
         + "/" + "EP=" + DoubleToStr( EnDwPrice01, Digits )
+        + "/" + DoubleToStr( HLMid01, Digits ) 
+        + ":" + DoubleToStr( HLMid, Digits )
+
     );
   }
   else
   {
     Print( "bTL=" + string(BaseTL) 
+        + "/" + "EnC=" + string(EnCheck) 
         + "/" + "uTL=" + string(UpTL) 
         + "/" + "dTL=" + string(DwTL)
+        + "/" + DoubleToStr( HLMid01, Digits ) 
+        + ":" + DoubleToStr( HLMid, Digits )
     );
   }
   
