@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.24 Update:2017.10.20"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.25 Update:2017.10.21"
 #property strict
 
 
@@ -618,8 +618,10 @@ int OnCalculate(const int rates_total,
 
   //*--- SAR & MACD & Sto & RSI ---//
   Print( "tLots=" + DoubleToStr( tLots, 0 ) 
-      + " / MACDCheck=" + DoubleToStr( mdCheck, 0 )
-      + " / MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+      // + " / MACDCheck=" + DoubleToStr( mdCheck, 0 )
+      + " / MACD.C=" + DoubleToStr( mdCheck, 0 )
+      // + " / MACD.CenterCheck=" + DoubleToStr( mdCheckC00, 0 )
+      + " / MACD.CC=" + DoubleToStr( mdCheckC00, 0 )
       + " / StoCheck=" + DoubleToStr( stoCheck, 0 )
       // + " / TL.Sto.CenterCheck=" + DoubleToStr( stoCheckC00, 0 )
       + " / Sto.Center50Check=" + DoubleToStr( stoCheckC50, 0 )
@@ -706,8 +708,9 @@ int OnCalculate(const int rates_total,
         {
           case 0:
             //*--- HL.TLUp & HL.MidUp
+            if( tLots == 1 && Ask >= HLMid01 && mdCheck == 1 && mdCheckC00 == 1 )
             // if( tLots == 1 && Ask >= HLMid01 && Ask >= HLMid )
-            if( tLots == 1 && Ask >= HLMid01  )
+            // (Ver.0.11.3.24 OK) if( tLots == 1 && Ask >= HLMid01  )
             // if( tLots == 1 && Bid >= HLMid01 )
 
             //*--- MACD.TLUp & MACD.CenterUp ---// 
@@ -763,8 +766,9 @@ int OnCalculate(const int rates_total,
         {
           case 0:
             //*--- HL.TLDw & HL.MidDw
+            if( tLots == -1 && Bid <= HLMid01 && mdCheck == -1 && mdCheckC00 == -1 )
             // if( tLots == -1 && Bid >= HLMid01 && Bid >= HLMid )
-            if( tLots == -1 && Bid <= HLMid01 )
+            // (Ver.11.3.24 OK) if( tLots == -1 && Bid <= HLMid01 )
 
             //*--- MACD.TLDw & MACD.CenterDw ---// 
             // if( mdCheck == -1 && mdCheckC00 == -1)
