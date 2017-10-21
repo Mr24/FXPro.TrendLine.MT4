@@ -21,7 +21,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.25 Update:2017.10.21"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.26 Update:2017.10.21"
 #property strict
 
 
@@ -431,12 +431,22 @@ int OnCalculate(const int rates_total,
 
   //*--- 2-2. TrendLine : Next.Point
   //*--- MACD ---//
+  Print( "MD=" + DoubleToStr( vMACD, 4 ) 
+      + "/MD.Sig=" + DoubleToStr( vMACDSig, 4 )
+      + "/MD.01=" + DoubleToStr( vMACD01, 4 ) 
+      + "/MD.Sig01=" + DoubleToStr( vMACDSig01, 4 )
+      + "/MD.02=" + DoubleToStr( vMACD02, 4 ) 
+      + "/MD.Sig02=" + DoubleToStr( vMACDSig02, 4 )
+  );
+  
+  /* (0.11.3.25)
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) 
       + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 )
       + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
       + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 )
       + " / TL.MACD02=" + DoubleToStr( vMACD02, 4 ) 
       + " / TL.MACDSig02=" + DoubleToStr( vMACDSig02, 4 ) );
+  */
   
   /* (0.11.3.7)
   Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
@@ -493,11 +503,20 @@ int OnCalculate(const int rates_total,
   //--- Stochastic.Center.x.Down ---//
   // if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC00 = -1;
   if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC50 = -1;
+
+  Print( "Sto.01=" + DoubleToStr( vSto01, 4 )
+      + "/Sto=" + DoubleToStr( vSto, 4 )
+      + "/Sto.Sig=" + DoubleToStr( vStoSig, 4 )
+  );
+
+  /* (0.11.3.25)
   // Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
   Print( "TL.Sto.Center.50=" + DoubleToStr( stoCheckC50, 0 )
       + " / TL.Sto01=" + DoubleToStr( vSto01, 4 )
       + " / TL.Sto=" + DoubleToStr( vSto, 4 )
       + " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) );
+  */
+
 
   //--- Stochastic.Position ---//
   //*--- Sto.Center.x ---//
@@ -548,9 +567,11 @@ int OnCalculate(const int rates_total,
   if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiCheckC50 = 1;
   //--- RSI.Center.x.Down ---//
   if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiCheckC50 = -1;
+  /* (0.11.3.25)
   Print( "TL.RSI.Center.50=" + DoubleToStr( rsiCheckC50, 0 )
       + " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
       + " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
+  */
 
   //--- RSI.Position ---//
   //*--- RSI.Center.x ---//
@@ -611,12 +632,28 @@ int OnCalculate(const int rates_total,
   //*--- -30.xDown : 30 <= vRSI01 < 40 && 0 <= vRSI 
   // if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 0 && vRSI < vRSI01 ) rsiPos = -30;
   
+  /* (0.11.3.25)
   Print( "TL.RSIPos=" + DoubleToStr( rsiPos, 0 )
       + " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
       + " / TL.RSI=" + DoubleToStr( vRSI, 4 ) );
+  */
 
 
   //*--- SAR & MACD & Sto & RSI ---//
+  Print( "tLots=" + DoubleToStr( tLots, 0 )
+      + "/MACD.C=" + DoubleToStr( mdCheck, 0 )
+      + "/MACD.CC=" + DoubleToStr( mdCheckC00, 0 )
+  );
+  Print( "Sto.C=" + DoubleToStr( stoCheck, 0 )
+      + "/Sto.CC=" + DoubleToStr( stoCheckC50, 0 )
+      + "/Sto.Pos=" + DoubleToStr( stoPos, 0 )
+  );
+  Print( "RSI.C=" + DoubleToStr( rsiCheck, 0 )
+      + "/RSI.CC=" + DoubleToStr( rsiCheckC50, 0 )
+      + "/RSI.Pos=" + DoubleToStr( rsiPos, 0 )
+  );
+
+  /* (0.11.3.25)
   Print( "tLots=" + DoubleToStr( tLots, 0 ) 
       // + " / MACDCheck=" + DoubleToStr( mdCheck, 0 )
       + " / MACD.C=" + DoubleToStr( mdCheck, 0 )
@@ -629,6 +666,7 @@ int OnCalculate(const int rates_total,
       + " / RSICheck=" + DoubleToStr( rsiCheck, 0 )
       + " / RSI.Center50Check=" + DoubleToStr( rsiCheckC50, 0 )
       + " / RSI.Position=" + DoubleToStr( rsiPos, 0 ) );
+  */
 
   //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //*--- Base.TL (Ver.0.11.3.18) ---//
@@ -697,17 +735,17 @@ int OnCalculate(const int rates_total,
   HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
   HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
 
-  //*--- Trend.Up ---//
+  //*--- Trend.Up.Entry ---//
   switch( UpTL )
   {
-    //*--- None.TrendLine ---//
+    //*--- ALL.None.TrendLine ---//
     case 0:
       if( DwTL == 0 && BaseTL == 1 )
       {
         switch( EnCheck )
         {
           case 0:
-            //*--- HL.TLUp & HL.MidUp
+            //*--- HL.TLUp & HL.MidUp & MACD.TLUp & MACD.Center.Up
             if( tLots == 1 && Ask >= HLMid01 && mdCheck == 1 && mdCheckC00 == 1 )
             // if( tLots == 1 && Ask >= HLMid01 && Ask >= HLMid )
             // (Ver.0.11.3.24 OK) if( tLots == 1 && Ask >= HLMid01  )
@@ -737,6 +775,29 @@ int OnCalculate(const int rates_total,
         }
       }  
     break;
+
+    //*--- Trend.Up.Exit ---//
+    case 1:
+      if( DwTL == 0 && BaseTL == 1 )
+      {
+        switch( ExCheck )
+        {
+          case 0:
+            if( tLots == -1 && Bid <= HLMid01 && stoPos < 0 && rsiPos == -50 )
+            {
+              ExUpTime01 = (int)TimeCurrent();
+              ExUpPrice01 = Bid;
+
+              ExCheck = 1;
+
+              //*--- Exit Arrow ---//
+              ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
+
+            }
+          break;
+        }
+      }
+    break;
       
   }
 
@@ -755,17 +816,18 @@ int OnCalculate(const int rates_total,
   }
   */
 
-  //*--- Trend.Down ---//
+
+  //*--- Trend.Down.Entry ---//
   switch( DwTL )
   {
-    //*--- None.TrendLine ---//
+    //*--- ALL.None.TrendLine ---//
     case 0:
       if( UpTL == 0 && BaseTL == -1 )
       {
         switch( EnCheck )
         {
           case 0:
-            //*--- HL.TLDw & HL.MidDw
+            //*--- HL.TLDw & HL.MidDw & MACD.TLDw & MACD.Center.Dw
             if( tLots == -1 && Bid <= HLMid01 && mdCheck == -1 && mdCheckC00 == -1 )
             // if( tLots == -1 && Bid >= HLMid01 && Bid >= HLMid )
             // (Ver.11.3.24 OK) if( tLots == -1 && Bid <= HLMid01 )
@@ -795,10 +857,55 @@ int OnCalculate(const int rates_total,
         }
       }  
     break;
+
+    //*--- Trend.Dw.Exit ---//
+    case 1:
+      if( UpTL == 0 && BaseTL == -1 )
+      {
+        switch( ExCheck )
+        {
+          case 0:
+            if( tLots == 1 && Ask >= HLMid01 && stoPos > 0 && rsiPos == 50 )
+            {
+              ExDwTime01 = (int)TimeCurrent();
+              ExDwPrice01 = Ask;
+
+              ExCheck = 1;
+
+              //*--- Exit Arrow ---//
+              ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+
+            }
+          break;
+        }
+      }
+    break;
       
   }
 
-  if( EnUpPrice01 > 0 && EnDwPrice01 == 0 )
+  if( ExUpPrice01 > 0 && ExDwPrice01 == 0 )
+  {
+    Print( "bTL=" + string(BaseTL)
+        + "/" + "uTL=" + string(UpTL)
+        + "/" + "dTL=" + string(DwTL)
+        + "/" + "XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
+        + "/" + "XP=" + DoubleToStr( ExUpPrice01, Digits )
+        + "/" + DoubleToStr( HLMid01, Digits )
+        + "/" + DoubleToStr( HLMid, Digits )
+    );
+  }
+  else if( ExDwPrice01 > 0 && ExUpPrice01 == 0 )
+  {
+    Print( "bTL=" + string(BaseTL)
+        + "/" + "uTL=" + string(UpTL)
+        + "/" + "dTL=" + string(DwTL)
+        + "/" + "XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+        + "/" + "XP=" + DoubleToStr( ExDwPrice01, Digits )
+        + "/" + DoubleToStr( HLMid01, Digits )
+        + "/" + DoubleToStr( HLMid, Digits )
+    );
+  }
+  else if( EnUpPrice01 > 0 && EnDwPrice01 == 0 )
   {
     Print( "bTL=" + string(BaseTL) 
         + "/" + "uTL=" + string(UpTL) 
@@ -818,7 +925,6 @@ int OnCalculate(const int rates_total,
         + "/" + "EP=" + DoubleToStr( EnDwPrice01, Digits )
         + "/" + DoubleToStr( HLMid01, Digits ) 
         + ":" + DoubleToStr( HLMid, Digits )
-
     );
   }
   else
