@@ -10,6 +10,7 @@
 //|                                                ExportLevels2.mq4 |
 //|                      Copyright © 2006, MetaQuotes Software Corp. |
 //|                                        http://www.metaquotes.net |
+//|                            https://www.mql5.com/ja/articles/1440 |
 //+------------------------------------------------------------------+
 //|                                       Ind-WSO+WRO+Trend Line.mq4 |
 //|                    Copyright © 2004, http://www.expert-mt4.nm.ru |
@@ -21,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.26 Update:2017.10.21"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.27 Update:2017.10.22"
 #property strict
 
 
@@ -31,7 +32,9 @@
 
 //*--- VsVFX_SAR.0.0.2 & VsVFX_TL.0.11.3.3 : TL.Up&Down.TrendCheck : Up+1.Down-1
 //*--- VsVFx_TL.0.11.3.14. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
-//*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+//*--- VsVFX_TL.0.11.3.26. TrendLine(TL) : TL & Base.TL : TL * HL * SAR & MACD * Sto & RSI
+//*--- 2-3-2. TrendLine(TL) : TL & Base.TL : 3x Base.TL
+//*--- (Modify) 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //*--- (OLD) 2. TrendLIne(TL) : TL Cross * HL TrendLine
 //*--- (OLD) 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
 //*--- (OLD) 2-2. TrendLine(TL) : TL Cross * HL TrendLine
@@ -49,7 +52,8 @@
 
 //--- 1. Base.TrendLine : Indicator Setup ---//
 // (0.11.3.0) extern int BLPeriod = 3;
-// (0.11.3.0) input int MaxLimit = 360;
+// (0.11.3.0) -> (0.11.3.27) 
+input int MaxLimit = 360;
 int cnt;
 int UpTL, DwTL;
 int BaseTL;
@@ -65,8 +69,11 @@ int BaseTL;
 
 //--- 2-1. TrendLine : TL.Up&Down.TrendCheck
 extern int SupportTime, ResistanceTime;
-extern double sTime0, sPrice0, SupportPrice;
-extern double rTime0, rPrice0, ResistancePrice;
+extern double sTime0, sPrice0;
+extern double rTime0, rPrice0;
+double rTime01[], rPrice01[];
+// (0.11.3.26) extern double sTime0, sPrice0, SupportPrice;
+// (0.11.3.26) extern double rTime0, rPrice0, ResistancePrice;
 extern double vSAR, vSAR01;
 extern double vLow, vLow01;
 extern double vHigh, vHigh01;
@@ -101,8 +108,11 @@ double BufTLUp[];
 double BufTLDown[];
 //--- Entry & Exit ---//
 extern int EnCheck, ExCheck;
-double BufEnTime[], BufEnPrice[];
-double BufExTime[], BufExPrice[];
+// (0.11.3.26) double BufEnTime[], BufEnPrice[];
+// double BufHigh01[],BufLow01[];
+// double BufHighPos01[], BufHighPos02[];
+double BufExTime01[], BufExPrice01[];
+double BufExTime02[], BufExPrice02[];
 
 extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
 extern double ExUpTime01, ExUpPrice01, ExUpTime02, ExUpPrice02;
@@ -111,6 +121,11 @@ extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
 extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
 //--- HL ---//
 extern double HLMid, HLMid01;
+//--- Base.TL x 3 ---//
+extern double High01, HighPos01;
+extern double SxPos01, xPos01;
+extern int rPos01, rt01;
+
 
 
 
@@ -121,28 +136,45 @@ int OnInit(void)
 {
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //--- 6 addtional Buffer used for Conting.
-  IndicatorBuffers( 6 );
+  IndicatorBuffers( 2 );
 
   //*--- Trend.Up Buffer
-  SetIndexBuffer( 0, BufTLUp );
-  ArraySetAsSeries( BufTLUp, true );
+  // (0.11.3.26) SetIndexBuffer( 0, BufTLUp );
+  // (0.11.3.26) ArraySetAsSeries( BufTLUp, true );
   //*-- Trend.Down Buffer
-  SetIndexBuffer( 1, BufTLDown );
-  ArraySetAsSeries( BufTLDown, true );
+  // (0.11.3.26) SetIndexBuffer( 1, BufTLDown );
+  // (0.11.3.26) ArraySetAsSeries( BufTLDown, true );
 
   //*--- Entry Time Buffer
-  SetIndexBuffer( 2, BufEnTime );
-  ArraySetAsSeries( BufEnTime, true );
+  // (0.11.3.26) SetIndexBuffer( 2, BufEnTime );
+  // (0.11.3.26) ArraySetAsSeries( BufEnTime, true );
   //*--- Entry Price Buffer
-  SetIndexBuffer( 3, BufEnPrice );
-  ArraySetAsSeries( BufEnPrice, true );
+  // (0.11.3.26) SetIndexBuffer( 3, BufEnPrice );
+  // (0.11.3.26) ArraySetAsSeries( BufEnPrice, true );
+
+  //*--- High Buffer
+  // SetIndexBuffer( 0, BufHigh01 );
+  // ArraySetAsSeries( BufHigh01, true );
+  // SetIndexBuffer( 1, BufHighPos01 );
+  // ArraySetAsSeries( BufHighPos01, true );
+
+  SetIndexBuffer( 0, rTime01 );
+  ArraySetAsSeries( rTime01, true );
+  SetIndexBuffer( 1, rPrice01 );
+  ArraySetAsSeries( rPrice01, true );  
 
   //*--- Exit Time Buffer
-  SetIndexBuffer( 4, BufExTime );
-  ArraySetAsSeries( BufExTime, true );
+  // (Test:0.11.3.27) SetIndexBuffer( 1, BufExTime01 );
+  // (Test:0.11.3.27) ArraySetAsSeries( BufExTime01, true );
+  // (Test:0.11.3.27) SetIndexBuffer( 2, BufExTime02 );
+  // (Test:0.11.3.27) ArraySetAsSeries( BufExTime02, true );
+
+
+  // (0.11.3.26) SetIndexBuffer( 4, BufExTime );
+  // (0.11.3.26) ArraySetAsSeries( BufExTime, true );
   //*--- Exit Price Buffer
-  SetIndexBuffer( 5, BufExPrice );
-  ArraySetAsSeries( BufExPrice, true );
+  // (0.11.3.26) SetIndexBuffer( 5, BufExPrice );
+  // (0.11.3.26) ArraySetAsSeries( BufExPrice, true );
 
 
 //--- 1. Base.TrendLine.Initial.Setup ---//
@@ -287,9 +319,12 @@ int OnCalculate(const int rates_total,
   // (0.11.3.0) int rt0=0, rPos;
   /// double  r0=0.00,  r1=0.00,  r2=0.00;
   ///  double  rTime0;
+  // int rt01=0, rPos01;
 
-  // (0.11.3.15) ArraySetAsSeries( low, true );
-  // (0.11.3.15) ArraySetAsSeries( high, true );
+  // (0.11.3.15) -> (0.11.3.27)
+  ArraySetAsSeries( low, true );
+  // (0.11.3.15) -> (0.11.3.27)
+  ArraySetAsSeries( high, true );
 
   //---* Support & Resistance : Calculate ---//
   /* (0.11.3.0)
@@ -332,11 +367,21 @@ int OnCalculate(const int rates_total,
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
   ObjectMove( "BaseSup:0", 0, time[(int)sTime0], sPrice0 );
+
+  Print( "B.Sup:0=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." 
+      + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
+      + "/" + DoubleToStr( sPrice0, Digits )
+      // + "/" + string(sTime0) 
+      + "/" + DoubleToStr( sTime0, 0 )
+  );
+
+  /* (0.11.3.26)
   Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." 
       + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
       + "/" + DoubleToStr( sPrice0, Digits )
       // + "/" + string(sTime0) 
       + "/" + DoubleToStr( sTime0, 0 ) );
+  */
 
   /* (0.11.3.7)
   Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
@@ -350,11 +395,21 @@ int OnCalculate(const int rates_total,
 
   //---* Resistance.Maximum Moved Draw
   ObjectMove( "BaseRes:0", 0, time[(int)rTime0], rPrice0 );
+
+  Print( "B.Res:0=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." 
+      + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
+      + "/" + DoubleToStr( rPrice0, Digits ) 
+      // + "/" + string(rTime0) 
+      + "/" + DoubleToStr( rTime0, 0 )
+  );
+
+  /* (0.11.3.26)
   Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." 
       + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
       + "/" + DoubleToStr( rPrice0, Digits ) 
       // + "/" + string(rTime0) 
       + "/" + DoubleToStr( rTime0, 0 ) );
+  */
 
   /* (0.11.3.7)
   Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
@@ -735,6 +790,10 @@ int OnCalculate(const int rates_total,
   HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
   HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
 
+  //*--- BL.High & BL.Low Data ---//
+  // BufHigh01[0] = iCustom( NULL, 0, "VsVFX_BL", 2, 0 );
+  // int rPos01;
+
   //*--- Trend.Up.Entry ---//
   switch( UpTL )
   {
@@ -790,10 +849,42 @@ int OnCalculate(const int rates_total,
 
               ExCheck = 1;
 
+              //*--- B.Res:01.Position ---//
+              // BufExTime01[0] = 0;
+              // SxPos01 = (int)sTime0;
+              SxPos01 = sTime0;
+
+              /* (0.11.3.27)
+              xPos01 = SxPos01 - (int)sTime0;
+
+              // for( int i=(int)sTime0; i>=xPos01; i-- )
+              for( int i=SxPos01; i>=xPos01; i--)
+              {
+                // BufHighPos01[i] = ArrayMaximum( high, (int)sTime0, i );
+                BufHighPos01[i] = ArrayMaximum( high, SxPos01, i );
+                rPos01 = (int)BufHighPos01[i];
+                BufHigh01[i] = high[rPos01];
+              }
+
+              rt01 = ArrayMaximum( BufHigh01, SxPos01, 0 );
+              rTime01 = BufHighPos01[0];
+              rPrice01 = BufHigh01[0];
+              */
+
+              // (NG) rTime01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );
+
+              // ObjectMove( "BaseRes:1", 0, (int)rTime01, rPrice01 );
+              
+
+
               //*--- Exit Arrow ---//
               ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
             }
+          break;
+
+          case 1:
+            // (NG) if( rPos01 > 0 ) rPos01 += 1;
           break;
         }
       }
@@ -881,6 +972,197 @@ int OnCalculate(const int rates_total,
       }
     break;
       
+  }
+
+
+  //--- Base.Res.01 ---//
+  /*
+  xPos01 = SxPos01 - (int)sTime0;
+
+  // for( int i=(int)sTime0; i>=xPos01; i-- )
+  for( int i = SxPos01; i >= xPos01; i-- )
+  {
+    // BufHighPos01[i] = ArrayMaximum( high, (int)sTime0, i);
+    BufHighPos01[i] = ArrayMaximum( high, SxPos01, i);
+    rPos01 = (int)BufHighPos01[i];
+    BufHigh01[i] = high[rPos01];
+  }
+
+  rt01 = ArrayMaximum( BufHigh01, SxPos01, xPos01 );
+  rTime01 = BufHigh01[0];
+  rPrice01 = BufHigh01[0];
+  */
+
+  
+  //--- Output : Print ---//
+  Print( "EnC=" + string(EnCheck)
+      + "/ExC=" + string(ExCheck)
+  );
+
+  // rt01 = 0;
+  // int rt01=0, rPos01;
+  switch( ExCheck )
+  {
+    case 1:
+      if( ExUpPrice01 > 0 && ExDwPrice01 == 0 )
+      {
+        // xPos01 = SxPos01 - (int)sTime0;  // xPos01 = -1
+        // xPos01 = (int)sTime0 - SxPos01;
+        xPos01 = sTime0 - SxPos01;
+
+        /*
+        for( int i = (int)sTime0; i >= (int)xPos01; i-- ){
+          BufHighPos01[i] = ArrayMaximum( high, ((int)sTime0)/2, i ); // (OK)
+          // BufHighPos01[i] = ArrayMaximum( high, ((int)sTime0-1)/2, i );
+          rPos01 = (int)BufHighPos01[i];
+          BufHigh01[i] = high[rPos01];
+        }
+
+        rt01 = ArrayMaximum( BufHigh01, (int)sTime0-1, 0 );
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );
+        rPrice01[0] = BufHigh01[rt01];
+        rTime01[0] = BufHighPos01[rt01];
+        */
+
+        /*
+        // (OK) 
+        for( int i=MaxLimit-1; i>=0; i-- )
+        // (NG) for( int i=(int)sTime0; i>=(int)xPos01; i-- )
+        // (NG) for( int i=(int)sTime0; i>=0; i-- )
+        // (NG) for( int i = (int)xPos01; i <= (int)sTime0; i++ )
+        {
+          // (OK) 
+          BufHighPos01[i] = ArrayMaximum( high, (MaxLimit-1)/2, i );
+          // BufHighPos01[i] = ArrayMaximum( high, ((int)sTime0-(int)xPos01)/2, i );
+
+          rPos01 = (int)BufHighPos01[i];
+          BufHigh01[i] = high[rPos01];
+        }
+        */
+
+        /*
+        // (OK) 
+        rt01 = ArrayMaximum( BufHigh01, MaxLimit-1, 0 );
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );
+        rPrice01[0] = BufHigh01[rt01];
+        rTime01[0] = BufHigh01[rt01];
+        */
+
+        HighPos01 = ArrayMaximum( high, ((int)sTime0-(int)xPos01)/2, (int)xPos01 );
+        rPos01 = (int)HighPos01;
+        High01 = high[rPos01];
+        // (OK) BufHighPos01[0] = ArrayMaximum( high, ((int)sTime0-1)/2, (int)xPos01 );
+        // (NG) BufHighPos01[0] = ArrayMaximum( high, (MaxLimit-1)/2, (int)xPos01 );
+        // (OK) rPos01 = (int)BufHighPos01[0];
+        // (OK) BufHigh01[0] = high[rPos01];
+
+        
+        rTime01[0] = HighPos01;
+        rPrice01[0] = High01;
+        // (OK) rt01 = ArrayMaximum( BufHigh01, (int)sTime0-1, 0 );
+        // rTime01[0] = BufHighPos01[rt01];
+        // rPrice01[0] = BufHigh01[rt01];
+        // (OK) rTime01[0] = BufHighPos01;
+        // (OK) rPrice01[0] = BufHigh01;
+        // rTime01[0] = BufHighPos01[rt01];
+        // rPrice01[0] = BufHigh01[rt01];
+
+        ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+
+
+        Print( "sT0=" + DoubleToStr( sTime0, 0 )
+            + "/SxP01=" + DoubleToStr( SxPos01, 0 )
+            + "/xP01=" + DoubleToStr( xPos01, 0 )
+            + "/rPos01=" + DoubleToStr( rPos01, 0 )
+            // (OK) + "/rt01=" + DoubleToStr( rt01, 0 )
+            // (OK) 
+            + "/xPos01=" + TimeToStr( time[(int)xPos01], TIME_MINUTES )
+            // (OK) 
+            + "/SxPos01=" + TimeToStr( time[(int)SxPos01], TIME_MINUTES )
+
+            + "/rTime01=" + DoubleToStr( (int)rTime01[0], 0 )
+            + "/rTime01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+            + "/" + DoubleToStr( rPrice01[0], Digits )
+            // + "/BH01=" + DoubleToStr( (int)BufHigh01[rt01], Digits )
+            // + "/sTime=" + TimeToStr( time[(int)sTime0], TIME_MINUTES )
+            // + "/High01=" + DoubleToStr( BufHigh01[0], Digits )
+            // + "/rTime01=" + DoubleToStr( BufHighPos01[0], Digits )
+            // + "/rTime01=" + TimeToStr( time[(int)rTime01[0]], TIME_DATE )
+            // + "." + TimeToStr( (int)rTime01[0], TIME_SECONDS )
+            // + "." + TimeToStr( time[BufHighPos01[0]], TIME_SECONDS )
+        );
+
+
+
+        // for( int i = SxPos01; i >= xPos01; i-- )
+        /*
+        for( int i=(int)sTime0; i>=xPos01; i-- )
+        {
+          // BufHighPos01[i] = ArrayMaximum( high, (SxPos01-1)/2, i);
+          BufHighPos01[i] = ArrayMaximum( high, ((int)sTime0)/2, i);
+          // BufHighPos01[i] = ArrayMaximum( high, SxPos01, i);
+          // BufHighPos01[i] = ArrayMaximum( high, (int)sTime0, i);
+          rPos01 = (int)BufHighPos01[i];
+          BufHigh01[i] = high[rPos01];
+        }
+        */
+
+        /*
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0 - xPos01, xPos01 );
+        rt01 = ArrayMaximum( BufHigh01, (int)sTime0, xPos01 );
+        // rt01 = ArrayMaximum( BufHigh01, SxPos01, 0 );
+        // rTime01 = BufHighPos01[rt01];
+        // rPrice01 = BufHigh01[rt01];
+        rTime01[0] = BufHighPos01[0];
+        rPrice01[0] = BufHigh01[0];
+        */
+
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );  // xPos01=1,=0
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, xPos01 );  // xPos01=0,=17
+        // rt01 = ArrayMaximum( BufHigh01, SxPos01, 0 );     // xPos01=0,=17
+        // rt01 = ArrayMaximum( BufHigh01, SxPos01, xPos01 );   // xPos01=0,=17
+        // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, xPos01 );
+        // rTime01 = BufHighPos01[rt01];
+        // rPrice01 = BufHigh01[rt01];
+
+        // rTime01 = BufHighPos01[0];
+        // rPrice01 = BufHigh01[0];
+
+        // ObjectMove( "BaseRes:1", 0, (int)rTime01, rPrice01 );
+
+        /*
+        // Print( "ExUpTime01=" + DoubleToStr( (int)ExUpTime01, 0 ) );
+        Print( // "sTime0=" + DoubleToStr( sTime0, 0 )
+            "sT0=" + DoubleToStr( sTime0, 0 )  
+            // + "/rTime:01=" + TimeToStr( (int)rTime01, TIME_MINUTES )
+            // + "/SxPos01=" + DoubleToStr( SxPos01, 0 )
+            + "/SxP01=" + DoubleToStr( SxPos01, 0 )
+            // + "/xPos01=" + DoubleToStr( xPos01, 0 )
+            + "/xP01=" + DoubleToStr( xPos01, 0 )
+            + "/rPos01=" + DoubleToStr( rPos01, 0 )
+            + "/rt01=" + DoubleToStr( rt01, 0 )
+            // + "/rTime01=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+            // + "/rTime01=" + TimeToStr( (int)rTime01, TIME_DATE ) + "." + TimeToStr( (int)rTime01, TIME_SECONDS )
+            // + "/rTime01=" + TimeToStr( time[rTime01], TIME_DATE ) + "." + TimeToStr( time[rTime01], TIME_SECONDS )
+            + "/rTime01=" + TimeToStr( (int)rTime01[0], TIME_DATE ) + "." + TimeToStr( (int)rTime01[0], TIME_SECONDS )
+            + "/rPrice01=" + DoubleToStr( rPrice01[0], Digits )
+            // + "/ExUpTime01=" + DoubleToStr( ExUpTime01, 0 ) 
+        );
+        */
+      }
+      else if( ExDwPrice01 > 0 && ExUpPrice01 == 0 )
+      {
+        // Print( "ExDwTime01=" + DoubleToStr( (int)ExDwTime01, 0 ) );
+        Print( "rTime0=" + DoubleToStr( rTime0, 0 )
+            + "/ExDwTime01=" + DoubleToStr( ExDwTime01, 0 )
+        );
+      }
+    break;
+    default:
+      Print( "sTime0=" + DoubleToStr( sTime0, 0 )
+          + "/rTime0=" + DoubleToStr( rTime0, 0 )
+      );
+    break;
   }
 
   if( ExUpPrice01 > 0 && ExDwPrice01 == 0 )
