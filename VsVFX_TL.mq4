@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.27 Update:2017.10.22"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.28 Update:2017.10.27"
 #property strict
 
 
@@ -55,8 +55,9 @@
 // (0.11.3.0) -> (0.11.3.27) 
 input int MaxLimit = 360;
 int cnt;
-int UpTL, DwTL;
-int BaseTL;
+// (0.11.3.27) int UpTL, DwTL;
+// int BaseTL;
+extern int BaseTL;
 
 //--- 1. Base.TrendLine : Indicator Buffer ---//
 // (0.11.3.0) double BufLow[];
@@ -107,18 +108,23 @@ extern double rsiPos;   // RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 double BufTLUp[];
 double BufTLDown[];
 //--- Entry & Exit ---//
-extern int EnCheck, ExCheck;
+extern int nxCheck;
+// (0.11.3.27) extern int EnCheck, ExCheck;
 // (0.11.3.26) double BufEnTime[], BufEnPrice[];
 // double BufHigh01[],BufLow01[];
 // double BufHighPos01[], BufHighPos02[];
 double BufExTime01[], BufExPrice01[];
 double BufExTime02[], BufExPrice02[];
 
+// extern double nxUpTime, nxUpPrice;
+// extern double nxDwTime, nxDwPrice;
+// (0.11.3.27) 
 extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
+// (0.11.3.27) 
 extern double ExUpTime01, ExUpPrice01, ExUpTime02, ExUpPrice02;
 
-extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
-extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
+// (0.11.3.27) extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
+// (0.11.3.27) extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
 //--- HL ---//
 extern double HLMid, HLMid01;
 //--- Base.TL x 3 ---//
@@ -291,6 +297,54 @@ void OnDeinit(const int reason)
 
 //***//
 
+//+------------------------------------------------------------------+
+//| FX.TrendLine.Entry Signal for Open Order (Ver.0.11.3.28)         |
+//+------------------------------------------------------------------+
+void Entry_Sig(const double tLot,
+              const double HLMid_01,
+              const double mdCheck_00,
+              const double mdCheck_C00,
+              int Base_TL,
+              const double sTime_00,
+              const double sPrice_00)
+{
+  if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
+  {
+    switch( Base_TL )
+    {
+      case 1:
+        EnUpTime01 = (int)TimeCurrent();
+        EnUpPrice01 = Ask;
+        nxCheck = 1;
+        BaseTL = 0;
+
+        //*--- Entry Arrow:0 ---//
+        // ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
+        //*--- Trend.Up:1 ---//
+        // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
+        // ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
+
+      break;
+
+      case -1:
+        // EnDwTime01 = (int)TimeCurrent();
+        // EnDwPrice01 = Bid;
+        // nxCheck = 3;
+      break;
+
+      case 0:
+
+      break;
+    }
+  }
+}
+
+
+//+------------------------------------------------------------------+
+//| FX.TrendLine.Exit Signal for Open Order (Ver.0.11.3.28)          |
+//+------------------------------------------------------------------+
+
+
 
 //+------------------------------------------------------------------+
 //| FX.TrendLine (Ver.0.11.3.10) vSAR + vMACD + vSto + vRSI          |
@@ -384,13 +438,16 @@ int OnCalculate(const int rates_total,
   */
 
   /* (0.11.3.7)
-  Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
+  Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) 
+      + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
       + "/" + DoubleToStr( sPrice0, Digits ) + "/" + DoubleToStr( sTime0, 0 ) );
   */
   /* (0.11.3.0)
   ObjectMove( "BaseSup:0", 0, time[st0], s0[0] );
-  Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
-    + "/" + DoubleToStr( s0[0], Digits ) + "/" + string(st0) + "/" + DoubleToStr( sTime0[0], 0 ) );
+  Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) 
+      + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
+      + "/" + DoubleToStr( s0[0], Digits ) + "/" + string(st0) 
+      + "/" + DoubleToStr( sTime0[0], 0 ) );
   */
 
   //---* Resistance.Maximum Moved Draw
@@ -412,15 +469,23 @@ int OnCalculate(const int rates_total,
   */
 
   /* (0.11.3.7)
-  Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
-    + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
+  Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) 
+      + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
+      + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
   */
   /* (0.11.3.0)
   ObjectMove( "BaseRes:0", 0, time[rt0], r0[0] ); 
-  // Print( "Time.Res.00=" + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) + "." + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
-  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES ) 
-    + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[0], 0 ) );
-    // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" + DoubleToStr( rTime0[1], 0 ) + "/" + DoubleToStr( rTime0[0], 0 ) );
+  // Print( "Time.Res.00=" 
+      + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) 
+      + "." 
+      + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
+  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." 
+      + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES ) 
+      + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) 
+      + "/" + DoubleToStr( rTime0[0], 0 ) );
+    // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" 
+      + DoubleToStr( rTime0[1], 0 ) 
+      + "/" + DoubleToStr( rTime0[0], 0 ) );
   */
 
 //--- 2. TrendLine : Caluculate.Setup ---//
@@ -468,7 +533,8 @@ int OnCalculate(const int rates_total,
   //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
   /* (0.11.3.7)
   Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
-      + " / TL.High01=" + DoubleToStr( vHigh01, 4 ) + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
+      + " / TL.High01=" + DoubleToStr( vHigh01, 4 ) 
+      + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
   */
 
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
@@ -504,8 +570,10 @@ int OnCalculate(const int rates_total,
   */
   
   /* (0.11.3.7)
-  Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
-      + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
+  Print( "TL.MACD=" + DoubleToStr( vMACD, 4 ) 
+  + " / TL.MACD01=" + DoubleToStr( vMACD01, 4 ) 
+      + " / TL.MACDSig=" + DoubleToStr( vMACDSig, 4 ) 
+      + " / TL.MACDSig01=" + DoubleToStr( vMACDSig01, 4 ) );
   */
 
   //--- MACD.Trend.Up ---//
@@ -724,6 +792,93 @@ int OnCalculate(const int rates_total,
   */
 
   //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+  //*--- Base.TrendLine ---//
+  if( nxCheck>0 ) BaseTL=0;
+  else if ( rTime0 > sTime0 ) BaseTL = 1;
+  else if ( sTime0 > rTime0 ) BaseTL = -1;
+  // if( rTime0 > sTime0 ) BaseTL = 1;
+  // if( sTime0 > rTime0 ) BaseTL = -1;
+
+  //*--- HL.Mid Data ---//
+  HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
+  HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
+
+  //*--- Base.TL.Setup ---//
+  switch( BaseTL )
+  {
+    //*--- UpTL=0, DwTL=0, nxCheck=0, B.Sup:0 ---//
+    case 1:
+      //*--- Entry Algorithm ---//
+      Entry_Sig(tLots,HLMid01,mdCheck,mdCheckC00,1,sTime0,sPrice0);
+      /*
+      if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
+      {
+        EnUpTime01 = (int)TimeCurrent();
+        EnUpPrice01 = Ask;
+        nxCheck = 1;
+        BaseTL = 0;
+      }
+      */
+
+
+      //*--- Entry Arrow:0 ---//
+      ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
+      //*--- Trend.Up:1 ---//
+      ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
+      ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
+      
+      Print( "bTL=" + string(BaseTL)
+          + "/uTL=" + string(nxCheck)
+          + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+          + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
+      );
+    break;
+
+    //*--- UpTL=0, DwTL=0, nxCheck=0, B.Res:0 ---//
+    case -1:
+      //*--- Entry Algorithm ---//
+    break;
+
+    //*--- UpTL!=0, DwTL!=0, nxCheck!=0, !B:0 ---//
+    case 0:
+      switch( nxCheck )
+      {
+        case 1:
+          //---* Up.Exit Algorithm ---//
+
+          Print( "bTL=" + string(BaseTL)
+              + "/uTL=" + string(nxCheck)
+              + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
+          );
+        break;
+
+        case 2:
+          //---* Up.Entry Algorithm ---//
+        break;
+
+        case 3:
+          //---* Dw.Exit Algorithm ---//
+        break;
+
+        case 4:
+          //---* Dw.Entry Algorithm ---//
+        break;
+      }
+    break;
+
+    default:
+      Print( "sTime0=" + DoubleToStr( sTime0, 0 )
+          + "/rTime0=" + DoubleToStr( rTime0, 0 )
+      );
+    break;
+  }
+
+
+
+
+
+  //*--- Below (Ver.0.11.3.27) ---//
   //*--- Base.TL (Ver.0.11.3.18) ---//
   //*--- sTime0 < rTime0
   /*
@@ -768,8 +923,8 @@ int OnCalculate(const int rates_total,
   */
 
   //*--- Base.TrendLine ---//
-  if( rTime0 > sTime0 ) BaseTL = 1;
-  if( sTime0 > rTime0 ) BaseTL = -1;
+  // (0.11.3.27.OK) if( rTime0 > sTime0 ) BaseTL = 1;
+  // (0.11.3.27.OK) if( sTime0 > rTime0 ) BaseTL = -1;
   
   /* (Ver.0.11.3.22)
   // (Test.OK) BufTLUp[0] = 112.21;
@@ -787,14 +942,15 @@ int OnCalculate(const int rates_total,
   */
 
   //*--- HL.Mid Data ---//
-  HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
-  HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
+  // (0.11.3.27.OK) HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
+  // (0.11.3.27.OK) HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
 
   //*--- BL.High & BL.Low Data ---//
   // BufHigh01[0] = iCustom( NULL, 0, "VsVFX_BL", 2, 0 );
   // int rPos01;
 
   //*--- Trend.Up.Entry ---//
+  /* (0.11.3.27.OK)
   switch( UpTL )
   {
     //*--- ALL.None.TrendLine ---//
@@ -869,7 +1025,7 @@ int OnCalculate(const int rates_total,
               rt01 = ArrayMaximum( BufHigh01, SxPos01, 0 );
               rTime01 = BufHighPos01[0];
               rPrice01 = BufHigh01[0];
-              */
+              //
 
               // (NG) rTime01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );
 
@@ -891,6 +1047,7 @@ int OnCalculate(const int rates_total,
     break;
       
   }
+  */
 
   // Print( "BufTLUp=" + string(cnt) + "/" + DoubleToStr( BufTLUp[0], Digits ) );
 
@@ -909,6 +1066,7 @@ int OnCalculate(const int rates_total,
 
 
   //*--- Trend.Down.Entry ---//
+  /* (0.11.3.27.OK)
   switch( DwTL )
   {
     //*--- ALL.None.TrendLine ---//
@@ -973,6 +1131,7 @@ int OnCalculate(const int rates_total,
     break;
       
   }
+  */
 
 
   //--- Base.Res.01 ---//
@@ -995,12 +1154,16 @@ int OnCalculate(const int rates_total,
 
   
   //--- Output : Print ---//
+  /* (0.11.3.27.OK)
   Print( "EnC=" + string(EnCheck)
       + "/ExC=" + string(ExCheck)
   );
+  */
 
   // rt01 = 0;
   // int rt01=0, rPos01;
+
+  /* (0.11.3.27.OK)
   switch( ExCheck )
   {
     case 1:
@@ -1046,7 +1209,7 @@ int OnCalculate(const int rates_total,
         // rt01 = ArrayMaximum( BufHigh01, (int)sTime0, 0 );
         rPrice01[0] = BufHigh01[rt01];
         rTime01[0] = BufHigh01[rt01];
-        */
+        //
 
         HighPos01 = ArrayMaximum( high, ((int)sTime0-(int)xPos01)/2, (int)xPos01 );
         rPos01 = (int)HighPos01;
@@ -1142,13 +1305,16 @@ int OnCalculate(const int rates_total,
             + "/rPos01=" + DoubleToStr( rPos01, 0 )
             + "/rt01=" + DoubleToStr( rt01, 0 )
             // + "/rTime01=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
-            // + "/rTime01=" + TimeToStr( (int)rTime01, TIME_DATE ) + "." + TimeToStr( (int)rTime01, TIME_SECONDS )
-            // + "/rTime01=" + TimeToStr( time[rTime01], TIME_DATE ) + "." + TimeToStr( time[rTime01], TIME_SECONDS )
-            + "/rTime01=" + TimeToStr( (int)rTime01[0], TIME_DATE ) + "." + TimeToStr( (int)rTime01[0], TIME_SECONDS )
+            // + "/rTime01=" + TimeToStr( (int)rTime01, TIME_DATE ) 
+            + "." + TimeToStr( (int)rTime01, TIME_SECONDS )
+            // + "/rTime01=" + TimeToStr( time[rTime01], TIME_DATE ) 
+            + "." + TimeToStr( time[rTime01], TIME_SECONDS )
+            + "/rTime01=" + TimeToStr( (int)rTime01[0], TIME_DATE ) 
+            + "." + TimeToStr( (int)rTime01[0], TIME_SECONDS )
             + "/rPrice01=" + DoubleToStr( rPrice01[0], Digits )
             // + "/ExUpTime01=" + DoubleToStr( ExUpTime01, 0 ) 
         );
-        */
+        //
       }
       else if( ExDwPrice01 > 0 && ExUpPrice01 == 0 )
       {
@@ -1164,7 +1330,10 @@ int OnCalculate(const int rates_total,
       );
     break;
   }
+  */
 
+  
+  /* (0.11.3.27.OK)
   if( ExUpPrice01 > 0 && ExDwPrice01 == 0 )
   {
     Print( "bTL=" + string(BaseTL)
@@ -1219,6 +1388,7 @@ int OnCalculate(const int rates_total,
         + ":" + DoubleToStr( HLMid, Digits )
     );
   }
+  */
   
 
   // Print( "BufTLDown=" + string(cnt) + "/" + DoubleToStr( BufTLDown[0], Digits ) );
@@ -1239,11 +1409,13 @@ int OnCalculate(const int rates_total,
 /* (Ver.0.11.3)
   if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up
   {
-    // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) + " > rTime0:" + DoubleToStr( rTime0[0], 0 ) );
+    // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) 
+        + " > rTime0:" + DoubleToStr( rTime0[0], 0 ) );
   }
   if(rTime0[0]>sTime0[0])   // Res.Price(Left) : Trend.Down
   {
-    // Print( "rTime0:" + DoubleToStr( rTime0[0], 0 ) + " > sTime0:" + DoubleToStr( sTime0[0], 0 ) );
+    // Print( "rTime0:" + DoubleToStr( rTime0[0], 0 ) 
+        + " > sTime0:" + DoubleToStr( sTime0[0], 0 ) );
   }
 */
 
