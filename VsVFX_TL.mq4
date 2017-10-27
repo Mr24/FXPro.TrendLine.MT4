@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.29 Update:2017.10.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.30 Update:2017.10.27"
 #property strict
 
 
@@ -298,71 +298,52 @@ void OnDeinit(const int reason)
 //***//
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine.Entry Signal for Open Order (Ver.0.11.3.28)         |
+//| FX.TrendLine.Entry Signal for Open Order (Ver.0.11.3.30)         |
 //+------------------------------------------------------------------+
 void Entry_Sig(const double tLot,
               const double HLMid_01,
               const double mdCheck_00,
               const double mdCheck_C00,
-              int Base_TL,
-              const double sTime_00,
-              const double sPrice_00)
+              int Base_TL)
 {
-  if( tLot==1 && Ask>=HLMid_01 && mdCheck_00==1 && mdCheck_C00==1 )
+  switch( Base_TL )
   {
-    switch( Base_TL )
-    {
-      case 1:
+    case 1: // (UpTL) B.Sup:0, UpTL=0, DwTL=0, nxCheck=0
+      if( tLot==1 && Ask>=HLMid_01 && mdCheck_00==1 && mdCheck_C00==1 )
+      {
         EnUpTime01 = (int)TimeCurrent();
         EnUpPrice01 = Ask;
 
         nxCheck = 1;
         BaseTL = 0;
-
-        //*--- Entry Arrow:0 ---//
-        // ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
-        //*--- Trend.Up:1 ---//
-        // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
-        // ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
-
-      break;
-
-      case -1:
-        // EnDwTime01 = (int)TimeCurrent();
-        // EnDwPrice01 = Bid;
-        // nxCheck = 3;
-      break;
-
-      case 0:
-
-      break;
-    }
+      }
+    break;
   }
 }
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine.Exit Signal for Open Order (Ver.0.11.3.29)          |
+//| FX.TrendLine.Exit Signal for Open Order (Ver.0.11.3.30)          |
 //+------------------------------------------------------------------+
 void Exit_Sig(const double tLot,
               const double HLMid_01,
               const double sto_Pos,
               const double rsi_Pos,
               int nx_Check,
-              const double sTime_00)
+              const double srTime)
 {
-  if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
+  switch( nx_Check )
   {
-    switch( nx_Check )
-    {
-      case 1:
+    case 1: // (UpTL) B.Sup:0, UpTL=1, DwTL=0, nxCheck=1
+      if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
+      {
         ExUpTime01 = (int)TimeCurrent();
         ExUpPrice01 = Bid;
 
         nxCheck = 2;
-        SxPos01 = sTime_00;
-      break;
-    }
+        SxPos01 = srTime;
+      }
+    break;
   }
 }
 
@@ -830,7 +811,7 @@ int OnCalculate(const int rates_total,
     //*--- UpTL=0, DwTL=0, nxCheck=0, B.Sup:0 ---//
     case 1:
       //*--- Entry Algorithm ---//
-      Entry_Sig( tLots, HLMid01, mdCheck, mdCheckC00, 1, sTime0, sPrice0 );
+      Entry_Sig( tLots, HLMid01, mdCheck, mdCheckC00, 1 );
       /*
       if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
       {
@@ -894,6 +875,7 @@ int OnCalculate(const int rates_total,
               + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
               + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
+              + "/srT=" + DoubleToStr( SxPos01, 0 )
           );
           
 
