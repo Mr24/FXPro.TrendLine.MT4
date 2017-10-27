@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.30 Update:2017.10.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.31 Update:2017.10.27"
 #property strict
 
 
@@ -123,13 +123,17 @@ extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
 // (0.11.3.27) 
 extern double ExUpTime01, ExUpPrice01, ExUpTime02, ExUpPrice02;
 
-// (0.11.3.27) extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
-// (0.11.3.27) extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
+// (0.11.3.27) 
+extern double EnDwTime01, EnDwPrice01, EnDwTime02, EnDwPrice02;
+// (0.11.3.27) 
+extern double ExDwTime01, ExDwPrice01, ExDwTime02, ExDwPrice02;
+
 //--- HL ---//
-extern double HLMid, HLMid01;
+extern double HLMid, HLMid01, HLMid02;
 //--- Base.TL x 3 ---//
 extern double High01, HighPos01;
 extern double SxPos01, xPos01;
+extern double RxPos01;
 extern int rPos01, rt01;
 
 
@@ -318,6 +322,17 @@ void Entry_Sig(const double tLot,
         BaseTL = 0;
       }
     break;
+
+    case -1:  // (DwTL) B.Res:0, UpTL=0, DwTL=0, nxCheck=0
+      if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      {
+        EnDwTime01 = (int)TimeCurrent();
+        EnDwPrice01 = Bid;
+
+        nxCheck = 3;
+        BaseTL = 0;
+      }
+    break;
   }
 }
 
@@ -342,6 +357,17 @@ void Exit_Sig(const double tLot,
 
         nxCheck = 2;
         SxPos01 = srTime;
+      }
+    break;
+
+    case 3: // (DwTL) B.Sup:0, UpTL=1, DwTL=1, nxCheck=3
+      if( tLots == 1 && Ask >= HLMid01 && stoPos > 0 && rsiPos == 50 )
+      {
+        ExDwTime01 = (int)TimeCurrent();
+        ExDwPrice01 = Ask;
+
+        nxCheck = 4;
+        RxPos01 = srTime;
       }
     break;
   }
@@ -798,12 +824,14 @@ int OnCalculate(const int rates_total,
   if( nxCheck>0 ) BaseTL=0;
   else if ( rTime0 > sTime0 ) BaseTL = 1;
   else if ( sTime0 > rTime0 ) BaseTL = -1;
+
   // (0.11.3.27.OK) if( rTime0 > sTime0 ) BaseTL = 1;
   // (0.11.3.27.OK) if( sTime0 > rTime0 ) BaseTL = -1;
 
   //*--- HL.Mid Data ---//
   HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
   HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
+  HLMid02 = iCustom( NULL, 0, "VsVHL", 0, 2 );
 
   //*--- Base.TL.Setup ---//
   switch( BaseTL )
@@ -838,6 +866,14 @@ int OnCalculate(const int rates_total,
     //*--- UpTL=0, DwTL=0, nxCheck=0, B.Res:0 ---//
     case -1:
       //*--- Entry Algorithm ---//
+      Entry_Sig( tLots, HLMid01, mdCheck, mdCheckC00, -1 );
+      // Entry_Sig( tLots, HLMid02, mdCheck, mdCheckC00, -1 );
+
+      Print( "bTL=" + string(BaseTL)
+          + "/TL=" + string(nxCheck)
+          + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+          + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+      );
     break;
 
     //*--- UpTL!=0, DwTL!=0, nxCheck!=0, !B:0 ---//
@@ -845,16 +881,16 @@ int OnCalculate(const int rates_total,
       switch( nxCheck )
       {
         case 1:
-          //*--- Entry Arrow:0 ---//
+          //*--- Up.Entry Arrow:0 ---//
           ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
-          //*--- Trend.Up:1 ---//
+          //*--- Trend.Up:0 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
 
           //---* Up.Exit Algorithm ---//
           Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 1, sTime0 );
 
-          //*--- Exit Arrow ---//
+          //*--- Up.Exit Arrow ---//
           ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
           Print( "bTL=" + string(BaseTL)
@@ -877,16 +913,41 @@ int OnCalculate(const int rates_total,
               + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
               + "/srT=" + DoubleToStr( SxPos01, 0 )
           );
-          
-
         break;
 
         case 3:
+          //*--- Dw.Entry Arrow:0 ---//
+          ObjectMove( "EnPos:0", 0, (int)EnDwTime01, EnDwPrice01 );
+          //*--- Trend.Down:0 ---//
+          ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
+          ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
+
           //---* Dw.Exit Algorithm ---//
+          Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 3, rTime0 );
+
+          //*--- Dw.Exit Arrow ---//
+          ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+
+          Print( "bTL=" + string(BaseTL)
+              + "/TL=" + string(nxCheck)
+              + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+              + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              + "/XP=" + DoubleToStr( ExDwPrice01, Digits )
+          );
         break;
 
         case 4:
           //---* Dw.Entry Algorithm ---//
+
+          Print( "bTL=" + string(BaseTL)
+              + "/TL=" + string(nxCheck)
+              + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+              + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              + "/XP=" + DoubleToStr( ExDwPrice01, Digits )
+              + "/srT=" + DoubleToStr( RxPos01, 0 )
+          );
         break;
       }
     break;
