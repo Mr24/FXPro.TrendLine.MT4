@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.31 Update:2017.10.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.32 Update:2017.10.27"
 #property strict
 
 
@@ -371,6 +371,31 @@ void Exit_Sig(const double tLot,
       }
     break;
   }
+}
+
+
+//+------------------------------------------------------------------+
+//| FX.TrendLine.Base.TrendLine:01 & 02 Setup (Ver.0.11.3.32)        |
+//+------------------------------------------------------------------+
+void Base_TrendLine(const int nx_Check,
+                    const double SxPos,
+                    const double srTime,
+                    const double &high[]
+                    )
+{
+  switch( nx_Check )
+  {
+    case 2:
+      xPos01 = srTime - SxPos;
+
+      HighPos01 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+      rPos01 = (int)HighPos01;
+      High01 = high[rPos01];
+
+      rTime01[0] = HighPos01;
+      rPrice01[0] = High01;
+    break;
+  } 
 }
 
 
@@ -903,15 +928,32 @@ int OnCalculate(const int rates_total,
         break;
 
         case 2:
+          //---* B.Res:1 Setup ---//
+          Base_TrendLine(2, SxPos01, sTime0, high);
+          /*
+          xPos01 = sTime0 - SxPos01;
+          HighPos01 = ArrayMaximum( high, ((int)sTime0-(int)xPos01)/2, (int)xPos01 );
+      
+          rPos01 = (int)HighPos01;
+          High01 = high[rPos01];
+
+          rTime01[0] = HighPos01;
+          rPrice01[0] = High01;
+          */
+
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+
           //---* Up.Entry Algorithm ---//
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
-              + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
-              + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
+              // + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              // + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
               + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
               + "/srT=" + DoubleToStr( SxPos01, 0 )
+              + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01[0], Digits )
           );
         break;
 
