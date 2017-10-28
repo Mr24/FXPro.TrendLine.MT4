@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.35 Update:2017.10.28"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.36 Update:2017.10.28"
 #property strict
 
 
@@ -124,7 +124,7 @@ double BufExTime02[], BufExPrice02[];
 extern double EnTime01, EnPrice01;  // EnPos:0
 extern double ExTime01, ExPrice01;  // ExPos:0
 extern double EnTime02, EnPrice02;  // EnPos:1
-extern double Extime02, ExPrice02;  // ExPos:1
+extern double ExTime02, ExPrice02;  // ExPos:1
 
 // (0.11.3.27) 
 extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
@@ -403,8 +403,11 @@ void Exit_Sig(const double tLot,
         ExDwTime01 = (int)TimeCurrent();
         ExDwPrice01 = Ask;
 
-        ExTime01 = ExDwTime01;
-        ExPrice01 = ExDwPrice01;
+        ExTime02 = ExTime01; ExTime01 = ExDwTime01;
+        ExPrice02 = ExPrice01; ExPrice01 = ExDwPrice01;
+
+        // (0.11.3.35.OK) ExTime01 = ExDwTime01;
+        // (0.11.3.35.OK) ExPrice01 = ExDwPrice01;
 
         nxCheck = 4;
         RxPos01 = srTime;
@@ -1026,7 +1029,7 @@ int OnCalculate(const int rates_total,
           //---* B.Res:1 - rTime01[0](rTime001) & rPrice01[0](rPrice001).Setup ---//
           Base_TrendLine(2, SxPos01, sTime0, high);
 
-          //*--- Dw.Entry Arrow:1 & 0 ---//
+          //*--- Dw.Entry Arrow: 1 & 0 ---//
           ObjectMove( "EnPos:0", 0, (int)EnTime01, EnPrice01 );
           ObjectMove( "EnPos:1", 0, (int)EnTime02, EnPrice02 );
           // (0.11.3.32.OK) ObjectMove( "EnPos:0", 0, (int)EnDwTime01, EnDwPrice01 );
@@ -1049,10 +1052,13 @@ int OnCalculate(const int rates_total,
           // (0.11.3.32.OK) ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
 
           //---* Dw.Exit Algorithm ---//
-          Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 3, rTime0 );
+          if( rTime0 >= rTime01[0] ) Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 3, rTime01[0] );
+          else Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 3, rTime0 );
 
-          //*--- Dw.Exit Arrow ---//
+          //*--- Dw.Exit Arrow: 1 & 0 ---//
           ObjectMove( "ExPos:0", 0, (int)ExTime01, ExPrice01 );
+          ObjectMove( "ExPos:1", 0, (int)ExTime02, ExPrice02 );
+
           // (0.11.3.33.OK) ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
 
           if( rTime0 >= rTime01[0] )
@@ -1093,7 +1099,10 @@ int OnCalculate(const int rates_total,
         break;
 
         case 4:
-          //---* Dw.Entry Algorithm ---//
+          //---* B.Sup:1 - sTime01[0] & sPrice01[0].Setup ---//
+
+
+          //---* Up.Entry Algorithm ---//
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
