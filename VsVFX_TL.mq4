@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.33 Update:2017.10.28"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.34 Update:2017.10.28"
 #property strict
 
 
@@ -122,6 +122,7 @@ double BufExTime02[], BufExPrice02[];
 // extern double nxDwTime, nxDwPrice;
 
 extern double EnTime01, EnPrice01;  // EnPos:0
+extern double ExTime01, ExPrice01;  // ExPos:0
 
 // (0.11.3.27) 
 extern double EnUpTime01, EnUpPrice01, EnUpTime02, EnUpPrice02;
@@ -371,6 +372,9 @@ void Exit_Sig(const double tLot,
         ExUpTime01 = (int)TimeCurrent();
         ExUpPrice01 = Bid;
 
+        ExTime01 = ExUpTime01;
+        ExPrice01 = ExUpPrice01;
+
         nxCheck = 2;
         SxPos01 = srTime;
       }
@@ -381,6 +385,9 @@ void Exit_Sig(const double tLot,
       {
         ExDwTime01 = (int)TimeCurrent();
         ExDwPrice01 = Ask;
+
+        ExTime01 = ExDwTime01;
+        ExPrice01 = ExDwPrice01;
 
         nxCheck = 4;
         RxPos01 = srTime;
@@ -937,16 +944,22 @@ int OnCalculate(const int rates_total,
           Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 1, sTime0 );
 
           //*--- Up.Exit Arrow ---//
-          ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
+          ObjectMove( "ExPos:0", 0, (int)ExTime01, ExPrice01 );
+          // (0.11.3.33.OK) ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
               // + "/sT=" + TimeToStr( (int)sTime, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice, Digits )
-              + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
-              + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
-              + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
-              + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
+              + "/ET01=" + TimeToStr( (int)EnTime01, TIME_SECONDS )
+              + "/EP01=" + DoubleToStr( EnPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExPrice01, Digits )
+
+              // (0.11.3.33.OK) + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
+              // (0.11.3.33.OK) + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
           );
         break;
 
@@ -970,13 +983,18 @@ int OnCalculate(const int rates_total,
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
-              // + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
-              // + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
-              + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
-              + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
+              // + "/ET01=" + TimeToStr( (int)EnTime01, TIME_SECONDS )
+              // + "/EP01=" + DoubleToStr( EnPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExPrice01, Digits )
               + "/srT=" + DoubleToStr( SxPos01, 0 )
               + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+
+              // + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              // + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
+              // (0.11.3.33.OK) + "/XT=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/XP=" + DoubleToStr( ExUpPrice01, Digits )
           );
         break;
 
@@ -994,14 +1012,20 @@ int OnCalculate(const int rates_total,
           Exit_Sig( tLots, HLMid01, stoPos, rsiPos, 3, rTime0 );
 
           //*--- Dw.Exit Arrow ---//
-          ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+          ObjectMove( "ExPos:0", 0, (int)ExTime01, ExPrice01 );
+          // (0.11.3.33.OK) ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
-              + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
-              + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
-              + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
-              + "/XP=" + DoubleToStr( ExDwPrice01, Digits )
+              + "/ET01=" + TimeToStr( (int)EnTime01, TIME_SECONDS )
+              + "/EP01=" + DoubleToStr( EnPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExPrice01, Digits )
+
+              // (0.11.3.33.OK) + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+              // (0.11.3.33.OK) + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/XP=" + DoubleToStr( ExDwPrice01, Digits )
           );
         break;
 
@@ -1010,11 +1034,16 @@ int OnCalculate(const int rates_total,
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
-              + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
-              + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
-              + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
-              + "/XP=" + DoubleToStr( ExDwPrice01, Digits )
+              + "/ET01=" + TimeToStr( (int)EnTime01, TIME_SECONDS )
+              + "/EP01=" + DoubleToStr( EnPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExPrice01, Digits )
               + "/srT=" + DoubleToStr( RxPos01, 0 )
+
+              // (0.11.3.33.OK) + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+              // (0.11.3.33.OK) + "/XT=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              // (0.11.3.33.OK) + "/XP=" + DoubleToStr( ExDwPrice01, Digits )        
           );
         break;
       }
