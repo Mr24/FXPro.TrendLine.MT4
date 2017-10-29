@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.45 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.46 Update:2017.10.29"
 #property strict
 
 
@@ -366,6 +366,16 @@ void Entry_Sig( // const double tLot,
         EnDwPrice01 = Bid;
 
         nxCheck = 3;
+      }
+    break;
+
+    case 4: // (UpTL) B.Sup:1, UpTL=1, DwTL=1, nxCheck=4
+      if( EnUpStory )
+      {
+        EnUpTime02 = EnUpTime01; EnUpTime01 = (int)TimeCurrent();
+        EnUpPrice02 = EnUpPrice01; EnUpPrice01 = Ask;
+
+        nxCheck = 5;
       }
     break;
   }
@@ -1072,9 +1082,10 @@ int OnCalculate(const int rates_total,
         break;
 
         case 4:
-          //---* B.Res:1 - sTime01[0] & sPrice01[0].Setup ---//
+          //---* B.Res:1 - rTime01[0] & rPrice01[0].Setup ---//
           Base_TrendLine(2, SxPos01, sTime0, high, low);
 
+          //---* B.Sup:1 - sTime01[0] & sPrice01[0].Setup ---//
           //--- B.Sup:0 -> B.Res:1 -> B.Sup:1 ---//
           if( rTime0 >= rTime01[0] )
             Base_TrendLine(4, RxPos01, rTime01[0], high, low);
@@ -1087,7 +1098,7 @@ int OnCalculate(const int rates_total,
           ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* Up.Entry Algorithm ---//
-
+          Entry_Sig( 4 );
 
           //---* nxCheck=4 & B.Res:1 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1101,8 +1112,47 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/xPos01=" + DoubleToStr( xPos01, 0 )
           );
+        break;
 
+        case 5:
+          //---* B.Res:1 - rTime01[0] & rPrice01[0].Setup ---//
+          Base_TrendLine(2, SxPos01, sTime0, high, low);
 
+          //---* B.Sup:1 - sTime01[0] & sPrice01[0].Setup ---//
+          //--- B.Sup:0 -> B.Res:1 -> B.Sup:1 ---//
+          if( rTime0 >= rTime01[0] )
+            Base_TrendLine(4, RxPos01, rTime01[0], high, low);
+          //--- B.Res:0 -> B.Sup:1 ---//
+          else
+            Base_TrendLine(4, RxPos01, rTime0, high, low);
+
+          //*--- Up.Entry Arrow: 1 & 0 ---//
+          ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
+          ObjectMove( "EnPos:1", 0, (int)EnDwTime01, EnDwPrice01 );
+
+          //*--- Trend.Up: 1 & 0 ---//
+          if( sTime0 >= sTime01[0] )
+          {
+            ObjectMove( "Trend.Up:0", 0, time[(int)sTime01[0]], sPrice01[0] );
+            ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
+            ObjectMove( "Trend.Up:1", 0, time[(int)sTime0], sPrice0 );
+            ObjectMove( "Trend.Up:1", 1, (int)EnUpTime02, EnUpPrice02 );
+          }
+
+          //---* nxCheck=5 & B.Sup:1 & B.Sup:0 : Print Out ---//
+          Print( "bTL=" + string(BaseTL)
+              + "/TL=" + string(nxCheck)
+              + "/ET1=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              + "/EP1=" + DoubleToStr( EnUpPrice01, Digits )
+              + "/ET2=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              + "/EP2=" + DoubleToStr( EnDwPrice01, Digits )
+              + "/XT02=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              + "/XP02=" + DoubleToStr( ExDwPrice01, Digits )
+              // + "/srT=" + DoubleToStr( RxPos01, 0 )
+              + "/BS01=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01[0], Digits )
+              + "/xPos01=" + DoubleToStr( xPos01, 0 )
+          );
         break;
       }
     break;
