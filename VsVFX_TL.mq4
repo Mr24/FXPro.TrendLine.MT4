@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.41 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.42 Update:2017.10.29"
 #property strict
 
 
@@ -375,6 +375,34 @@ void Exit_Sig( // const double tLot,
   }
 }
 
+
+//+------------------------------------------------------------------+
+//| FX.TrendLine.Base.TrendLine:01 & 02 Setup (Ver.0.11.3.32)        |
+//+------------------------------------------------------------------+
+void Base_TrendLine(const int nx_Check,
+                    const double SRxPos,
+                    const double srTime,
+                    const double &high[],
+                    const double &low[]
+                    )
+{
+  switch( nx_Check )
+  {
+    case 2:
+      xPos01 = srTime - SRxPos;
+
+      HighPos01 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+      rPos01 = (int)HighPos01;
+      High01 = high[rPos01];
+
+      rTime01[0] = HighPos01;
+      rPrice01[0] = High01;
+
+      // rTime001 = HighPos01;
+      // rPrice001 = High01;
+    break;
+  }
+}
 
 //+------------------------------------------------------------------+
 //| FX.TrendLine (Ver.0.11.3.10) vSAR + vMACD + vSto + vRSI          |
@@ -899,6 +927,13 @@ int OnCalculate(const int rates_total,
         break;
 
         case 2:
+          //---* B.Res:1 - rTime01[0] & rPrice01[0].Setup ---//
+          //--- B.Sup:0 -> B.Res:1 ---//
+          Base_TrendLine(2, SxPos01, sTime0, high, low);
+
+          //---* Base.Res:1 Setup ---//
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+
           //---* Up.Entry Algorithm ---//
 
           //---* nxCheck=2 & B.Sup:0 : Print Out ---//
@@ -908,6 +943,10 @@ int OnCalculate(const int rates_total,
               // + "/EP01=" + DoubleToStr( EnUpPrice01, Digits )
               + "/XT01=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/XP01=" + DoubleToStr( ExUpPrice01, Digits )
+              + "/srT=" + DoubleToStr( SxPos01, 0 )
+              + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01[0], Digits )
+              + "/xPos01=" + DoubleToStr( xPos01, 0 )
           );
         break;
 
