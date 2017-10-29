@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.40 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.41 Update:2017.10.29"
 #property strict
 
 
@@ -350,9 +350,30 @@ void Entry_Sig( // const double tLot,
 
 
 //+------------------------------------------------------------------+
-//| FX.TrendLine.Exit Signal for Open Order (Ver.0.11.3.28)          |
+//| FX.TrendLine.Exit Signal for Open Order (Ver.0.11.3.30)          |
 //+------------------------------------------------------------------+
+void Exit_Sig( // const double tLot,
+              // const double HLMid_01,
+              // const double sto_Pos,
+              // const double rsi_Pos,
+              int nx_Check,
+              const double srTime)
+{
+  switch( nx_Check )
+  {
+    case 1: // (UpTL) B.Sup:0, UpTL=1, DwTL=0, nxCheck=1
+      // if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
+      if( ExUpStory )
+      {
+        ExUpTime01 = (int)TimeCurrent();
+        ExUpPrice01 = Bid;
 
+        nxCheck = 2;
+        SxPos01 = srTime;
+      }
+    break;
+  }
+}
 
 
 //+------------------------------------------------------------------+
@@ -836,23 +857,6 @@ int OnCalculate(const int rates_total,
       //*--- Entry Algorithm ---//
       // Entry_Sig( tLots, HLMid01, mdCheck, mdCheckC00, 1 );
       Entry_Sig( 1 );
-
-      /*
-      if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
-      {
-        EnUpTime01 = (int)TimeCurrent();
-        EnUpPrice01 = Ask;
-        nxCheck = 1;
-        BaseTL = 0;
-      }
-      */
-
-
-      //*--- Entry Arrow:0 ---//
-      // ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
-      //*--- Trend.Up:1 ---//
-      // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
-      // ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
       
       Print( "bTL=" + string(BaseTL)
           + "/uTL=" + string(nxCheck)
@@ -879,18 +883,32 @@ int OnCalculate(const int rates_total,
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
           
           //---* Up.Exit Algorithm ---//
+          Exit_Sig( 1, sTime0 );
 
+          //*--- Up.Exit Arrow:0 ---//
+          ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
-          //---* nxCheck=1 & BaseTL=0 : Print Out ---//
+          //---* nxCheck=1 & B.Sup:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
               + "/ET01=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
               + "/EP01=" + DoubleToStr( EnUpPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExUpPrice01, Digits )
           );
         break;
 
         case 2:
           //---* Up.Entry Algorithm ---//
+
+          //---* nxCheck=2 & B.Sup:0 : Print Out ---//
+          Print( "bTL=" + string(BaseTL)
+              + "/TL=" + string(nxCheck)
+              // + "/ET01=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
+              // + "/EP01=" + DoubleToStr( EnUpPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExUpPrice01, Digits )
+          );
         break;
 
         case 3:
