@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.42 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.43 Update:2017.10.29"
 #property strict
 
 
@@ -343,6 +343,17 @@ void Entry_Sig( // const double tLot,
 
         nxCheck = 1;
         BaseTL = 0;
+      }
+    break;
+
+    case 2: // (DwTL) B.Res:1, UpTL=1, DwTL=0, nxCheck=2
+      // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      if( EnDwStory )
+      {
+        EnDwTime01 = (int)TimeCurrent();
+        EnDwPrice01 = Bid;
+
+        nxCheck = 3;
       }
     break;
   }
@@ -934,7 +945,8 @@ int OnCalculate(const int rates_total,
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
-          //---* Up.Entry Algorithm ---//
+          //---* Dw.Entry Algorithm ---//
+          Entry_Sig( 2 );
 
           //---* nxCheck=2 & B.Sup:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -951,7 +963,58 @@ int OnCalculate(const int rates_total,
         break;
 
         case 3:
+          //---* B.Res:1 - rTime01[0] & rPrice01[0].Setup ---//
+          Base_TrendLine(2, SxPos01, sTime0, high, low);
+
+          //*--- Dw.Entry Arrow: 1 & 0 ---//
+          ObjectMove( "EnPos:0", 0, (int)EnDwTime01, EnDwPrice01 );
+          ObjectMove( "EnPos:1", 0, (int)EnUpTime01, EnUpPrice01 );
+
+          //*--- Trend.Down:0 ---//
+          //---* B.Res:1 : Setup  ---//
+          if( rTime0 >= rTime01[0] )
+          {
+            ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
+            ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 ); 
+          }
+          //---* B.Res:0 : Setup ---//
+          else
+          {
+            ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
+            ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
+          }
+
           //---* Dw.Exit Algorithm ---//
+
+
+          //---* nxCheck=3 & B.Res:1 : Print Out ---//
+          if( rTime0 >= rTime01[0] )
+          {
+            Print( "bTL=" + string(BaseTL)
+                + "/TL=" + string(nxCheck)
+                + "/ET01=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+                + "/EP01=" + DoubleToStr( EnDwPrice01, Digits )
+                + "/XT01=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+                + "/XP01=" + DoubleToStr( ExDwPrice01, Digits )
+                + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+                + "/" + DoubleToStr( rPrice01[0], Digits )
+                + "/xPos01=" + DoubleToStr( xPos01, 0 )
+            );
+          }
+          //---* nxCheck=3 & B.Res:0 : Print Out ---//
+          else
+          {
+            Print( "bTL=" + string(BaseTL)
+                + "/TL=" + string(nxCheck)
+                + "/ET01=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+                + "/EP01=" + DoubleToStr( EnDwPrice01, Digits )
+                + "/XT01=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+                + "/XP01=" + DoubleToStr( ExDwPrice01, Digits )
+                + "/BR0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES )
+                + "/" + DoubleToStr( rPrice0, Digits )
+                + "/xPos01=" + DoubleToStr( xPos01, 0 )
+            );
+          }
         break;
 
         case 4:
