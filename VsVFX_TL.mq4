@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.44 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.45 Update:2017.10.29"
 #property strict
 
 
@@ -346,6 +346,18 @@ void Entry_Sig( // const double tLot,
       }
     break;
 
+    case -1:  // (DwTL) B.Res:0, UpTL=0, DwTL=0, nxCheck=0
+      // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      if( EnDwStory )
+      {
+        EnDwTime01 = (int)TimeCurrent();
+        EnDwPrice01 = Bid;
+
+        nxCheck = 3;
+        BaseTL = 0;
+      }
+    break;
+
     case 2: // (DwTL) B.Res:1, UpTL=1, DwTL=0, nxCheck=2
       // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
       if( EnDwStory )
@@ -423,6 +435,18 @@ void Base_TrendLine(const int nx_Check,
 
       // rTime001 = HighPos01;
       // rPrice001 = High01;
+    break;
+
+    case 4:
+      xPos01 = srTime - SRxPos;
+
+      LowPos01 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+      sPos01 = (int)LowPos01;
+      Low01 = low[sPos01];
+
+      sTime01[0] = LowPos01;
+      sPrice01[0] = Low01;
+
     break;
   }
 }
@@ -909,8 +933,9 @@ int OnCalculate(const int rates_total,
       // Entry_Sig( tLots, HLMid01, mdCheck, mdCheckC00, 1 );
       Entry_Sig( 1 );
       
+      //---* BaseTL=1 & B.Sup:0 : Print Out ---//
       Print( "bTL=" + string(BaseTL)
-          + "/uTL=" + string(nxCheck)
+          + "/TL=" + string(nxCheck)
           + "/ET=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
           + "/EP=" + DoubleToStr( EnUpPrice01, Digits )
       );
@@ -918,7 +943,15 @@ int OnCalculate(const int rates_total,
 
     //*--- UpTL=0, DwTL=0, nxCheck=0, B.Res:0 ---//
     case -1:
-      //*--- Entry Algorithm ---//
+      //*--- Dw.Entry Algorithm ---//
+      Entry_Sig( -1 );
+
+      //---* BaseTL=-1 & B.Res:0 : Print Out ---//
+      Print( "bTL=" + string(BaseTL)
+          + "/TL=" + string(nxCheck)
+          + "/ET=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+          + "/EP=" + DoubleToStr( EnDwPrice01, Digits )
+      );
     break;
 
     //*--- UpTL!=0, DwTL!=0, nxCheck!=0, !B:0 ---//
@@ -1039,7 +1072,22 @@ int OnCalculate(const int rates_total,
         break;
 
         case 4:
-          //---* Dw.Entry Algorithm ---//
+          //---* B.Res:1 - sTime01[0] & sPrice01[0].Setup ---//
+          Base_TrendLine(2, SxPos01, sTime0, high, low);
+
+          //--- B.Sup:0 -> B.Res:1 -> B.Sup:1 ---//
+          if( rTime0 >= rTime01[0] )
+            Base_TrendLine(4, RxPos01, rTime01[0], high, low);
+          //--- B.Res:0 -> B.Sup:1 ---//
+          else
+            Base_TrendLine(4, RxPos01, rTime0, high, low);
+
+
+          //---* Base.Sup:1 Setup ---//
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
+
+          //---* Up.Entry Algorithm ---//
+
 
           //---* nxCheck=4 & B.Res:1 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1048,8 +1096,9 @@ int OnCalculate(const int rates_total,
               + "/EP01=" + DoubleToStr( EnDwPrice01, Digits )
               + "/XT01=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/XP01=" + DoubleToStr( ExDwPrice01, Digits )
-              + "/BR0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES )
-              + "/" + DoubleToStr( rPrice0, Digits )
+              + "/srT=" + DoubleToStr( RxPos01, 0 )
+              + "/BS01=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/xPos01=" + DoubleToStr( xPos01, 0 )
           );
 
