@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.43 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.44 Update:2017.10.29"
 #property strict
 
 
@@ -381,6 +381,18 @@ void Exit_Sig( // const double tLot,
 
         nxCheck = 2;
         SxPos01 = srTime;
+      }
+    break;
+
+    case 3: // (DwTL) B.Sup:0, UpTL=1, DwTL=1, nxCheck=3
+      // if( tLot == 1 && Ask >= HLMid_01 && sto_Pos > 0 && rsi_Pos == 50 )
+      if( ExDwStory )
+      {
+        ExDwTime01 = (int)TimeCurrent();
+        ExDwPrice01 = Ask;
+
+        nxCheck = 4;
+        RxPos01 = srTime;
       }
     break;
   }
@@ -985,7 +997,16 @@ int OnCalculate(const int rates_total,
           }
 
           //---* Dw.Exit Algorithm ---//
+          //---* B.Res:1 : Setup  ---//
+          if( rTime0 >= rTime01[0] )
+            Exit_Sig( 3, rTime01[0] );
+          //---* B.Res:0 : Setup ---//
+          else
+            Exit_Sig( 3, rTime0 );
 
+          //*--- Dw.Exit Arrow: 1 & 0 ---//
+          ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+          ObjectMove( "ExPos:1", 0, (int)ExUpTime01, ExUpPrice01 );
 
           //---* nxCheck=3 & B.Res:1 : Print Out ---//
           if( rTime0 >= rTime01[0] )
@@ -1019,6 +1040,20 @@ int OnCalculate(const int rates_total,
 
         case 4:
           //---* Dw.Entry Algorithm ---//
+
+          //---* nxCheck=4 & B.Res:1 : Print Out ---//
+          Print( "bTL=" + string(BaseTL)
+              + "/TL=" + string(nxCheck)
+              + "/ET01=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
+              + "/EP01=" + DoubleToStr( EnDwPrice01, Digits )
+              + "/XT01=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
+              + "/XP01=" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BR0=" + TimeToStr( time[(int)rTime0], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice0, Digits )
+              + "/xPos01=" + DoubleToStr( xPos01, 0 )
+          );
+
+
         break;
       }
     break;
