@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.37 Update:2017.10.29"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.38 Update:2017.10.29"
 #property strict
 
 
@@ -1014,7 +1014,9 @@ int OnCalculate(const int rates_total,
 
         case 2:
           //---* B.Res:1 - rTime01[0] & rPrice01[0].Setup ---//
+          //--- B.Sup:0 -> B.Res:1 ---//
           Base_TrendLine(2, SxPos01, sTime0, high, low);
+          
           /*
           xPos01 = sTime0 - SxPos01;
           HighPos01 = ArrayMaximum( high, ((int)sTime0-(int)xPos01)/2, (int)xPos01 );
@@ -1052,6 +1054,7 @@ int OnCalculate(const int rates_total,
 
         case 3:
           //---* B.Res:1 - rTime01[0](rTime001) & rPrice01[0](rPrice001).Setup ---//
+          //--- B.Sup:0 -> B.Res:1 ---//
           Base_TrendLine(2, SxPos01, sTime0, high, low);
 
           //*--- Dw.Entry Arrow: 1 & 0 ---//
@@ -1126,13 +1129,18 @@ int OnCalculate(const int rates_total,
         case 4:
           //---* B.Sup:1 - sTime01[0] & sPrice01[0].Setup ---//
           Base_TrendLine(2, SxPos01, sTime0, high, low);
+
+          //--- B.Sup:0 -> B.Res:1 -> B.Sup:1 ---//
           if( rTime0 >= rTime01[0] )Base_TrendLine(4, RxPos01, rTime01[0], high, low);
-          // else Base_TrendLine(0, RxPos01, rTime0, high, low);
+          //--- B.Res:0 -> B.Sup:1 ---//
+          else Base_TrendLine(4, RxPos01, rTime0, high, low);
+
 
           //---* Base.Sup:1 Setup ---//
           ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* Up.Entry Algorithm ---//
+
 
           Print( "bTL=" + string(BaseTL)
               + "/TL=" + string(nxCheck)
