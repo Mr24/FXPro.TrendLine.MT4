@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.51 Update:2017.11.01"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.52 Update:2017.11.02"
 #property strict
 
 
@@ -140,7 +140,8 @@ extern double HLMid, HLMid01;
 extern double High01, HighPos01;
 extern double Low01, LowPos01;
 
-extern double SxPos01, RxPos01, xPos01;
+extern double SxPos01, RxPos01;
+extern double xPos01, xPos02;
 extern int rPos01, sPos01;
 
 extern bool EnUpStory, EnDwStory;
@@ -497,7 +498,8 @@ void Base_TrendLine(const int nx_Check,
   switch( nx_Check )
   {
     case 92:
-      xPos01 = srTime - SRxPos;
+      // xPos01 = srTime - SRxPos;
+      xPos02 = xPos01; xPos01 = srTime - SRxPos;
 
       HighPos01 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
       rPos01 = (int)HighPos01;
@@ -510,7 +512,8 @@ void Base_TrendLine(const int nx_Check,
     break;
 
     case 94:
-      xPos01 = srTime - SRxPos;
+      // xPos01 = srTime - SRxPos;
+      xPos02 = xPos01; xPos01 = srTime - SRxPos;
 
       LowPos01 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
       sPos01 = (int)LowPos01;
@@ -1158,6 +1161,7 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( ExDwPrice01, Digits )
               + "/BS1=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              + "/xP2=" + DoubleToStr( xPos02, 0 )
               + "/xP1=" + DoubleToStr( xPos01, 0 )
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
@@ -1251,6 +1255,7 @@ int OnCalculate(const int rates_total,
               + "/BR1=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
               // + "/xPos1=" + DoubleToStr( xPos01, 0 )
+              + "/xP2=" + DoubleToStr( xPos02, 0 )
               + "/xP1=" + DoubleToStr( xPos01, 0 )
               // + "/st=" + TimeToStr( (int)sTime00, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice00, Digits )
