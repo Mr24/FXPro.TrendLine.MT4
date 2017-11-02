@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.52 Update:2017.11.02"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.53 Update:2017.11.02"
 #property strict
 
 
@@ -148,7 +148,7 @@ extern bool EnUpStory, EnDwStory;
 extern bool ExUpStory, ExDwStory;
 
 extern int rs0, rr0;  // rates_total(sTime0, rTime0)
-
+extern int rs1, rr1;  // rates_total(sTime01, rTime01)
 
 
 //+------------------------------------------------------------------+
@@ -491,6 +491,7 @@ void Exit_Sig( // const double tLot,
 void Base_TrendLine(const int nx_Check,
                     const double SRxPos,
                     const double srTime,
+                    const int RA,
                     const double &high[],
                     const double &low[]
                     )
@@ -521,6 +522,8 @@ void Base_TrendLine(const int nx_Check,
 
       sTime01[0] = LowPos01;
       sPrice01[0] = Low01;
+
+      rs1 = RA - sPos01;
 
       // nxCheck = 10;
     break;
@@ -985,6 +988,11 @@ int OnCalculate(const int rates_total,
     // sTime00 += (rates_total - RA0);
     sTime00 = rates_total - rs0;
     rTime00 = rates_total - rr0;
+
+    sTime01[0] = rates_total - rs1;
+    // (NG) ps1 = ArrayMinimum( Low01, rates_total-rs1, 0 );
+    // (NG) sPrice01[0] = low[ps1];
+    sPrice01[0] = Low01;
   }
   // else if ( rTime00 > sTime00 ) BaseTL = 98;
   // else if( sTime00 > rTime00 ) BaseTL = 99;
@@ -1074,7 +1082,7 @@ int OnCalculate(const int rates_total,
       {
         case 10:
           //--- B.Res:0 -> B.Sup:1 Setup ---//
-          Base_TrendLine(94, RxPos01, rTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
           //---* Base.Sup:1 Setup ---//
           ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
@@ -1099,7 +1107,7 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:1", 0, (int)EnDwTime01, EnDwPrice01 );
 
           //--- B.Res:0 -> B.Sup:1 Setup ---//
-          Base_TrendLine(94, RxPos01, rTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
 
           //*--- Trend.Up:0 ---//
           //--- sTime01 ---//
@@ -1137,9 +1145,9 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:1", 0, (int)ExDwTime01, ExDwPrice01 );
 
           //--- B.Res:0 -> B.Sup:1 Setup ---//
-          Base_TrendLine(94, RxPos01, rTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
           //--- B.Sup:1 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime01[0], high, low);
+          Base_TrendLine(92, SxPos01, sTime01[0], rates_total, high, low);
 
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
@@ -1161,16 +1169,16 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( ExDwPrice01, Digits )
               + "/BS1=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
-              + "/xP2=" + DoubleToStr( xPos02, 0 )
-              + "/xP1=" + DoubleToStr( xPos01, 0 )
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
+              + "/xP2=" + DoubleToStr( xPos02, 0 )
+              + "/xP1=" + DoubleToStr( xPos01, 0 ) 
           );
         break;
 
         case 20:
           //--- B.Sup:0 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
@@ -1194,7 +1202,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:1", 0, (int)EnUpTime01, EnUpPrice01 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime0, high, low);
+          // Base_TrendLine(92, SxPos01, sTime0, high, low);
+          Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
 
           //*--- Trend.Down:0 ---//
           //--- rTime01 ---//
@@ -1230,9 +1239,10 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:1", 0, (int)ExUpTime01, ExUpPrice01 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //--- B.Res:1 -> B.Sup:1 Setup ---//
-          Base_TrendLine(94, RxPos01, rTime01[0], high, low);
+          // Base_TrendLine(94, RxPos01, rTime01[0], high, low);
+          Base_TrendLine(94, RxPos01, rTime01[0], rates_total, high, low);
 
           //---* Base.Sup:1 Setup ---//
           ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
@@ -1302,7 +1312,7 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime0, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
@@ -1359,7 +1369,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
 
           //--- B.Res:0 -> B.Sup:1 Setup ---//
-          Base_TrendLine(94, RxPos01, rTime0, high, low);
+          // Base_TrendLine(94, RxPos01, rTime0, high, low);
+          Base_TrendLine(94, RxPos01, rTime0, rates_total, high, low);
           //---* Base.Sup:1 Setup ---//
           ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
