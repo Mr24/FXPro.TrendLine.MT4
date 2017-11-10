@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.55 Update:2017.11.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.56 Update:2017.11.10"
 #property strict
 
 
@@ -498,9 +498,10 @@ void Base_TrendLine(const int nx_Check,
 {
   switch( nx_Check )
   {
-    case 92:
+    case 92:  // rTime01.Setup
       // xPos01 = srTime - SRxPos;
-      xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      xPos01 = srTime - SRxPos;
 
       HighPos01 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
       rPos01 = (int)HighPos01;
@@ -514,9 +515,10 @@ void Base_TrendLine(const int nx_Check,
       // nxCheck = 20;
     break;
 
-    case 94:
+    case 94:  // sTime01.Setup
       // xPos01 = srTime - SRxPos;
-      xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      xPos01 = srTime - SRxPos;
 
       LowPos01 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
       sPos01 = (int)LowPos01;
@@ -1289,7 +1291,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
 
           //*--- Trend.Up:0 ---//
-          ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
+          // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
+          ObjectMove( "Trend.Up:0", 0, time[(int)sTime00], sPrice00 );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
           
           //---* Up.Exit Algorithm ---//
