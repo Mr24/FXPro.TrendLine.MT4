@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.53 Update:2017.11.02"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.54 Update:2017.11.10"
 #property strict
 
 
@@ -509,6 +509,8 @@ void Base_TrendLine(const int nx_Check,
       rTime01[0] = HighPos01;
       rPrice01[0] = High01;
 
+      rr1 = RA - rPos01;
+
       // nxCheck = 20;
     break;
 
@@ -993,6 +995,10 @@ int OnCalculate(const int rates_total,
     // (NG) ps1 = ArrayMinimum( Low01, rates_total-rs1, 0 );
     // (NG) sPrice01[0] = low[ps1];
     sPrice01[0] = Low01;
+
+    rTime01[0] = rates_total - rr1;
+    rPrice01[0] = High01;
+
   }
   // else if ( rTime00 > sTime00 ) BaseTL = 98;
   // else if( sTime00 > rTime00 ) BaseTL = 99;
@@ -1115,7 +1121,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
 
           //---* Up.Exit Algorithm ---//
-          Exit_Sig( 11, sTime0 );
+          // Exit_Sig( 11, sTime0 );
+          Exit_Sig( 11, sTime01[0] );
 
           //---* nxCheck=11 & B.Sup:1 & B.Res:0 : Print Out ---//
           //---* nxCheck=94 & B.Res:0 : Print Out ---//
@@ -1156,9 +1163,10 @@ int OnCalculate(const int rates_total,
           // Entry_Sig( 92 );
 
           //---* nxCheck=12 & B.Sup:1 & B.Res:0 : Print Out ---//
-          Print( "bTL=" + string(BaseTL)
-              + "/bB=" + string(bBTL)
-              + "/TL=" + string(nxCheck)
+          Print( // "bTL=" + string(BaseTL)
+                "bTL" // + string(BaseTL)
+              + "/bB." + string(bBTL)
+              + "/TL." + string(nxCheck)
               + "/E1=" + TimeToStr( (int)EnUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X1=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
@@ -1171,8 +1179,8 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
-              + "/xP2=" + DoubleToStr( xPos02, 0 )
-              + "/xP1=" + DoubleToStr( xPos01, 0 ) 
+              + "/xP2." + DoubleToStr( xPos02, 0 )
+              + "/xP1." + DoubleToStr( xPos01, 0 ) 
           );
         break;
 
@@ -1202,8 +1210,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:1", 0, (int)EnUpTime01, EnUpPrice01 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
-          // Base_TrendLine(92, SxPos01, sTime0, high, low);
-          Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
+          // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
+          // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
 
           //*--- Trend.Down:0 ---//
           //--- rTime01 ---//
@@ -1211,7 +1219,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
 
           //---* Dw.Exit Algorithm ---//
-          Exit_Sig( 23, rTime0 );
+          // Exit_Sig( 23, rTime0 );
+          Exit_Sig( 23, rTime01[0] );
 
           //---* nxCheck=23 & B.Res:1 & B.Sup:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1251,9 +1260,10 @@ int OnCalculate(const int rates_total,
           // Entry_Sig( 94 );
 
           //---* nxCheck=24 & B.Res:1 & B.Sup:0 : Print Out ---//
-          Print( "bTL=" + string(BaseTL)
-              + "/bB=" + string(bBTL)
-              + "/TL=" + string(nxCheck)
+          Print( // "bTL=" + string(BaseTL)
+                "bTL" // + string(BaseTL)
+              + "/bB." + string(bBTL)
+              + "/TL." + string(nxCheck)
               + "/E1=" + TimeToStr( (int)EnDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X1=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
@@ -1264,13 +1274,13 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( ExUpPrice01, Digits )
               + "/BR1=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
-              // + "/xPos1=" + DoubleToStr( xPos01, 0 )
-              + "/xP2=" + DoubleToStr( xPos02, 0 )
-              + "/xP1=" + DoubleToStr( xPos01, 0 )
               // + "/st=" + TimeToStr( (int)sTime00, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice00, Digits )
               + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               + "/" + DoubleToStr( sPrice00, Digits )
+              // + "/xPos1=" + DoubleToStr( xPos01, 0 )
+              + "/xP2." + DoubleToStr( xPos02, 0 )
+              + "/xP1." + DoubleToStr( xPos01, 0 )
           );
         break;
 
@@ -1313,6 +1323,7 @@ int OnCalculate(const int rates_total,
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
+          Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
