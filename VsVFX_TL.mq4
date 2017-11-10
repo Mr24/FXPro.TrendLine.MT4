@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.54 Update:2017.11.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.55 Update:2017.11.10"
 #property strict
 
 
@@ -1293,8 +1293,8 @@ int OnCalculate(const int rates_total,
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
           
           //---* Up.Exit Algorithm ---//
-          Exit_Sig( 91, sTime0 );
-          // Exit_Sig( 91, sTime00 );
+          // Exit_Sig( 91, sTime0 );
+          Exit_Sig( 91, sTime00 );
 
           //*--- Up.Exit Arrow:0 ---//
           // ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
@@ -1323,7 +1323,8 @@ int OnCalculate(const int rates_total,
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
-          Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
+          // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
+          Base_TrendLine(92, SxPos01, sTime00, rates_total, high, low);
           //---* Base.Res:1 Setup ---//
           ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
