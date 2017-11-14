@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.59 Update:2017.11.13"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.60 Update:2017.11.14"
 #property strict
 
 
@@ -259,6 +259,7 @@ int OnInit(void)
     //*--- 1. Base.TrendLine : Support.Setup
     ObjectCreate( "BaseSup:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
     ObjectSet( "BaseSup:" + string(cnt), OBJPROP_COLOR, Goldenrod );
+    ObjectSet( "BaseSup:0", OBJPROP_COLOR, White );
 
     //*--- 2-3. TrendLine(TL) : Trend.Up.Setup
     if(cnt<2)
@@ -280,7 +281,9 @@ int OnInit(void)
     //*--- 1. Base.TrendLine : Resistance.Setup
     ObjectCreate( "BaseRes:" + string(cnt), OBJ_HLINE, 0, 0, 0 );
     ObjectSet( "BaseRes:" + string(cnt), OBJPROP_COLOR, Goldenrod ); 
-    ObjectSet( "BaseRes:" + string(cnt), OBJPROP_STYLE, STYLE_DOT ); 
+    ObjectSet( "BaseRes:" + string(cnt), OBJPROP_STYLE, STYLE_DOT );
+    ObjectSet( "BaseRes:0", OBJPROP_COLOR, White ); 
+    // bjectSet( "BaseRes:0", OBJPROP_STYLE, STYLE_DOT );  
 
     //*--- 2-3. TrendLine(TL) : Trend.Down.Setup
     if(cnt<2)
