@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.62 Update:2017.11.15"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.63 Update:2017.11.15"
 #property strict
 
 
@@ -462,6 +462,19 @@ void Entry_Sig( // const double tLot,
         // bBTL = 99;
       }
     break;
+
+    case 60:  // (DwTL) B.Res:2, UpTL=2, DwTL=1, nxCheck=32
+      // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      if( EnDwStory )
+      {
+        EnDwTime02 = (int)TimeCurrent();
+        EnDwPrice02 = Bid;
+
+        nxCheck = 63;
+        // BaseTL = 93;
+        // bBTL = 99;
+      }
+    break;
   }
 }
 
@@ -504,7 +517,7 @@ void Exit_Sig( // const double tLot,
       }
     break;
 
-    case 11: // (UpTL) B.Sup:0, UpTL=1, DwTL=0, nxCheck=1
+    case 11: // (UpTL) B.Sup:0, UpTL=1, DwTL=1, nxCheck=92
       // if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
       if( ExUpStory )
       {
@@ -517,7 +530,7 @@ void Exit_Sig( // const double tLot,
       }
     break;
 
-    case 23: // (DwTL) B.Res:0, UpTL=0, DwTL=1, nxCheck=3
+    case 23: // (DwTL) B.Res:0, UpTL=1, DwTL=1, nxCheck=92
       // if( tLot == 1 && Ask >= HLMid_01 && sto_Pos > 0 && rsi_Pos == 50 )
       if( ExDwStory )
       {
@@ -530,7 +543,7 @@ void Exit_Sig( // const double tLot,
       }
     break;
 
-    case 31: // (UpTL) B.Sup:1, UpTL=1, DwTL=1, nxCheck=30
+    case 31: // (UpTL) B.Sup:1, UpTL=2, DwTL=1, nxCheck=30
       // if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
       if( ExUpStory )
       {
@@ -548,7 +561,7 @@ void Exit_Sig( // const double tLot,
       }
     break;
 
-    case 43: // (DwTL) B.Res:1, UpTL=1, DwTL=1, nxCheck=40
+    case 43: // (DwTL) B.Res:1, UpTL=1, DwTL=2, nxCheck=40
       // if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
       if( ExDwStory )
       {
@@ -561,6 +574,24 @@ void Exit_Sig( // const double tLot,
         */
 
         nxCheck = 44;
+        // BaseTL = 92;
+        RxPos01 = srTime;
+      }
+    break;
+
+    case 63: // (DwTL) B.Res:2, UpTL=2, DwTL=2, nxCheck=60
+      // if( tLot == -1 && Bid <= HLMid_01 && sto_Pos < 0 && rsi_Pos == -50 )
+      if( ExDwStory )
+      {
+        ExDwTime02 = (int)TimeCurrent();
+        ExDwPrice02 = Ask;
+
+        /* (0.11.3.59.OK)
+        ExDwTime02 = ExDwTime01;    ExDwTime01 = (int)TimeCurrent();
+        ExDwPrice02 = ExDwPrice01;  ExDwPrice01 = Ask;
+        */
+
+        nxCheck = 64;
         // BaseTL = 92;
         RxPos01 = srTime;
       }
@@ -634,6 +665,23 @@ void Base_TrendLine(const int nx_Check,
     break;
 
     case 44:  // sTime02.Setup
+      // xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      xPos01 = srTime - SRxPos;
+
+      LowPos02 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+      sPos02 = (int)LowPos02;
+      Low02 = low[sPos02];
+
+      sTime02[0] = LowPos02;
+      sPrice02[0] = Low02;
+
+      rs2 = RA - sPos02;
+
+      // nxCheck = 10;
+    break;
+
+    case 64:  // sTime02.Setup
       // xPos01 = srTime - SRxPos;
       // xPos02 = xPos01; xPos01 = srTime - SRxPos;
       xPos01 = srTime - SRxPos;
@@ -1481,7 +1529,7 @@ int OnCalculate(const int rates_total,
           ObjectMove( "BaseRes:2", 0, time[(int)rTime01[0]], rPrice01[0] );
 
           //---* Dw.Entry Algorithm ---//
-          // Entry_Sig( 60 );
+          Entry_Sig( 60 );
 
           //---* nxCheck=32 & B.Sup:1 & B.Res:2 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1604,6 +1652,101 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 ) 
           );
+        break;
+
+        case 63:
+          //*--- Dw.Entry Arrow: 1 & 0 ---//
+          ObjectMove( "EnPos:0", 0, (int)EnDwTime02, EnDwPrice02 );
+          ObjectMove( "EnPos:1", 0, (int)EnUpTime02, EnUpPrice02 );
+
+          //*--- Trend.Dw: 0 & 1 ---//
+          //--- rTime02 ---//
+          ObjectMove( "Trend.Down:0", 0, time[(int)rTime02[0]], rPrice02[0] );
+          ObjectMove( "Trend.Down:0", 1, (int)EnDwTime02, EnDwPrice02 );
+          //--- rTime01 ---//
+          ObjectMove( "Trend.Down:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "Trend.Down:1", 1, (int)EnDwTime01, EnDwPrice01 );
+
+          //---* Dw.Exit Algorithm ---//
+          Exit_Sig( 63, rTime02[0] );
+
+          //---* nxCheck=63 & B.Res:2 & B.Sup:1 : Print Out ---//
+          Print( // "bTL=" + string(BaseTL)
+              //   "bTL" // + string(BaseTL)
+              ""
+              // + "bB." + string(bBTL)
+              + string(bBTL)
+              + "/"
+              // + "/TL." + string(nxCheck)
+              + string(nxCheck)
+              + "/E1." + TimeToStr( (int)EnDwTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( EnDwPrice02, Digits )
+              + "/X1." + TimeToStr( (int)ExDwTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( ExDwPrice02, Digits )
+              + "/E2." + TimeToStr( (int)EnUpTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( EnUpPrice02, Digits )
+              + "/X2." + TimeToStr( (int)ExUpTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( ExUpPrice02, Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02[0], Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01[0], Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01[0], Digits )
+              // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
+              // + "/" + DoubleToStr( sPrice00, Digits )
+              // + "/xP2." + DoubleToStr( xPos02, 0 )
+              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+          );
+        break;
+
+        case 64:
+          //*--- Dw.Exit Arrow:0 & Up.Exit Arrow:1 ---//
+          ObjectMove( "ExPos:0", 0, (int)ExDwTime02, ExDwPrice02 );
+          ObjectMove( "ExPos:1", 0, (int)ExUpTime02, ExUpPrice02 );
+
+          //--- B.Res:2 -> B.Sup:2 Setup ---//
+          Base_TrendLine(64, RxPos01, rTime02[0], rates_total, high, low);
+
+          //---* Base.Sup:1 & 2 Setup ---//
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime02[0]], sPrice02[0] );
+          ObjectMove( "BaseSup:2", 0, time[(int)sTime01[0]], sPrice01[0] );
+
+          //---* Up.Entry Algorithm ---//
+          // Entry_Sig( 50 );
+
+          //---* nxCheck=64 & B.Res:2 & B.Sup:2 : Print Out ---//
+          Print( // "bTL=" + string(BaseTL)
+              //   "bTL" // + string(BaseTL)
+              ""
+              // + "bB." + string(bBTL)
+              + string(bBTL)
+              + "/"
+              // + "/TL." + string(nxCheck)
+              + string(nxCheck)
+              + "/E1." + TimeToStr( (int)EnDwTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( EnDwPrice02, Digits )
+              + "/X1." + TimeToStr( (int)ExDwTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( ExDwPrice02, Digits )
+              + "/E2." + TimeToStr( (int)EnUpTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( EnUpPrice02, Digits )
+              + "/X2." + TimeToStr( (int)ExUpTime02, TIME_SECONDS )
+              + "/" + DoubleToStr( ExUpPrice02, Digits )
+              + "/BS2." + TimeToStr( time[(int)sTime02[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice02[0], Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02[0], Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01[0], Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01[0], Digits )
+              // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
+              // + "/" + DoubleToStr( sPrice00, Digits )
+              // + "/xP2." + DoubleToStr( xPos02, 0 )
+              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+          );
+
+
         break;
 
         case 91:
