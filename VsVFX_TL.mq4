@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.66 Update:2017.12.01"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.67 Update:2017.12.04"
 #property strict
 
 
@@ -806,6 +806,7 @@ void Base_TrendLine(const int nx_Check,
           rPrice02[0] = High03;
 
           rr2 = RA - rPos03;
+          High02 = High03;
         }
         else if( HighPos03 == rTime02[0] )
         {
@@ -818,6 +819,7 @@ void Base_TrendLine(const int nx_Check,
           rPrice02[0] = High03;
 
           rr2 = RA - rPos03;
+          High02 = High03;
         }
       }
 
@@ -862,13 +864,14 @@ void Base_TrendLine(const int nx_Check,
           sTime01[0] = sTime02[0];
           sPrice01[0] = sPrice02[0];
 
-          rs1 = rr2;
+          rs1 = rs2;
           Low01 = Low02;
 
           sTime02[0] = LowPos03;
           sPrice02[0] = Low03;
 
           rs2 = RA - sPos03;
+          Low02 = Low03;
         }
         else if( LowPos03 == sTime02[0] )
         {
@@ -876,6 +879,7 @@ void Base_TrendLine(const int nx_Check,
           sPrice02[0] = Low03;
 
           rs2 = RA - sPos03;
+          Low02 = Low03;
         }
       }
 
