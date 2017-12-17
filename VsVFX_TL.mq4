@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.67 Update:2017.12.04"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.68 Update:2017.12.10"
 #property strict
 
 
@@ -790,7 +790,8 @@ void Base_TrendLine(const int nx_Check,
       }
       else if( rPrice02[0] > 0 )
       {
-        HighPos03 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+        HighPos03 = ArrayMaximum( high, ((int)srTime-(int)xPos01), (int)xPos01 );
+        // (0.11.3.67.OK) HighPos03 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         rPos03 = (int)HighPos03;
         High03 = high[rPos03];
 
@@ -855,7 +856,8 @@ void Base_TrendLine(const int nx_Check,
       }
       else if( sPrice02[0] > 0)
       {
-        LowPos03 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
+        LowPos03 = ArrayMinimum( low, ((int)srTime-(int)xPos01), (int)xPos01 );
+        // (0.11.3.67.OK) LowPos03 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         sPos03 = (int)LowPos03;
         Low03 = low[sPos03];
 
