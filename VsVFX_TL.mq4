@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.68 Update:2017.12.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.69 Update:2017.12.25"
 #property strict
 
 
@@ -31,9 +31,9 @@
 //*--- (OLD) 1. Base.TrendeLine(BL) : 3 TrendLine
 
 //*--- VsVFX_SAR.0.0.2 & VsVFX_TL.0.11.3.3 : TL.Up&Down.TrendCheck : Up+1.Down-1
-//*--- VsVFx_TL.0.11.3.14. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
+//*--- VsVFX_TL.0.11.3.14. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
 //*--- VsVFX_TL.0.11.3.26. TrendLine(TL) : TL & Base.TL : TL * HL * SAR & MACD * Sto & RSI
-//*--- 2-3-2. TrendLine(TL) : TL & Base.TL : 3x Base.TL
+//*--- VsVFX_TL.0.11.3.68. TrendLine(TL) : TL & Base.TL : 3x Base.TL
 //*--- (Modify) 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //*--- (OLD) 2. TrendLIne(TL) : TL Cross * HL TrendLine
 //*--- (OLD) 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
@@ -51,13 +51,8 @@
 
 
 //--- 1. Base.TrendLine : Indicator Setup ---//
-// (0.11.3.0) extern int BLPeriod = 3;
-// (0.11.3.0) -> (0.11.3.27) 
-input int MaxLimit = 360;
 int cnt;
-// (0.11.3.27) int UpTL, DwTL;
-// int BaseTL;
-extern int BaseTL, bBTL;
+extern int bBTL, BaseTL;
 
 //--- 1. Base.TrendLine : Indicator Buffer ---//
 // (0.11.3.0) double BufLow[];
@@ -79,16 +74,10 @@ double rTime00, rPrice00;
 double rTime01[], rPrice01[], rTime02[], rPrice02[];
 double sTime01[], sPrice01[], sTime02[], sPrice02[];
 
-// (0.11.3.26) extern double sTime0, sPrice0, SupportPrice;
-// (0.11.3.26) extern double rTime0, rPrice0, ResistancePrice;
 extern double vSAR, vSAR01;
 extern double vLow, vLow01;
 extern double vHigh, vHigh01;
 extern double tLots;    // TrendCheckLots
-
-//--- SAR_Band : indicator parameters
-extern double SAR_Step = 0.02;
-extern double SAR_Max  = 0.2;
 
 //--- 2-2. TrendLine : Next.Point
 //--- MACD & MACD.Center ---//
