@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.70 Update:2017.12.26"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.71  Update:2017.12.26"
 #property strict
 
 
@@ -947,7 +947,8 @@ int OnCalculate(const int rates_total,
 
   //---* Support & Resistance : Data
   //---* Support.Minimum Data ---//
-  sTime0  = iCustom( NULL, 0, "VsVFX_BL", 5, 0 );
+  sTime0 = VsVFX_BL_Sig(sTime0);
+  // (Ver.0.11.3.69) sTime0  = iCustom( NULL, 0, "VsVFX_BL", 5, 0 );
   sPrice0 = iCustom( NULL, 0, "VsVFX_BL", 4, 0 );
   /* (0.11.3.0)
   st0 = ArrayMinimum( BufLow, MaxLimit-1, 0 );
