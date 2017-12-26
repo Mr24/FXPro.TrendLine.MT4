@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.69 Update:2017.12.25"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.70 Update:2017.12.26"
 #property strict
 
 
@@ -33,7 +33,7 @@
 //*--- VsVFX_SAR.0.0.2 & VsVFX_TL.0.11.3.3 : TL.Up&Down.TrendCheck : Up+1.Down-1
 //*--- VsVFX_TL.0.11.3.14. TrendLine(TL) : Next.Point = SAR & MACD & Sto & RSI
 //*--- VsVFX_TL.0.11.3.26. TrendLine(TL) : TL & Base.TL : TL * HL * SAR & MACD * Sto & RSI
-//*--- VsVFX_TL.0.11.3.68. TrendLine(TL) : TL & Base.TL : 3x Base.TL
+//*--- VsVFX_TL.0.11.3.69. TrendLine(TL) : TL & Base.TL : 3x Base.TL
 //*--- (Modify) 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //*--- (OLD) 2. TrendLIne(TL) : TL Cross * HL TrendLine
 //*--- (OLD) 2-1. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL
@@ -45,6 +45,10 @@
 //*--- 3-4. EntryPoint & ExitPoint : SAR & BB & MA
 //*--- (OLD) 3-1. EntryPoint & Exitpoint : RSI & Sto & HL
 //*--- (OLD) 3-2. EntryPoint & ExitPoint : SAR & BB & MA
+
+//--- FX.EA.Includes ---//
+#include <VsVEA_UJ_Sig.mqh>
+
 
 //--- FX.Indicator : Initial Setup ---//
 #property indicator_chart_window
