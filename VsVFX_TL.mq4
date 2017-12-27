@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.73  Update:2017.12.26"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.74  Update:2017.12.27"
 #property strict
 
 
@@ -946,7 +946,7 @@ int OnCalculate(const int rates_total,
   */
 
   //---* Support & Resistance : Data
-  VsVFX_BL_Sig( sTime0, sPrice0, rTime0, rPrice0);
+  VsVFX_BL_Sig( sTime0, sPrice0, rTime0, rPrice0 );
 
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
@@ -1012,31 +1012,14 @@ int OnCalculate(const int rates_total,
   }
 
   //*--- 2-1. TrendLine : SAR.Up&Down.TrendCheck
-  tLots = VsVFX_SAR_Sig( vSAR, vSAR01, vLow01, vHigh01);
-
-  /* (0.11.3.7)
-  Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
-      + " / TL.High01=" + DoubleToStr( vHigh01, 4 ) 
-      + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
-  */
-
-  /* (0.11.3.72)
-  if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
-  {
-    //*--- TL.Trend.Down
-    tLots = -1;
-    // (0.11.3.7) Print( "TL.Trend.Down.tLots=" + DoubleToStr( tLots, 0 ) );
-  }
-  if( vSAR01 >= vHigh01 && vSAR01 > vLow01 && vSAR <= vLow01 )
-  {
-    //*--- TL.Trend.Up
-    tLots = 1;
-    // (0.11.3.7) Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
-  }
-  */
+  tLots = VsVFX_SAR_Sig( vSAR, vSAR01, vLow01, vHigh01 );
 
   //*--- 2-2. TrendLine : Next.Point
   //*--- MACD ---//
+  VsVFX_MACD_Sig( mdCheck, mdCheckC00,
+                  vMACD, vMACD01, vMACD02,
+                  vMACDSig, vMACDSig01, vMACDSig02);
+
   Print( "MD=" + DoubleToStr( vMACD, 4 ) 
       + "/MD.Sig=" + DoubleToStr( vMACDSig, 4 )
       + "/MD.01=" + DoubleToStr( vMACD01, 4 ) 
@@ -1062,6 +1045,7 @@ int OnCalculate(const int rates_total,
   */
 
   //--- MACD.Trend.Up ---//
+  /*
   // (Ver.0.11.3.8) if( vMACD01 <= vMACDSig01 && vMACD > vMACDSig )
   if( vMACD02 <= vMACDSig02 && vMACD01 > vMACDSig01 )
   {
@@ -1081,6 +1065,7 @@ int OnCalculate(const int rates_total,
   //--- MACD.Center.Down ---//
   if( vMACD01 > 0 && vMACD < vMACDSig && vMACD < 0) mdCheckC00 = -1;
   // (0.11.3.7) Print( "TL.MACD.Center=" + DoubleToStr( mdCheckC00, 0 ) );
+  */
 
 
   //*--- Stochastic ---//
