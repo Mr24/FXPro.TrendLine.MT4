@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.72  Update:2017.12.26"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.73  Update:2017.12.26"
 #property strict
 
 
@@ -947,26 +947,6 @@ int OnCalculate(const int rates_total,
 
   //---* Support & Resistance : Data
   VsVFX_BL_Sig( sTime0, sPrice0, rTime0, rPrice0);
-  //---* Support.Minimum Data ---//
-  // (Ver.0.11.3.71) sTime0 = VsVFX_BL_Sig(sTime0);
-  // (Ver.0.11.3.69) sTime0  = iCustom( NULL, 0, "VsVFX_BL", 5, 0 );
-  // (Ver.0.11.3.71) sPrice0 = iCustom( NULL, 0, "VsVFX_BL", 4, 0 );
-  /* (0.11.3.0)
-  st0 = ArrayMinimum( BufLow, MaxLimit-1, 0 );
-  s0[0] = BufLow[st0];
-  sTime0[0] = BufLowPos[st0];
-  */
-  
-  //---* Resistance.Maximum Data ---//
-  // (Ver.0.11.3.71) rTime0  = iCustom( NULL, 0, "VsVFX_BL", 7, 0 );
-  // (Ver.0.11.3.71) rPrice0 = iCustom( NULL, 0, "VsVFX_BL", 6, 0 ); 
-  /* (0.11.3.0)
-  rt0 = ArrayMaximum( BufHigh, MaxLimit-1, 0 );
-  r0[0] = BufHigh[rt0];
-  // rTime0[1] = BufLowPos[rt0];
-  // rTime0[0] = (MaxLimit-1)/2+rTime0[1]-(rTime0[1]-rt0+1);
-  rTime0[0] = BufHighPos[rt0];ƒ
-  */
 
   //---* Support & Resistance : Moved Draw
   //---* Support.Minimum Moved Draw
@@ -979,27 +959,6 @@ int OnCalculate(const int rates_total,
       + "/" + DoubleToStr( sTime0, 0 )
   );
 
-  /* (0.11.3.26)
-  Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) + "." 
-      + TimeToStr( time[(int)sTime0], TIME_MINUTES ) 
-      + "/" + DoubleToStr( sPrice0, Digits )
-      // + "/" + string(sTime0) 
-      + "/" + DoubleToStr( sTime0, 0 ) );
-  */
-
-  /* (0.11.3.7)
-  Print( "TLTime.Sup00=" + TimeToStr( time[(int)sTime0], TIME_DATE ) 
-      + "." + TimeToStr( time[(int)sTime0], TIME_MINUTES )
-      + "/" + DoubleToStr( sPrice0, Digits ) + "/" + DoubleToStr( sTime0, 0 ) );
-  */
-  /* (0.11.3.0)
-  ObjectMove( "BaseSup:0", 0, time[st0], s0[0] );
-  Print( "Time.Sup.00=" + TimeToStr( time[(int)sTime0[0]], TIME_DATE ) 
-      + "." + TimeToStr( time[(int)sTime0[0]], TIME_MINUTES ) 
-      + "/" + DoubleToStr( s0[0], Digits ) + "/" + string(st0) 
-      + "/" + DoubleToStr( sTime0[0], 0 ) );
-  */
-
   //---* Resistance.Maximum Moved Draw
   ObjectMove( "BaseRes:0", 0, time[(int)rTime0], rPrice0 );
 
@@ -1009,34 +968,6 @@ int OnCalculate(const int rates_total,
       // + "/" + string(rTime0) 
       + "/" + DoubleToStr( rTime0, 0 )
   );
-
-  /* (0.11.3.26)
-  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) + "." 
-      + TimeToStr( time[(int)rTime0], TIME_MINUTES ) 
-      + "/" + DoubleToStr( rPrice0, Digits ) 
-      // + "/" + string(rTime0) 
-      + "/" + DoubleToStr( rTime0, 0 ) );
-  */
-
-  /* (0.11.3.7)
-  Print( "TLTime.Res00=" + TimeToStr( time[(int)rTime0], TIME_DATE ) 
-      + "." + TimeToStr( time[(int)rTime0], TIME_MINUTES )
-      + "/" + DoubleToStr( rPrice0, Digits ) + "/" + DoubleToStr( rTime0, 0 ) );
-  */
-  /* (0.11.3.0)
-  ObjectMove( "BaseRes:0", 0, time[rt0], r0[0] ); 
-  // Print( "Time.Res.00=" 
-      + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_DATE ) 
-      + "." 
-      + TimeToStr( time[(int)((MaxLimit-1)/2+rTime0[0]-(rTime0[0]-rt0+1))], TIME_MINUTES ) 
-  Print( "Time.Res.00=" + TimeToStr( time[(int)rTime0[0]], TIME_DATE ) + "." 
-      + TimeToStr( time[(int)rTime0[0]], TIME_MINUTES ) 
-      + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) 
-      + "/" + DoubleToStr( rTime0[0], 0 ) );
-    // + "/" + DoubleToStr( r0[0], Digits ) + "/" + string(rt0) + "/" 
-      + DoubleToStr( rTime0[1], 0 ) 
-      + "/" + DoubleToStr( rTime0[0], 0 ) );
-  */
 
 //--- 2. TrendLine : Caluculate.Setup ---//
   //---* 2-1. Trend Check : iSAR & iMACD & iSto & iRSI
@@ -1080,13 +1011,16 @@ int OnCalculate(const int rates_total,
 
   }
 
-  //*--- 2-1. TrendLine : TL.Up&Down.TrendCheck
+  //*--- 2-1. TrendLine : SAR.Up&Down.TrendCheck
+  tLots = VsVFX_SAR_Sig( vSAR, vSAR01, vLow01, vHigh01);
+
   /* (0.11.3.7)
   Print( "TL.SAR=" + DoubleToStr( vSAR, 4 ) + " / TL.SAR01=" + DoubleToStr( vSAR01, 4 ) 
       + " / TL.High01=" + DoubleToStr( vHigh01, 4 ) 
       + " / TL.Low01=" + DoubleToStr( vLow01, 4 ) );
   */
 
+  /* (0.11.3.72)
   if( vSAR01<=vLow01 && vSAR01 < vHigh01 && vSAR >= vHigh01 )
   {
     //*--- TL.Trend.Down
@@ -1099,6 +1033,7 @@ int OnCalculate(const int rates_total,
     tLots = 1;
     // (0.11.3.7) Print( "TL.Trend.Up.tLots=" + DoubleToStr( tLots, 0 ) );
   }
+  */
 
   //*--- 2-2. TrendLine : Next.Point
   //*--- MACD ---//
