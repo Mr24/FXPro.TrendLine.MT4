@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.75  Update:2017.12.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.3.76  Update:2017.12.27"
 #property strict
 
 
@@ -1032,85 +1032,21 @@ int OnCalculate(const int rates_total,
   VsVFX_Sto_Sig(stoCheck, stoCheckC50, stoPos,
     vSto, vSto01, vStoSig, vStoSig01);
 
-  /* (0.11.3.7)
-  Print( "TL.Sto=" + DoubleToStr( vSto, 4 ) 
-      + " / TL.Sto01=" + DoubleToStr( vSto01, 4 ) 
-      + " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) 
-      + " / TL.StoSig01=" + DoubleToStr( vStoSig01, 4 ) );
-  */
-
-
   //--- Stochastic.Trend.Up ---//
-  /*
-  if( vSto01 <= vStoSig01 && vSto > vStoSig )
-  {
-    stoCheck = 1;
-    // Print( "TL.Sto.Up=" + DoubleToStr( stoCheck, 0 ) );
-  }
-  //--- Stochastic.Trend.Down ---//
-  if( vSto01 >= vStoSig01 && vSto < vStoSig )
-  {
-    stoCheck = -1;
-    // Print( "TL.Sto.Down=" + DoubleToStr( stoCheck, 0 ));
-  }
-
-  //--- Stochastic.Center.x.Up ---//
-  // if( vSto01 < 50 && vSto > 50 && vSto > vStoSig ) stoCheckC00 = 1;
-  if( vSto01 < 50 && vSto > 50 && vSto > vStoSig ) stoCheckC50 = 1;
-  //--- Stochastic.Center.x.Down ---//
-  // if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC00 = -1;
-  if( vSto01 > 50 && vSto < 50 && vSto < vStoSig ) stoCheckC50 = -1;
-  */
-
   Print( "Sto.01=" + DoubleToStr( vSto01, 4 )
       + "/Sto=" + DoubleToStr( vSto, 4 )
       + "/Sto.Sig=" + DoubleToStr( vStoSig, 4 )
   );
 
-  /* (0.11.3.25)
-  // Print( "TL.Sto.Center=" + DoubleToStr( stoCheckC00, 0 ) );
-  Print( "TL.Sto.Center.50=" + DoubleToStr( stoCheckC50, 0 )
-      + " / TL.Sto01=" + DoubleToStr( vSto01, 4 )
-      + " / TL.Sto=" + DoubleToStr( vSto, 4 )
-      + " / TL.StoSig=" + DoubleToStr( vStoSig, 4 ) );
-  */
-
-
-  //--- Stochastic.Position ---//
-  /*
-  //*--- Sto.Center.x ---//
-  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 1;
-  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -1;
-
-  //*--- vSto01 > 50 & vSto > 50 ---//
-  //*--- 50.UpUp
-  if( vSto01 > 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 2;
-  //*--- 50.DownDown
-  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto > 50 && vSto < vStoSig ) stoPos = -2;
-  //*--- 50.xUp
-  if( vSto01 > 50 && vSto01 <= vStoSig01 && vSto > 50 && vSto > vStoSig ) stoPos = 3;
-  //*--- 50.xDown
-  if( vSto01 > 50 && vSto01 >= vStoSig01 && vSto > 50 && vSto < vStoSig ) stoPos = -3;
-  
-  //*--- vSto01 < 50 & vSto < 50 ---//
-  //*--- -50.UpUp
-  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 4;
-  //*--- -50.DownDown
-  if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -4;
-  //*--- -50.xUp
-  if( vSto01 < 50 && vSto01 <= vStoSig01 && vSto < 50 && vSto > vStoSig ) stoPos = 5;
-  //*--- -50.xDown
-  if( vSto01 < 50 && vSto01 >= vStoSig01 && vSto < 50 && vSto < vStoSig ) stoPos = -5;
-  // Print( "TL.StoPos=" + DoubleToStr( stoPos, 0 ) );
-  */
-
-
   //*--- RSI ---//
+  VsVFX_RSI_Sig(rsiCheck, rsiCheckC50, rsiPos, vRSI, vRSI01);
+
   /* (Ver.0.11.3.10) */
   // Print( "TL.RSI=" + DoubleToStr( vRSI, 4 ) 
   //     + " / TL.RSI01=" + DoubleToStr( vRSI01, 4 ) );
 
   //--- RSI.Trend.Up ---//
+  /*
   if( vRSI > vRSI01 )
   {
     rsiCheck = 1;
@@ -1127,6 +1063,8 @@ int OnCalculate(const int rates_total,
   if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiCheckC50 = 1;
   //--- RSI.Center.x.Down ---//
   if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiCheckC50 = -1;
+  */
+
   /* (0.11.3.25)
   Print( "TL.RSI.Center.50=" + DoubleToStr( rsiCheckC50, 0 )
       + " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
@@ -1134,6 +1072,7 @@ int OnCalculate(const int rates_total,
   */
 
   //--- RSI.Position ---//
+  /*
   //*--- RSI.Center.x ---//
   if( vRSI01 < 50 && vRSI > 50 && vRSI > vRSI01 ) rsiPos = 50;
   if( vRSI01 > 50 && vRSI < 50 && vRSI < vRSI01 ) rsiPos = -50;
@@ -1191,7 +1130,8 @@ int OnCalculate(const int rates_total,
   if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 0 && vRSI < 30 && vRSI < vRSI01 ) rsiPos = -30;
   //*--- -30.xDown : 30 <= vRSI01 < 40 && 0 <= vRSI 
   // if( vRSI01 >= 30 && vRSI01 < 40 && vRSI >= 0 && vRSI < vRSI01 ) rsiPos = -30;
-  
+  */
+
   /* (0.11.3.25)
   Print( "TL.RSIPos=" + DoubleToStr( rsiPos, 0 )
       + " / TL.RSI01=" + DoubleToStr( vRSI01, 4 )
