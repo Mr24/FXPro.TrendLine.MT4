@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.4.1  Update:2017.12.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.4.2  Update:2017.12.27"
 #property strict
 
 
@@ -1110,25 +1110,24 @@ int OnCalculate(const int rates_total,
   //*--- Base.TL.Setup ---//
   //--- Entry & Exit Story Setup ---//
   EnUpStory=false; EnDwStory=false; ExUpStory=false; ExDwStory=false;
+
+  //--- Entry.Story ---//
   int EnStory = USDJPY_EntrySignal(20171228);
   if(EnStory>0) EnUpStory=true;
   if(EnStory<0) EnDwStory=true;
 
-  //--- Entry.Up.Story ---//
-  /* (Ver.0.11.4.0)
-  if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
-    EnUpStory=true;
-  //--- Entry.Down.Story ---//
-  if( tLots==-1 && Bid<=HLMid01 && mdCheck==-1 && mdCheckC00==-1 )
-    EnDwStory=true;
-  */
+  //--- Exit.Story ---//
+  int ExStory = USDJPY_ExitSignal(20171228);
+  if(ExStory>0) ExUpStory=true;
+  if(ExStory<0) ExDwStory=true;
 
-  //--- Exit.Up.Story ---//
+  /* (Ver.0.11.4.1)
   if( tLots==-1 && Bid<= HLMid01 && stoPos<0 && rsiPos==-50 )
     ExUpStory=true;
   //--- Exit.Down.Story ---//
   if( tLots==1 && Ask>= HLMid01 && stoPos>0 && rsiPos==50 )
     ExDwStory=true;
+  */
 
   //--- Entry & Exit : UpTL & DwTL Signal : Setup ---//
   switch( BaseTL )
