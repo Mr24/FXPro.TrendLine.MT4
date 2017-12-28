@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.4.0  Update:2017.12.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.4.1  Update:2017.12.27"
 #property strict
 
 
@@ -1110,12 +1110,19 @@ int OnCalculate(const int rates_total,
   //*--- Base.TL.Setup ---//
   //--- Entry & Exit Story Setup ---//
   EnUpStory=false; EnDwStory=false; ExUpStory=false; ExDwStory=false;
+  int EnStory = USDJPY_EntrySignal(20171228);
+  if(EnStory>0) EnUpStory=true;
+  if(EnStory<0) EnDwStory=true;
+
   //--- Entry.Up.Story ---//
+  /* (Ver.0.11.4.0)
   if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
     EnUpStory=true;
   //--- Entry.Down.Story ---//
   if( tLots==-1 && Bid<=HLMid01 && mdCheck==-1 && mdCheckC00==-1 )
     EnDwStory=true;
+  */
+
   //--- Exit.Up.Story ---//
   if( tLots==-1 && Bid<= HLMid01 && stoPos<0 && rsiPos==-50 )
     ExUpStory=true;
