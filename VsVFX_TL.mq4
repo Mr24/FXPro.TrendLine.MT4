@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.4.2  Update:2017.12.27"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.0  Update:2017.12.28"
 #property strict
 
 
@@ -199,7 +199,7 @@ int OnInit(void)
   SetIndexBuffer( 6, sTime02 );
   ArraySetAsSeries( sTime02, true );
   SetIndexBuffer( 7, sPrice02 );
-  ArraySetAsSeries( sPrice02, true );  
+  ArraySetAsSeries( sPrice02, true );
 
   //*--- Exit Time Buffer
   // (Test:0.11.3.27) SetIndexBuffer( 1, BufExTime01 );
@@ -1112,6 +1112,8 @@ int OnCalculate(const int rates_total,
   EnUpStory=false; EnDwStory=false; ExUpStory=false; ExDwStory=false;
 
   //--- Entry.Story ---//
+  // int EnStory = USDJPY_EntrySignal(Bars,20171228);
+  // Print( "FXTL_Bars=" + IntegerToString(Bars) ); // 1001
   int EnStory = USDJPY_EntrySignal(20171228);
   if(EnStory>0) EnUpStory=true;
   if(EnStory<0) EnDwStory=true;
