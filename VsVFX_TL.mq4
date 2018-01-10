@@ -20,9 +20,14 @@
 //|                          вы можете узнать в форуме на моем сайте |
 //|                          http://www.expert-mt4.nm.ru/forum.dhtml |
 //+------------------------------------------------------------------+
+//|                                                  TLine Alert.mq4 |
+//|                                       Copyright © raff1410@o2.pl |
+//|                                               4xleader@gmail.com |
+//|   - updated with popup and alert on new candle. enjoy the basics |
+//+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.2  Update:2018.01.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.3  Update:2018.01.10"
 #property strict
 
 
@@ -108,6 +113,7 @@ extern double rsiPos;   // RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //--- Trend Buffer ---//
+double BufNewTL[];
 // (0.11.3.27) double BufTLUp[];
 // (0.11.3.27) double BufTLDown[];
 //--- Entry & Exit ---//
@@ -163,7 +169,11 @@ int OnInit(void)
 {
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //--- 8 addtional Buffer used for Conting.
-  IndicatorBuffers( 2 );
+  IndicatorBuffers( 1 );
+
+  //*--- New.Trend : Trend.Up||Trend.Down Buffer
+  SetIndexBuffer( 0, BufNewTL );
+  ArraySetAsSeries( BufNewTL, true );
 
   //*--- Trend.Up Buffer
   // (0.11.3.26) SetIndexBuffer( 0, BufTLUp );
@@ -304,6 +314,10 @@ int OnInit(void)
 
     //--- Default.Trend.Setup
     //*--- 2-3. TrendLine(TL) : New.TrendLine
+    ObjectCreate( "NewTL", OBJ_TREND, 0, 0, 0, 0, 0 );
+    ObjectSet( "NewTL", OBJPROP_COLOR, White );
+    ObjectSet( "NewTL", OBJPROP_STYLE, STYLE_SOLID );
+
     ObjectSet( "Trend.Up:0", OBJPROP_COLOR, Blue );
     ObjectSet( "Trend.Up:0", OBJPROP_STYLE, STYLE_SOLID );
     ObjectSet( "Trend.Down:0", OBJPROP_COLOR, Red );
@@ -330,6 +344,7 @@ void OnDeinit(const int reason)
     ObjectDelete( "BaseRes:" + string(cnt) );
 
     //*--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
+    ObjectDelete( "NewTL" );
     ObjectDelete( "Trend.Up:" + string(cnt) );
     ObjectDelete( "Trend.Down:" + string(cnt) );
   }
@@ -1289,6 +1304,10 @@ int OnCalculate(const int rates_total,
           // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
 
           //*--- Trend.Up:0 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)sTime01], sPrice01 );
+          ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
+
           //--- sTime01 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
@@ -1413,6 +1432,10 @@ int OnCalculate(const int rates_total,
           // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
 
           //*--- Trend.Down:0 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
+          ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
+
           //--- rTime01 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
           // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
@@ -1510,6 +1533,10 @@ int OnCalculate(const int rates_total,
           // (0.11.3.58.OK) ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
 
           //*--- Trend.Up: 0 & 1 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)sTime01], sPrice01 );
+          ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
+
           //--- sTime01 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
           // (0.11.5.1.OK) ObjectMove( "Trend.Up:0", 0, time[(int)sTime01[0]], sPrice01[0] );
@@ -1624,6 +1651,10 @@ int OnCalculate(const int rates_total,
           // (0.11.3.59.OK) ObjectMove( "EnPos:0", 0, (int)EnDwTime01, EnDwPrice01 );
 
           //*--- Trend.Dw: 0 & 1 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
+          ObjectMove( "NewTL", 1, (int)EnDwTime02, EnDwPrice02 );
+
           //--- rTime01 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
           // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
@@ -1737,6 +1768,10 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:1", 0, (int)EnDwTime02, EnDwPrice02 );
 
           //*--- Trend.Up: 0 & 1 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)sTime02], sPrice02 );
+          ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
+
           //--- sTime02 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime02], sPrice02 );
           // (0.11.5.1.OK) ObjectMove( "Trend.Up:0", 0, time[(int)sTime02[0]], sPrice02[0] );
@@ -1864,6 +1899,10 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:1", 0, (int)EnUpTime02, EnUpPrice02 );
 
           //*--- Trend.Dw: 0 & 1 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)rTime02], rPrice02 );
+          ObjectMove( "NewTL", 1, (int)EnDwTime02, EnDwPrice02 );
+
           //--- rTime02 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime02], rPrice02 );
           // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime02[0]], rPrice02[0] );
@@ -1986,6 +2025,11 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
 
           //*--- Trend.Up:0 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)sTime00], sPrice00 );
+          ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
+
+          //--- sTime00 ---//
           // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime00], sPrice00 );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
@@ -2059,6 +2103,11 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:0", 0, (int)EnDwTime01, EnDwPrice01 );
 
           //*--- Trend.Dw:0 ---//
+          //--- NewTL ---//
+          ObjectMove( "NewTL", 0, time[(int)rTime00], rPrice00 );
+          ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
+
+          //--- rTime00 ---//
           // (0.11.3.56.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime00], rPrice00 );
           ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
