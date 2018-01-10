@@ -22,7 +22,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.1  Update:2017.12.28"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.2  Update:2018.01.10"
 #property strict
 
 
@@ -75,8 +75,12 @@ extern double rTime0, rPrice0;
 double sTime00, sPrice00;
 double rTime00, rPrice00;
 
+double rTime01, rPrice01, rTime02, rPrice02;
+double sTime01, sPrice01, sTime02, sPrice02;
+/* (Ver.0.11.5.1)
 double rTime01[], rPrice01[], rTime02[], rPrice02[];
 double sTime01[], sPrice01[], sTime02[], sPrice02[];
+*/
 
 extern double vSAR, vSAR01;
 extern double vLow, vLow01;
@@ -159,7 +163,7 @@ int OnInit(void)
 {
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //--- 8 addtional Buffer used for Conting.
-  IndicatorBuffers( 8 );
+  IndicatorBuffers( 2 );
 
   //*--- Trend.Up Buffer
   // (0.11.3.26) SetIndexBuffer( 0, BufTLUp );
@@ -181,6 +185,7 @@ int OnInit(void)
   // SetIndexBuffer( 1, BufHighPos01 );
   // ArraySetAsSeries( BufHighPos01, true );
 
+  /* (Ver.11.5.1)
   SetIndexBuffer( 0, rTime01 );
   ArraySetAsSeries( rTime01, true );
   SetIndexBuffer( 1, rPrice01 );
@@ -200,6 +205,7 @@ int OnInit(void)
   ArraySetAsSeries( sTime02, true );
   SetIndexBuffer( 7, sPrice02 );
   ArraySetAsSeries( sPrice02, true );
+  */
 
   //*--- Exit Time Buffer
   // (Test:0.11.3.27) SetIndexBuffer( 1, BufExTime01 );
@@ -706,8 +712,12 @@ void Base_TrendLine(const int nx_Check,
       rPos01 = (int)HighPos01;
       High01 = high[rPos01];
 
+      rTime01 = HighPos01;
+      rPrice01 = High01;
+      /* (0.11.5.1.OK)
       rTime01[0] = HighPos01;
       rPrice01[0] = High01;
+      */
 
       rr1 = RA - rPos01;
 
@@ -723,8 +733,12 @@ void Base_TrendLine(const int nx_Check,
       sPos01 = (int)LowPos01;
       Low01 = low[sPos01];
 
+      sTime01 = LowPos01;
+      sPrice01 = Low01;
+      /* (0.11.5.1.)
       sTime01[0] = LowPos01;
       sPrice01[0] = Low01;
+      */
 
       rs1 = RA - sPos01;
 
@@ -740,8 +754,12 @@ void Base_TrendLine(const int nx_Check,
       rPos02 = (int)HighPos02;
       High02 = high[rPos02];
 
+      rTime02 = HighPos02;
+      rPrice02 = High02;
+      /* (0.11.5.1.OK)
       rTime02[0] = HighPos02;
       rPrice02[0] = High02;
+      */
 
       rr2 = RA - rPos02;
 
@@ -757,8 +775,12 @@ void Base_TrendLine(const int nx_Check,
       sPos02 = (int)LowPos02;
       Low02 = low[sPos02];
 
+      sTime02 = LowPos02;
+      sPrice02 = Low02;
+      /* (0.11.5.1.OK)
       sTime02[0] = LowPos02;
       sPrice02[0] = Low02;
+      */
 
       rs2 = RA - sPos02;
 
@@ -770,47 +792,67 @@ void Base_TrendLine(const int nx_Check,
       // xPos02 = xPos01; xPos01 = srTime - SRxPos;
       xPos01 = srTime - SRxPos;
 
-      if( rPrice02[0] == 0 )
+      if( rPrice02 == 0 )
+      // (0.11.5.1.OK) if( rPrice02[0] == 0 )
       {
         HighPos02 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         rPos02 = (int)HighPos02;
         High02 = high[rPos02];
 
+        rTime02 = HighPos02;
+        rPrice02 = High02;
+        /* (0.11.5.1.OK)
         rTime02[0] = HighPos02;
         rPrice02[0] = High02;
+        */
 
         rr2 = RA - rPos02;
       }
-      else if( rPrice02[0] > 0 )
+      else if( rPrice02 > 0 )
+      // (0.11.5.1.OK) else if( rPrice02[0] > 0 )
       {
         HighPos03 = ArrayMaximum( high, ((int)srTime-(int)xPos01), (int)xPos01 );
         // (0.11.3.67.OK) HighPos03 = ArrayMaximum( high, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         rPos03 = (int)HighPos03;
         High03 = high[rPos03];
 
-        if( HighPos03 != rTime02[0] )
+        if( HighPos03 != rTime02 )
+        // (0.11.5.1.OK) if( HighPos03 != rTime02[0] )
         {
+          rTime01 = rTime02;
+          rPrice01 = rPrice02;
+          /* (0.11.5.1.OK)
           rTime01[0] = rTime02[0];
           rPrice01[0] = rPrice02[0];
+          */
 
           rr1 = rr2;
           High01 = High02;
 
+          rTime02 = HighPos03;
+          rPrice02 = High03;
+          /* (0.11.5.1.OK)
           rTime02[0] = HighPos03;
           rPrice02[0] = High03;
+          */
 
           rr2 = RA - rPos03;
           High02 = High03;
         }
-        else if( HighPos03 == rTime02[0] )
+        else if( HighPos03 == rTime02 )
+        // (0.11.5.1.OK) else if( HighPos03 == rTime02[0] )
         {
           /*
           rTime01[0] = rTime02[0];
           rPrice01[0] = rPrice02[0];
           */
 
+          rTime02 = HighPos03;
+          rPrice02 = High03;
+          /* (0.11.5.1.OK)
           rTime02[0] = HighPos03;
           rPrice02[0] = High03;
+          */
 
           rr2 = RA - rPos03;
           High02 = High03;
@@ -836,42 +878,62 @@ void Base_TrendLine(const int nx_Check,
       // xPos02 = xPos01; xPos01 = srTime - SRxPos;
       xPos01 = srTime - SRxPos;
 
-      if( sPrice02[0] == 0 )
+      if( sPrice02 == 0 )
+      // (0.11.5.1.OK) if( sPrice02[0] == 0 )
       {
         LowPos02 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         sPos02 = (int)LowPos02;
         Low02 = low[sPos02];
 
+        sTime02 = LowPos02;
+        sPrice02 = Low02;
+        /* (0.11.5.1.OK)
         sTime02[0] = LowPos02;
         sPrice02[0] = Low02;
+        */
 
         rs2 = RA - sPos02;
       }
-      else if( sPrice02[0] > 0)
+      else if( sPrice02 > 0)
+      // (0.11.5.1.OK) else if( sPrice02[0] > 0)
       {
         LowPos03 = ArrayMinimum( low, ((int)srTime-(int)xPos01), (int)xPos01 );
         // (0.11.3.67.OK) LowPos03 = ArrayMinimum( low, ((int)srTime-(int)xPos01)/2, (int)xPos01 );
         sPos03 = (int)LowPos03;
         Low03 = low[sPos03];
 
-        if( LowPos03 != sTime02[0] )
+        if( LowPos03 != sTime02 )
+        // (0.11.5.1.OK) if( LowPos03 != sTime02[0] )
         {
+          sTime01 = sTime02;
+          sPrice01 = sPrice02;
+          /* (0.11.5.1.OK)
           sTime01[0] = sTime02[0];
           sPrice01[0] = sPrice02[0];
+          */
 
           rs1 = rs2;
           Low01 = Low02;
 
+          sTime02 = LowPos03;
+          sPrice02 = Low03;
+          /* (0.11.5.1.OK)
           sTime02[0] = LowPos03;
           sPrice02[0] = Low03;
+          */
 
           rs2 = RA - sPos03;
           Low02 = Low03;
         }
-        else if( LowPos03 == sTime02[0] )
+        else if( LowPos03 == sTime02 )
+        // (0.11.5.1.OK) else if( LowPos03 == sTime02[0] )
         {
+          sTime02 = LowPos03;
+          sPrice02 = Low03;
+          /* (0.11.5.1.OK)
           sTime02[0] = LowPos03;
           sPrice02[0] = Low03;
+          */
 
           rs2 = RA - sPos03;
           Low02 = Low03;
@@ -1068,6 +1130,20 @@ int OnCalculate(const int rates_total,
     sTime00 = rates_total - rs0;
     rTime00 = rates_total - rr0;
 
+
+    rTime01 = rates_total - rr1;
+    rPrice01 = High01;
+
+    sTime01 = rates_total - rs1;
+    sPrice01 = Low01;
+
+    rTime02 = rates_total - rr2;
+    rPrice02 = High02;
+
+    sTime02 = rates_total - rs2;
+    sPrice02 = Low02;
+
+    /* (Ver.0.11.5.1)
     sTime01[0] = rates_total - rs1;
     // (NG) ps1 = ArrayMinimum( Low01, rates_total-rs1, 0 );
     // (NG) sPrice01[0] = low[ps1];
@@ -1081,6 +1157,7 @@ int OnCalculate(const int rates_total,
 
     rTime02[0] = rates_total - rr2;
     rPrice02[0] = High02;
+    */
 
   }
   // else if ( rTime00 > sTime00 ) BaseTL = 98;
@@ -1181,7 +1258,8 @@ int OnCalculate(const int rates_total,
           //--- B.Res:0 -> B.Sup:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
           //---* Base.Sup:1 Setup ---//
-          ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* nxCheck=10 & B.Res:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1191,9 +1269,13 @@ int OnCalculate(const int rates_total,
               + "/EP01=" + DoubleToStr( EnDwPrice01, Digits )
               + "/XT01=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/XP01=" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BS01=" + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
               // + "/srT=" + DoubleToStr( RxPos01, 0 )
+              /* (0.11.5.1.OK)
               + "/BS01=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               + "/xPos01=" + DoubleToStr( xPos01, 0 )
           );
         break;
@@ -1208,12 +1290,17 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Up:0 ---//
           //--- sTime01 ---//
+          ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
+          ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
+          /* (0.11.5.1.OK)
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01[0]], sPrice01[0] );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
+          */
 
           //---* Up.Exit Algorithm ---//
           // Exit_Sig( 11, sTime0 );
-          Exit_Sig( 11, sTime01[0] );
+          Exit_Sig( 11, sTime01 );
+          // (0.11.5.1.OK) Exit_Sig( 11, sTime01[0] );
 
           //---* nxCheck=11 & B.Sup:1 & B.Res:0 : Print Out ---//
           //---* nxCheck=94 & B.Res:0 : Print Out ---//
@@ -1228,8 +1315,12 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X2=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BS1=" + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS1=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               + "/xP1=" + DoubleToStr( xPos01, 0 )
               // + "/rTime00=" + DoubleToStr( rTime00, 0 )
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
@@ -1246,10 +1337,12 @@ int OnCalculate(const int rates_total,
           //--- B.Res:0 -> B.Sup:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
           //--- B.Sup:1 -> B.Res:1 Setup ---//
-          Base_TrendLine(92, SxPos01, sTime01[0], rates_total, high, low);
+          Base_TrendLine(92, SxPos01, sTime01, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(92, SxPos01, sTime01[0], rates_total, high, low);
 
           //---* Base.Res:1 Setup ---//
-          ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
           //---* Dw.Entry Algorithm ---//
           Entry_Sig( 40 );
@@ -1268,10 +1361,16 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( rPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1283,7 +1382,8 @@ int OnCalculate(const int rates_total,
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //---* Base.Res:1 Setup ---//
-          ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
           //---* nxCheck=20 & B.Sup:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1293,8 +1393,12 @@ int OnCalculate(const int rates_total,
               + "/EP01=" + DoubleToStr( EnUpPrice01, Digits )
               + "/XT01=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/XP01=" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BR01=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               + "/xPos01=" + DoubleToStr( xPos01, 0 )
           );
         break;
@@ -1310,12 +1414,14 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Down:0 ---//
           //--- rTime01 ---//
-          ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
           ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
 
           //---* Dw.Exit Algorithm ---//
           // Exit_Sig( 23, rTime0 );
-          Exit_Sig( 23, rTime01[0] );
+          Exit_Sig( 23, rTime01 );
+          // (0.11.5.1.OK) Exit_Sig( 23, rTime01[0] );
 
           //---* nxCheck=23 & B.Res:1 & B.Sup:0 : Print Out ---//
           Print( "bTL=" + string(BaseTL)
@@ -1327,8 +1433,12 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X2=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BR1=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR1=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/st=" + TimeToStr( (int)sTime00, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice00, Digits )
               + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
@@ -1346,10 +1456,12 @@ int OnCalculate(const int rates_total,
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //--- B.Res:1 -> B.Sup:1 Setup ---//
           // Base_TrendLine(94, RxPos01, rTime01[0], high, low);
-          Base_TrendLine(94, RxPos01, rTime01[0], rates_total, high, low);
+          Base_TrendLine(94, RxPos01, rTime01, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(94, RxPos01, rTime01[0], rates_total, high, low);
 
           //---* Base.Sup:1 Setup ---//
-          ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* Up.Entry Algorithm ---//
           Entry_Sig( 30 );
@@ -1369,12 +1481,20 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/st=" + TimeToStr( (int)sTime00, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice00, Digits )
+              /* (0.11.5.1.OK)
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               // + "/sT." + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xPos1=" + DoubleToStr( xPos01, 0 )
@@ -1391,7 +1511,8 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Up: 0 & 1 ---//
           //--- sTime01 ---//
-          ObjectMove( "Trend.Up:0", 0, time[(int)sTime01[0]], sPrice01[0] );
+          ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Up:0", 0, time[(int)sTime01[0]], sPrice01[0] );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime02, EnUpPrice02 );
           // (0.11.3.58.OK) ObjectMove( "Trend.Up:0", 1, (int)EnUpTime01, EnUpPrice01 );
           //--- sTime00 ---//
@@ -1400,7 +1521,8 @@ int OnCalculate(const int rates_total,
           // (0.11.3.58.OK) ObjectMove( "Trend.Up:1", 1, (int)EnUpTime02, EnUpPrice02 );
 
           //---* Up.Exit Algorithm ---//
-          Exit_Sig( 31, sTime01[0] );
+          Exit_Sig( 31, sTime01 );
+          // (0.11.5.1.OK) Exit_Sig( 31, sTime01[0] );
 
           //---* nxCheck=31 & B.Sup:1 & B.Res:1 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1419,10 +1541,16 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1437,11 +1565,16 @@ int OnCalculate(const int rates_total,
           // (0.11.3.58.OK) ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
 
           //--- B.Sup:1 -> B.Res:2 Setup ---//
-          Base_TrendLine(32, SxPos01, sTime01[0], rates_total, high, low);
+          Base_TrendLine(32, SxPos01, sTime01, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(32, SxPos01, sTime01[0], rates_total, high, low);
 
           //---* Base.Res:1 & 2 Setup ---//
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime02], rPrice02 );
+          ObjectMove( "BaseRes:2", 0, time[(int)rTime01], rPrice01 );
+          /* (0.11.5.1.OK)
           ObjectMove( "BaseRes:1", 0, time[(int)rTime02[0]], rPrice02[0] );
           ObjectMove( "BaseRes:2", 0, time[(int)rTime01[0]], rPrice01[0] );
+          */
 
           //---* Dw.Entry Algorithm ---//
           Entry_Sig( 60 );
@@ -1463,12 +1596,20 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice02[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1484,7 +1625,8 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Dw: 0 & 1 ---//
           //--- rTime01 ---//
-          ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime01[0]], rPrice01[0] );
           ObjectMove( "Trend.Down:0", 1, (int)EnDwTime02, EnDwPrice02 );
           // (0.11.3.59.OK) ObjectMove( "Trend.Down:0", 1, (int)EnDwTime01, EnDwPrice01 );
           //--- rTime00 ---//
@@ -1493,7 +1635,8 @@ int OnCalculate(const int rates_total,
           // (0.11.3.59.OK) ObjectMove( "Trend.Down:1", 1, (int)EnDwTime02, EnDwPrice02 );
 
           //---* Dw.Exit Algorithm ---//
-          Exit_Sig( 43, rTime01[0] );
+          Exit_Sig( 43, rTime01 );
+          // (0.11.5.1.OK) Exit_Sig( 43, rTime01[0] );
 
           //---* nxCheck=43 & B.Res:1 & B.Sup:1 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1512,10 +1655,16 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
-              + "/" + DoubleToStr( sPrice01[0], Digits ) 
+              + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1530,11 +1679,16 @@ int OnCalculate(const int rates_total,
           // (0.11.3.59.OK) ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
 
           //--- B.Res:1 -> B.Sup:2 Setup ---//
-          Base_TrendLine(44, RxPos01, rTime01[0], rates_total, high, low);
+          Base_TrendLine(44, RxPos01, rTime01, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(44, RxPos01, rTime01[0], rates_total, high, low);
 
           //---* Base.Sup:1 & 2 Setup ---//
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime02], sPrice02 );
+          ObjectMove( "BaseSup:2", 0, time[(int)sTime01], sPrice01 );
+          /* (0.11.5.1.OK)
           ObjectMove( "BaseSup:1", 0, time[(int)sTime02[0]], sPrice02[0] );
           ObjectMove( "BaseSup:2", 0, time[(int)sTime01[0]], sPrice01[0] );
+          */
 
           //---* Up.Entry Algorithm ---//
           Entry_Sig( 50 );
@@ -1556,12 +1710,20 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BS2." + TimeToStr( time[(int)sTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice02, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS2." + TimeToStr( time[(int)sTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice02[0], Digits ) 
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
-              + "/" + DoubleToStr( sPrice01[0], Digits ) 
+              + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1576,14 +1738,17 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Up: 0 & 1 ---//
           //--- sTime02 ---//
-          ObjectMove( "Trend.Up:0", 0, time[(int)sTime02[0]], sPrice02[0] );
+          ObjectMove( "Trend.Up:0", 0, time[(int)sTime02], sPrice02 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Up:0", 0, time[(int)sTime02[0]], sPrice02[0] );
           ObjectMove( "Trend.Up:0", 1, (int)EnUpTime02, EnUpPrice02 );
           //--- sTime01 ---//
-          ObjectMove( "Trend.Up:1", 0, time[(int)sTime01[0]], sPrice01[0] );
+          ObjectMove( "Trend.Up:1", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Up:1", 0, time[(int)sTime01[0]], sPrice01[0] );
           ObjectMove( "Trend.Up:1", 1, (int)EnUpTime01, EnUpPrice01 );
 
           //---* Up.Exit Algorithm ---//
-          Exit_Sig( 51, sTime02[0] );
+          Exit_Sig( 51, sTime02 );
+          // (0.11.5.1.OK) Exit_Sig( 51, sTime02[0] );
 
           //---* nxCheck=51 & B.Sup:2 & B.Res:1 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1604,12 +1769,20 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( ExDwPrice02, Digits )
               // + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
               // + "/" + DoubleToStr( rPrice02[0], Digits )
+              + "/BS2." + TimeToStr( time[(int)sTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice02, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS2." + TimeToStr( time[(int)sTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice02[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1623,11 +1796,16 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:1", 0, (int)ExDwTime02, ExDwPrice02 );
 
           //--- B.Sup:2 -> B.Res:2 Setup ---//
-          Base_TrendLine(52, SxPos01, sTime02[0], rates_total, high, low);
+          Base_TrendLine(52, SxPos01, sTime02, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(52, SxPos01, sTime02[0], rates_total, high, low);
 
           //---* Base.Res:1 & 2 Setup ---//
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime02], rPrice02 );
+          ObjectMove( "BaseRes:2", 0, time[(int)rTime01], rPrice01 );
+          /* (0.11.5.1.OK)
           ObjectMove( "BaseRes:1", 0, time[(int)rTime02[0]], rPrice02[0] );
           ObjectMove( "BaseRes:2", 0, time[(int)rTime01[0]], rPrice01[0] );
+          */
 
           //---* Dw.Entry Algorithm ---//
           Entry_Sig( 60 );
@@ -1649,6 +1827,15 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice02, Digits )
               + "/X2." + TimeToStr( (int)ExDwTime02, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice02, Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02, Digits )
+              + "/BS2." + TimeToStr( time[(int)sTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice02, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice02[0], Digits )
               + "/BS2." + TimeToStr( time[(int)sTime02[0]], TIME_MINUTES )
@@ -1657,6 +1844,7 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( rPrice01[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1677,14 +1865,17 @@ int OnCalculate(const int rates_total,
 
           //*--- Trend.Dw: 0 & 1 ---//
           //--- rTime02 ---//
-          ObjectMove( "Trend.Down:0", 0, time[(int)rTime02[0]], rPrice02[0] );
+          ObjectMove( "Trend.Down:0", 0, time[(int)rTime02], rPrice02 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime02[0]], rPrice02[0] );
           ObjectMove( "Trend.Down:0", 1, (int)EnDwTime02, EnDwPrice02 );
           //--- rTime01 ---//
-          ObjectMove( "Trend.Down:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "Trend.Down:1", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "Trend.Down:1", 0, time[(int)rTime01[0]], rPrice01[0] );
           ObjectMove( "Trend.Down:1", 1, (int)EnDwTime01, EnDwPrice01 );
 
           //---* Dw.Exit Algorithm ---//
-          Exit_Sig( 63, rTime02[0] );
+          Exit_Sig( 63, rTime02 );
+          // (0.11.5.1.OK) Exit_Sig( 63, rTime02[0] );
 
           //---* nxCheck=63 & B.Res:2 & B.Sup:1 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1703,12 +1894,20 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice02, Digits )
               + "/X2." + TimeToStr( (int)ExUpTime02, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice02, Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice02[0], Digits )
               + "/BS1." + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1722,11 +1921,16 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:1", 0, (int)ExUpTime02, ExUpPrice02 );
 
           //--- B.Res:2 -> B.Sup:2 Setup ---//
-          Base_TrendLine(64, RxPos01, rTime02[0], rates_total, high, low);
+          Base_TrendLine(64, RxPos01, rTime02, rates_total, high, low);
+          // (0.11.5.1.OK) Base_TrendLine(64, RxPos01, rTime02[0], rates_total, high, low);
 
           //---* Base.Sup:1 & 2 Setup ---//
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime02], sPrice02 );
+          ObjectMove( "BaseSup:2", 0, time[(int)sTime01], sPrice01 );
+          /* (0.11.5.1.OK)
           ObjectMove( "BaseSup:1", 0, time[(int)sTime02[0]], sPrice02[0] );
           ObjectMove( "BaseSup:2", 0, time[(int)sTime01[0]], sPrice01[0] );
+          */
 
           //---* Up.Entry Algorithm ---//
           Entry_Sig( 50 );
@@ -1748,6 +1952,15 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice02, Digits )
               + "/X2." + TimeToStr( (int)ExUpTime02, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice02, Digits )
+              + "/BS2." + TimeToStr( time[(int)sTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice02, Digits )
+              + "/BR2." + TimeToStr( time[(int)rTime02], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice02, Digits )
+              + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS2." + TimeToStr( time[(int)sTime02[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice02[0], Digits )
               + "/BR2." + TimeToStr( time[(int)rTime02[0]], TIME_MINUTES )
@@ -1756,6 +1969,7 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( sPrice01[0], Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
@@ -1810,7 +2024,8 @@ int OnCalculate(const int rates_total,
           // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
           Base_TrendLine(92, SxPos01, sTime00, rates_total, high, low);
           //---* Base.Res:1 Setup ---//
-          ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
           //---* Dw.Entry Algorithm ---//
           // Entry_Sig( 92 );
@@ -1824,8 +2039,12 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X1=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              + "/BR01=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
+              */
               // + "/st=" + TimeToStr( (int)sTime00, TIME_SECONDS )
               // + "/" + DoubleToStr( sPrice00, Digits )
               + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
@@ -1871,7 +2090,8 @@ int OnCalculate(const int rates_total,
           // Base_TrendLine(94, RxPos01, rTime0, rates_total, high, low);
           Base_TrendLine(94, RxPos01, rTime00, rates_total, high, low);
           //---* Base.Sup:1 Setup ---//
-          ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.5.1.OK) ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* Up.Entry Algorithm ---//
           // Entry_Sig( 94 );
@@ -1885,8 +2105,12 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X1=" + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              + "/BS1=" + TimeToStr( time[(int)sTime01], TIME_MINUTES )
+              + "/" + DoubleToStr( sPrice01, Digits )
+              /* (0.11.5.1.OK)
               + "/BS1=" + TimeToStr( time[(int)sTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01[0], Digits )
+              */
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/rT0=" + DoubleToStr( rTime0, 0 )
