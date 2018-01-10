@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.5.3  Update:2018.01.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.1  Update:2018.01.10"
 #property strict
 
 
@@ -1307,6 +1307,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime01], sPrice01 );
           ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- sTime01 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
@@ -1345,6 +1346,7 @@ int OnCalculate(const int rates_total,
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1352,6 +1354,9 @@ int OnCalculate(const int rates_total,
           //*--- Up.Exit Arrow:0 & Dw.Exit Arrow:1 ---//
           ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
           ObjectMove( "ExPos:1", 0, (int)ExDwTime01, ExDwPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Res:0 -> B.Sup:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(94, RxPos01, rTime0, high, low);
@@ -1393,7 +1398,8 @@ int OnCalculate(const int rates_total,
               // + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( rPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1435,6 +1441,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
           ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- rTime01 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
@@ -1467,6 +1474,7 @@ int OnCalculate(const int rates_total,
               + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               + "/" + DoubleToStr( sPrice00, Digits )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1474,6 +1482,9 @@ int OnCalculate(const int rates_total,
           //*--- Dw.Exit Arrow:0 & Up.Exit Arrow:1 ---//
           ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
           ObjectMove( "ExPos:1", 0, (int)ExUpTime01, ExUpPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
@@ -1523,6 +1534,7 @@ int OnCalculate(const int rates_total,
               // + "/xPos1=" + DoubleToStr( xPos01, 0 )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1536,6 +1548,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime01], sPrice01 );
           ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- sTime01 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
@@ -1581,7 +1594,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1590,6 +1604,9 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:0", 0, (int)ExUpTime02, ExUpPrice02 );
           ObjectMove( "ExPos:1", 0, (int)ExDwTime01, ExDwPrice01 );
           // (0.11.3.58.OK) ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Sup:1 -> B.Res:2 Setup ---//
           Base_TrendLine(32, SxPos01, sTime01, rates_total, high, low);
@@ -1640,7 +1657,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1654,6 +1672,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
           ObjectMove( "NewTL", 1, (int)EnDwTime02, EnDwPrice02 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- rTime01 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
@@ -1699,7 +1718,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1708,6 +1728,9 @@ int OnCalculate(const int rates_total,
           ObjectMove( "ExPos:0", 0, (int)ExDwTime02, ExDwPrice02 );
           ObjectMove( "ExPos:1", 0, (int)ExUpTime01, ExUpPrice01 );
           // (0.11.3.59.OK) ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Res:1 -> B.Sup:2 Setup ---//
           Base_TrendLine(44, RxPos01, rTime01, rates_total, high, low);
@@ -1758,7 +1781,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1771,6 +1795,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime02], sPrice02 );
           ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- sTime02 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime02], sPrice02 );
@@ -1821,7 +1846,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1829,6 +1855,9 @@ int OnCalculate(const int rates_total,
           //*--- Up.Exit Arrow:0 & Dw.Exit Arrow:1 ---//
           ObjectMove( "ExPos:0", 0, (int)ExUpTime02, ExUpPrice02 );
           ObjectMove( "ExPos:1", 0, (int)ExDwTime02, ExDwPrice02 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Sup:2 -> B.Res:2 Setup ---//
           Base_TrendLine(52, SxPos01, sTime02, rates_total, high, low);
@@ -1884,6 +1913,7 @@ int OnCalculate(const int rates_total,
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
               + "/HT3." + TimeToStr( time[(int)HighPos03], TIME_MINUTES )
               + "/" + DoubleToStr( High03, Digits )
               // + "/HT2." + TimeToStr( time[(int)HighPos02], TIME_MINUTES )
@@ -1902,6 +1932,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime02], rPrice02 );
           ObjectMove( "NewTL", 1, (int)EnDwTime02, EnDwPrice02 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- rTime02 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime02], rPrice02 );
@@ -1950,7 +1981,8 @@ int OnCalculate(const int rates_total,
               // + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES)
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
-              + "/xP1." + DoubleToStr( xPos01, 0 ) 
+              + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -1958,6 +1990,9 @@ int OnCalculate(const int rates_total,
           //*--- Dw.Exit Arrow:0 & Up.Exit Arrow:1 ---//
           ObjectMove( "ExPos:0", 0, (int)ExDwTime02, ExDwPrice02 );
           ObjectMove( "ExPos:1", 0, (int)ExUpTime02, ExUpPrice02 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Res:2 -> B.Sup:2 Setup ---//
           Base_TrendLine(64, RxPos01, rTime02, rates_total, high, low);
@@ -2013,6 +2048,7 @@ int OnCalculate(const int rates_total,
               // + "/" + DoubleToStr( sPrice00, Digits )
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
               + "/LT3." + TimeToStr( time[(int)LowPos03], TIME_MINUTES )
               + "/" + DoubleToStr( Low03, Digits )
               + "/rs1." + string(rs1)
@@ -2028,6 +2064,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime00], sPrice00 );
           ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- sTime00 ---//
           // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
@@ -2056,12 +2093,16 @@ int OnCalculate(const int rates_total,
               // + "/" + DoubleToStr( sPrice00, Digits )
               + "/sT0=" + DoubleToStr( sTime0, 0 )
               // + "/r=" + string(rates_total)
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
         case 92:
           //*--- Up.Exit Arrow:0 ---//
           ObjectMove( "ExPos:0", 0, (int)ExUpTime01, ExUpPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
@@ -2095,6 +2136,7 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( sPrice00, Digits )
               + "/sT0=" + DoubleToStr( sTime0, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
@@ -2106,6 +2148,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime00], rPrice00 );
           ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- rTime00 ---//
           // (0.11.3.56.OK) ObjectMove( "Trend.Down:0", 0, time[(int)rTime0], rPrice0 );
@@ -2127,12 +2170,16 @@ int OnCalculate(const int rates_total,
               + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES)
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/rT0=" + DoubleToStr( rTime0, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
 
         case 94:
           //*--- Dw.Exit Arrow:0 ---//
           ObjectMove( "ExPos:0", 0, (int)ExDwTime01, ExDwPrice01 );
+
+          //--- NewTL ---//
+          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Res:0 -> B.Sup:1 Setup ---//
           // Base_TrendLine(94, RxPos01, rTime0, high, low);
@@ -2164,6 +2211,7 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/rT0=" + DoubleToStr( rTime0, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
+              + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
           );
         break;
       }
