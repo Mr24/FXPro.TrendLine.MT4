@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.1  Update:2018.01.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.2  Update:2018.01.11"
 #property strict
 
 
@@ -1199,11 +1199,15 @@ int OnCalculate(const int rates_total,
   HLMid = iCustom( NULL, 0, "VsVHL", 0, 0 );
   HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
 
+  //*--- NewTL ---//
+  ArrayResize( BufNewTL, limit-1 );
+
   //*--- Base.TL.Setup ---//
   //--- Entry & Exit Story Setup ---//
   EnUpStory=false; EnDwStory=false; ExUpStory=false; ExDwStory=false;
 
   //--- Entry.Story ---//
+  /*
   int EnStory = USDJPY_EntrySignal(20171228);
   if(EnStory>0) EnUpStory=true;
   if(EnStory<0) EnDwStory=true;
@@ -1212,14 +1216,21 @@ int OnCalculate(const int rates_total,
   int ExStory = USDJPY_ExitSignal(20171228);
   if(ExStory>0) ExUpStory=true;
   if(ExStory<0) ExDwStory=true;
+  */
 
-  /* (Ver.0.11.4.1)
+  /* (Ver.0.11.4.0) */
+  if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
+    EnUpStory=true;
+  //--- Entry.Down.Story ---//
+  if( tLots==-1 && Bid<=HLMid01 && mdCheck==-1 && mdCheckC00==-1 )
+    EnDwStory=true;
+
+  /* (Ver.0.11.4.1) */
   if( tLots==-1 && Bid<= HLMid01 && stoPos<0 && rsiPos==-50 )
     ExUpStory=true;
   //--- Exit.Down.Story ---//
   if( tLots==1 && Ask>= HLMid01 && stoPos>0 && rsiPos==50 )
     ExDwStory=true;
-  */
 
   //--- Entry & Exit : UpTL & DwTL Signal : Setup ---//
   switch( BaseTL )
