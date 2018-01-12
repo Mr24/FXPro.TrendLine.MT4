@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.3  Update:2018.01.11"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.4  Update:2018.01.12"
 #property strict
 
 
@@ -117,8 +117,12 @@ extern double rsiPos;   // RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 double BufNewTL[];
 // (0.11.3.27) double BufTLUp[];
 // (0.11.3.27) double BufTLDown[];
+
 //--- Entry & Exit ---//
 extern int nxCheck;
+double BufEnStory[];
+double BufExStory[];
+
 // (0.11.3.27) extern int EnCheck, ExCheck;
 // (0.11.3.26) double BufEnTime[], BufEnPrice[];
 // double BufHigh01[],BufLow01[];
@@ -170,11 +174,19 @@ int OnInit(void)
 {
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
   //--- 8 addtional Buffer used for Conting.
-  IndicatorBuffers( 1 );
+  IndicatorBuffers( 3 );
 
-  //*--- New.Trend : Trend.Up||Trend.Down Buffer
+  //*--- New.Trend : Trend.Up || Trend.Down Buffer
   SetIndexBuffer( 0, BufNewTL );
   ArraySetAsSeries( BufNewTL, true );
+
+  //*--- Entry Story : Trend.Up || Trend.Down Buffer
+  SetIndexBuffer( 1, BufEnStory );
+  ArraySetAsSeries( BufEnStory, true );
+
+  //*--- Exit Story : Trend.Up || Trend.Down Buffer
+  SetIndexBuffer( 2, BufExStory );
+  ArraySetAsSeries( BufExStory, true );
 
   //*--- Trend.Up Buffer
   // (0.11.3.26) SetIndexBuffer( 0, BufTLUp );
@@ -381,6 +393,9 @@ void Entry_Sig00( // const double tLot,
         bBTL = 98;
 
         rs0 = RA - (int)srTime;
+
+        //*--- Entry.Up.Story ---//
+        BufEnStory[0] = 1;
       }
     break;
 
@@ -397,6 +412,9 @@ void Entry_Sig00( // const double tLot,
         bBTL = 99;
 
         rr0 = RA - (int)srTime;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
       }
     break;
   }
@@ -425,6 +443,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 23;
         // BaseTL = 93;
         // bBTL = 99;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
       }
     break;
 
@@ -438,6 +459,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 11;
         // BaseTL = 91;
         // bBTL = 98;
+
+        //*--- Entry.Up.Story ---//
+        BufEnStory[0] = 1;
       }
     break;
 
@@ -458,6 +482,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 31;
         // BaseTL = 91;
         // bBTL = 98;
+
+        //*--- Entry.Up.Story ---//
+        BufEnStory[0] = 1;
       }
     break;
 
@@ -478,6 +505,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 43;
         // BaseTL = 93;
         // bBTL = 99;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
       }
     break;
 
@@ -504,6 +534,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 51;
         // BaseTL = 91;
         // bBTL = 98;
+
+        //*--- Entry.Up.Story ---//
+        BufEnStory[0] = 1;
       }
     break;
 
@@ -531,6 +564,9 @@ void Entry_Sig( // const double tLot,
         nxCheck = 63;
         // BaseTL = 93;
         // bBTL = 99;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
       }
     break;
   }
@@ -559,6 +595,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 92;
         // BaseTL = 92;
         SxPos01 = srTime;
+
+        //*--- Exit.Up.Story ---//
+        BufExStory[0] = 1;
       }
     break;
 
@@ -572,6 +611,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 94;
         // BaseTL = 94;
         RxPos01 = srTime;
+
+        //*--- Exit.Dw.Story ---//
+        BufExStory[0] = -1;
       }
     break;
 
@@ -585,6 +627,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 12;
         // BaseTL = 92;
         SxPos01 = srTime;
+
+        //*--- Exit.Up.Story ---//
+        BufExStory[0] = 1;
       }
     break;
 
@@ -598,6 +643,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 24;
         // BaseTL = 94;
         RxPos01 = srTime;
+
+        //*--- Exit.Dw.Story ---//
+        BufExStory[0] = -1;
       }
     break;
 
@@ -616,6 +664,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 32;
         // BaseTL = 92;
         SxPos01 = srTime;
+
+        //*--- Exit.Up.Story ---//
+        BufExStory[0] = 1;
       }
     break;
 
@@ -634,6 +685,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 44;
         // BaseTL = 92;
         RxPos01 = srTime;
+
+        //*--- Exit.Dw.Story ---//
+        BufExStory[0] = -1;
       }
     break;
 
@@ -666,6 +720,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 52;
         // BaseTL = 92;
         SxPos01 = srTime;
+
+        //*--- Exit.Up.Story ---//
+        BufExStory[0] = 1;
       }
     break;
 
@@ -700,6 +757,9 @@ void Exit_Sig( // const double tLot,
         nxCheck = 64;
         // BaseTL = 92;
         RxPos01 = srTime;
+
+        //*--- Exit.Dw.Story ---//
+        BufExStory[0] = -1;
       }
     break;
   }
@@ -1205,7 +1265,11 @@ int OnCalculate(const int rates_total,
 
   //*--- Base.TL.Setup ---//
   //--- Entry & Exit Story Setup ---//
+  ArrayResize( BufEnStory, limit-1 );
+  ArrayResize( BufExStory, limit-1 );
+
   EnUpStory=false; EnDwStory=false; ExUpStory=false; ExDwStory=false;
+  BufEnStory[0] = 0; BufExStory[0] = 0;
 
   //--- Entry.Story ---//
   int EnStory = NewTL_EntrySignal(20171228);
@@ -1217,7 +1281,7 @@ int OnCalculate(const int rates_total,
   int ExStory = NewTL_ExitSignal(20171228);
   // (0.11.6.2.OK) int ExStory = USDJPY_ExitSignal(20171228);
   if(ExStory>0) ExUpStory=true;
-  if(ExStory<0) ExDwStory=true; 
+  if(ExStory<0) ExDwStory=true;
 
   /* (Ver.0.11.4.0)
   if( tLots==1 && Ask>=HLMid01 && mdCheck==1 && mdCheckC00==1 )
@@ -1256,6 +1320,8 @@ int OnCalculate(const int rates_total,
           // + "/sT=" + DoubleToStr( sTime00, 0 )
           + "/sT=" + TimeToStr( time[(int)sTime00], TIME_MINUTES )
           + "/" + DoubleToStr( sPrice00, Digits )
+          + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+          + "/ExS." + DoubleToStr( BufExStory[0], Digits )
       );
     break;
 
@@ -1276,6 +1342,8 @@ int OnCalculate(const int rates_total,
           + "/" + DoubleToStr( EnDwPrice01, Digits )
           + "/rT=" + TimeToStr( time[(int)rTime00], TIME_MINUTES )
           + "/" + DoubleToStr( rPrice00, Digits )
+          + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+          + "/ExS." + DoubleToStr( BufExStory[0], Digits )
       );
     break;
 
@@ -1361,6 +1429,8 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1414,6 +1484,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1489,6 +1561,8 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( sPrice00, Digits )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1549,6 +1623,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1610,6 +1686,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1673,6 +1751,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1734,6 +1814,9 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
+
           );
         break;
 
@@ -1797,6 +1880,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1862,6 +1947,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -1928,12 +2015,16 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
+              /* (0.11.6.2.OK)
               + "/HT3." + TimeToStr( time[(int)HighPos03], TIME_MINUTES )
               + "/" + DoubleToStr( High03, Digits )
               // + "/HT2." + TimeToStr( time[(int)HighPos02], TIME_MINUTES )
               // + "/" + DoubleToStr( High02, Digits )
               + "/rr1." + string(rr1)
               + "/rr2." + string(rr2)
+              */
           );
         break;
 
@@ -1997,6 +2088,8 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -2063,10 +2156,14 @@ int OnCalculate(const int rates_total,
               // + "/xP2." + DoubleToStr( xPos02, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
+              /* (0.11.6.2.OK)
               + "/LT3." + TimeToStr( time[(int)LowPos03], TIME_MINUTES )
               + "/" + DoubleToStr( Low03, Digits )
               + "/rs1." + string(rs1)
               + "/rs2." + string(rs2)
+              */
           );
         break;
 
@@ -2108,6 +2205,8 @@ int OnCalculate(const int rates_total,
               + "/sT0=" + DoubleToStr( sTime0, 0 )
               // + "/r=" + string(rates_total)
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -2151,6 +2250,8 @@ int OnCalculate(const int rates_total,
               + "/sT0=" + DoubleToStr( sTime0, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -2185,6 +2286,8 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( rPrice00, Digits )
               + "/rT0=" + DoubleToStr( rTime0, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
 
@@ -2226,6 +2329,8 @@ int OnCalculate(const int rates_total,
               + "/rT0=" + DoubleToStr( rTime0, 0 )
               + "/xP1." + DoubleToStr( xPos01, 0 )
               + "/NewTL." + DoubleToStr( BufNewTL[0], Digits )
+              + "/EnS." + DoubleToStr( BufEnStory[0], Digits )
+              + "/ExS." + DoubleToStr( BufExStory[0], Digits )
           );
         break;
       }
