@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.4  Update:2018.01.12"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.5  Update:2018.01.13"
 #property strict
 
 
@@ -1278,7 +1278,12 @@ int OnCalculate(const int rates_total,
   if(EnStory<0) EnDwStory=true;
 
   //--- Exit.Story ---//
-  int ExStory = NewTL_ExitSignal(20171228);
+  int ExStory;
+  if(BufNewTL[0]>2100000000)
+    ExStory = NewTL_ExitSignal(BufNewTL[1], 20171228);
+  else
+    ExStory = NewTL_ExitSignal(BufNewTL[0], 20171228);
+  // (0.11.6.4.OK) int ExStory = NewTL_ExitSignal(20171228);
   // (0.11.6.2.OK) int ExStory = USDJPY_ExitSignal(20171228);
   if(ExStory>0) ExUpStory=true;
   if(ExStory<0) ExDwStory=true;
