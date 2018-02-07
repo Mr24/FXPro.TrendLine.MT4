@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.6.5  Update:2018.01.13"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.7.0  Update:2018.02.06"
 #property strict
 
 
@@ -115,6 +115,7 @@ extern double rsiPos;   // RSI & C-50 & 30.70.Over & 40.60.Range.CurrentPosition
 //--- 2-3. TrendLine(TL) : TL & Base.TL : 3x Base.TL & TL * HL
 //--- Trend Buffer ---//
 double BufNewTL[];
+double tArray[];  // Temp.BufNewTL[]
 // (0.11.3.27) double BufTLUp[];
 // (0.11.3.27) double BufTLDown[];
 
@@ -179,6 +180,8 @@ int OnInit(void)
   //*--- New.Trend : Trend.Up || Trend.Down Buffer
   SetIndexBuffer( 0, BufNewTL );
   ArraySetAsSeries( BufNewTL, true );
+  SetIndexStyle( 0, DRAW_LINE, STYLE_SOLID, 1, Orange );
+  SetIndexLabel( 0, "BufNewTL" );
 
   //*--- Entry Story : Trend.Up || Trend.Down Buffer
   SetIndexBuffer( 1, BufEnStory );
@@ -1261,7 +1264,7 @@ int OnCalculate(const int rates_total,
   HLMid01 = iCustom( NULL, 0, "VsVHL", 0, 1 );
 
   //*--- NewTL ---//
-  ArrayResize( BufNewTL, limit-1 );
+  // (0.11.6.5.OK) ArrayResize( BufNewTL, limit-1 );
 
   //*--- Base.TL.Setup ---//
   //--- Entry & Exit Story Setup ---//
@@ -1532,7 +1535,20 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
           ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
-          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          // ArrayInitialize( BufNewTL, 0 );
+          // ArrayResize( BufNewTL, (int)rTime01 );
+          // SetIndexDrawBegin( 0, (int)rTime01 );
+          // ArrayCopy( tArray, BufNewTL, 0, 0, (int)sTime00 );
+          ArrayCopy( tArray, BufNewTL, (int)rTime01, (int)rTime01+1 );
+          ArrayCopy( BufNewTL, tArray, 0, 0 );
+          // ArrayFree( BufNewTL );
+          // ArrayInitialize( BufNewTL, (int)rTime01 );
+          for( int t=(int)rTime01; t>=0; t-- )
+          {
+            ArrayResize( BufNewTL, t );
+            BufNewTL[t] = ObjectGetValueByShift( "NewTL", t );
+          }
 
           //--- rTime01 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime01], rPrice01 );
@@ -2180,7 +2196,12 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime00], sPrice00 );
           ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
-          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          for( int t=(int)sTime00; t>=0; t-- )
+          {
+            ArrayResize( BufNewTL, t );
+            BufNewTL[t] = ObjectGetValueByShift( "NewTL", t );
+          }
 
           //--- sTime00 ---//
           // ObjectMove( "Trend.Up:0", 0, time[(int)sTime0], sPrice0 );
