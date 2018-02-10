@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.7.0  Update:2018.02.06"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.7.1  Update:2018.02.07"
 #property strict
 
 
@@ -1535,15 +1535,11 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime01], rPrice01 );
           ObjectMove( "NewTL", 1, (int)EnDwTime01, EnDwPrice01 );
+
           // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
-          // ArrayInitialize( BufNewTL, 0 );
-          // ArrayResize( BufNewTL, (int)rTime01 );
-          // SetIndexDrawBegin( 0, (int)rTime01 );
-          // ArrayCopy( tArray, BufNewTL, 0, 0, (int)sTime00 );
+          // (0.11.7.0.OK) ArrayCopy( tArray, BufNewTL, (int)sTime00, (int)rTime01 );
           ArrayCopy( tArray, BufNewTL, (int)rTime01, (int)rTime01+1 );
           ArrayCopy( BufNewTL, tArray, 0, 0 );
-          // ArrayFree( BufNewTL );
-          // ArrayInitialize( BufNewTL, (int)rTime01 );
           for( int t=(int)rTime01; t>=0; t-- )
           {
             ArrayResize( BufNewTL, t );
@@ -1659,7 +1655,15 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime01], sPrice01 );
           ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
-          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+
+          // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          ArrayCopy( tArray, BufNewTL, (int)sTime01, (int)sTime01+1 );
+          ArrayCopy( BufNewTL, tArray, 0, 0 );
+          for( int t=(int)sTime01; t>=0; t-- )
+          {
+            ArrayResize( BufNewTL, t );
+            BufNewTL[t] = ObjectGetValueByShift( "NewTL", t );
+          }
 
           //--- sTime01 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime01], sPrice01 );
@@ -1915,7 +1919,15 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime02], sPrice02 );
           ObjectMove( "NewTL", 1, (int)EnUpTime02, EnUpPrice02 );
-          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+
+          // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          ArrayCopy( tArray, BufNewTL, (int)sTime02, (int)sTime02+1 );
+          ArrayCopy( BufNewTL, tArray, 0, 0 );
+          for( int t=(int)sTime02; t>=0; t-- )
+          {
+            ArrayResize( BufNewTL, t );
+            BufNewTL[t] = ObjectGetValueByShift( "NewTL", t );
+          }
 
           //--- sTime02 ---//
           ObjectMove( "Trend.Up:0", 0, time[(int)sTime02], sPrice02 );
@@ -2058,7 +2070,15 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)rTime02], rPrice02 );
           ObjectMove( "NewTL", 1, (int)EnDwTime02, EnDwPrice02 );
-          BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+
+          // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
+          ArrayCopy( tArray, BufNewTL, (int)rTime02, (int)rTime02+1 );
+          ArrayCopy( BufNewTL, tArray, 0, 0 );
+          for( int t=(int)rTime02; t>=0; t-- )
+          {
+            ArrayResize( BufNewTL, t );
+            BufNewTL[t] = ObjectGetValueByShift( "NewTL", t );
+          }
 
           //--- rTime02 ---//
           ObjectMove( "Trend.Down:0", 0, time[(int)rTime02], rPrice02 );
@@ -2196,6 +2216,7 @@ int OnCalculate(const int rates_total,
           //--- NewTL ---//
           ObjectMove( "NewTL", 0, time[(int)sTime00], sPrice00 );
           ObjectMove( "NewTL", 1, (int)EnUpTime01, EnUpPrice01 );
+
           // (0.11.6.5.OK) BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
           for( int t=(int)sTime00; t>=0; t-- )
           {
