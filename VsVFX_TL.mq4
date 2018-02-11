@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.0  Update:2018.02.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.1  Update:2018.02.10"
 #property strict
 
 
@@ -153,8 +153,10 @@ extern double High03, HighPos03;
 extern double Low03, LowPos03;
 
 extern double SxPos01, RxPos01;
+extern double SnPos01, RnPos01;
 
 extern double xPos01, xPos02;
+extern double nPos01, nPos02;
 extern int rPos01, sPos01;
 extern int rPos02, sPos02;
 extern int rPos03, sPos03;
@@ -422,6 +424,39 @@ void Entry_Sig00( // const double tLot,
 
 
 //+------------------------------------------------------------------+
+//| FX.TrendLine.Entry & BaseTL Signal for Open Order (Ver.0.11.8.1) |
+//+------------------------------------------------------------------+
+void Entry_Sig_BT( // const double tLot,
+              // const double HLMid_01,
+              // const double mdCheck_00,
+              // const double mdCheck_C00,
+              int Base_TL,
+              const double srTime
+              )
+{
+  switch( Base_TL )
+  {
+    case 92:  // (DwTL) B.Res:1, UpTL=1, DwTL=0, nxCheck=92
+      // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      if( EnDwStory )
+      {
+        EnDwTime01 = (int)TimeCurrent();
+        EnDwPrice01 = Bid;
+
+        nxCheck = 23;
+        // BaseTL = 93;
+        // bBTL = 99;
+        SnPos01 = srTime;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
+      }
+    break;
+  }
+}
+
+
+//+------------------------------------------------------------------+
 //| FX.TrendLine.Entry Signal for Open Order (Ver.0.11.3.30)         |
 //+------------------------------------------------------------------+
 void Entry_Sig( // const double tLot,
@@ -594,7 +629,7 @@ void Exit_Sig( // const double tLot,
 
         nxCheck = 92;
         // BaseTL = 92;
-        SxPos01 = srTime;
+        // (0.11.8.0.OK) SxPos01 = srTime;
 
         //*--- Exit.Up.Story ---//
         BufExStory[0] = 1;
@@ -761,6 +796,43 @@ void Exit_Sig( // const double tLot,
         //*--- Exit.Dw.Story ---//
         BufExStory[0] = -1;
       }
+    break;
+  }
+}
+
+
+//+------------------------------------------------------------------+
+//| FX.TrendLine.Entry & Base.TrendLine: 01 & 02 Setup (Ver.0.11.8.1)|
+//+------------------------------------------------------------------+
+void Base_TrendLine_En(const int nx_Check,
+                    const double SRnPos,
+                    const double srTime,
+                    const int RA,
+                    const double &high[],
+                    const double &low[]
+                    )
+{
+  switch( nx_Check )
+  {
+    case 23:  // rTime01.Setup
+      // xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      nPos01 = srTime - SRnPos;
+
+      HighPos01 = ArrayMaximum( high, ((int)srTime-(int)nPos01), (int)nPos01 );
+      rPos01 = (int)HighPos01;
+      High01 = high[rPos01];
+
+      rTime01 = HighPos01;
+      rPrice01 = High01;
+      /* (0.11.5.1.OK)
+      rTime01[0] = HighPos01;
+      rPrice01[0] = High01;
+      */
+
+      rr1 = RA - rPos01;
+
+      // nxCheck = 20;
     break;
   }
 }
@@ -1527,6 +1599,9 @@ int OnCalculate(const int rates_total,
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
+          Base_TrendLine_En(23, SnPos01, sTime00, rates_total, high, low);
+          //---* Base.Res:1 Setup ---//
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
 
           //*--- Trend.Down:0 ---//
           //--- NewTL ---//
@@ -2225,14 +2300,14 @@ int OnCalculate(const int rates_total,
           //--- B.Sup:0 -> B.Res:1 Setup ---//
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           // Base_TrendLine(92, SxPos01, sTime0, rates_total, high, low);
-          Base_TrendLine(92, SxPos01, sTime00, rates_total, high, low);
+          // (0.11.8.0.OK) Base_TrendLine(92, SxPos01, sTime00, rates_total, high, low);
           //---* Base.Res:1 Setup ---//
-          ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
+          // (0.11.8.0.OK) ObjectMove( "BaseRes:1", 0, time[(int)rTime01], rPrice01 );
           // (0.11.5.1.OK) ObjectMove( "BaseRes:1", 0, time[(int)rTime01[0]], rPrice01[0] );
 
           //---* Dw.Entry Algorithm ---//
-          // Entry_Sig( 92 );
-          Entry_Sig( 92 );
+          // (0.11.8.0.OK) Entry_Sig( 92 );
+          Entry_Sig_BT( 92, sTime00 );
 
           //---* nxCheck=92 & B.Sup:0 : Print Out ---//
           Print( "bTL." + string(BaseTL)
@@ -2242,8 +2317,10 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnUpPrice01, Digits )
               + "/X1=" + TimeToStr( (int)ExUpTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExUpPrice01, Digits )
+              /* (0.11.8.0.OK)
               + "/BR01=" + TimeToStr( time[(int)rTime01], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01, Digits )
+              */
               /* (0.11.5.1.OK)
               + "/BR01=" + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
@@ -2347,21 +2424,6 @@ int OnCalculate(const int rates_total,
       );
     break;
   }
-
-
-/* (Ver.0.11.3)
-  if(sTime0[0]>rTime0[0])   // Sup.Price(Left) : Trend.Up`
-  {
-    // Print( "sTime0:" + DoubleToStr( sTime0[0], 0 ) 
-        + " > rTime0:" + DoubleToStr( rTime0[0], 0 ) );
-  }
-  if(rTime0[0]>sTime0[0])   // Res.Price(Left) : Trend.Down
-  {
-    // Print( "rTime0:" + DoubleToStr( rTime0[0], 0 ) 
-        + " > sTime0:" + DoubleToStr( sTime0[0], 0 ) );
-  }
-*/
-
 
 //---- OnCalculate done. Return new prev_calculated.
   return(rates_total);
