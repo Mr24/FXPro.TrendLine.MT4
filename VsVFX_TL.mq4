@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.1  Update:2018.02.10"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.2  Update:2018.02.11"
 #property strict
 
 
@@ -452,6 +452,23 @@ void Entry_Sig_BT( // const double tLot,
         BufEnStory[0] = -1;
       }
     break;
+
+    case 30: // (UpTL) B.Sup:1, UpTL=1, DwTL=1, nxCheck=24
+      // if( tLot==1 && Ask>=HLMid_01 && mdCheck_00==1 && mdCheck_C00==1 )
+      if( EnUpStory )
+      {
+        EnUpTime02 = (int)TimeCurrent();
+        EnUpPrice02 = Ask;
+
+        nxCheck = 31;
+        // BaseTL = 91;
+        // bBTL = 98;
+        RnPos01 = srTime;
+
+        //*--- Entry.Up.Story ---//
+        BufEnStory[0] = 1;
+      }
+    break;
   }
 }
 
@@ -677,7 +694,7 @@ void Exit_Sig( // const double tLot,
 
         nxCheck = 24;
         // BaseTL = 94;
-        RxPos01 = srTime;
+        // (0.11.8.1.OK) RxPos01 = srTime;
 
         //*--- Exit.Dw.Story ---//
         BufExStory[0] = -1;
@@ -833,6 +850,27 @@ void Base_TrendLine_En(const int nx_Check,
       rr1 = RA - rPos01;
 
       // nxCheck = 20;
+    break;
+
+    case 31:  // sTime01.Setup
+      // xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      nPos01 = srTime - SRnPos;
+
+      LowPos01 = ArrayMinimum( low, ((int)srTime-(int)nPos01), (int)nPos01 );
+      sPos01 = (int)LowPos01;
+      Low01 = low[sPos01];
+
+      sTime01 = LowPos01;
+      sPrice01 = Low01;
+      /* (0.11.5.1.)
+      sTime01[0] = LowPos01;
+      sPrice01[0] = Low01;
+      */
+
+      rs1 = RA - sPos01;
+
+      // nxCheck = 10;
     break;
   }
 }
@@ -1658,15 +1696,15 @@ int OnCalculate(const int rates_total,
           // (0.11.3.52.OK) Base_TrendLine(92, SxPos01, sTime0, high, low);
           //--- B.Res:1 -> B.Sup:1 Setup ---//
           // Base_TrendLine(94, RxPos01, rTime01[0], high, low);
-          Base_TrendLine(94, RxPos01, rTime01, rates_total, high, low);
+          // (0.11.8.1.OK) Base_TrendLine(94, RxPos01, rTime01, rates_total, high, low);
           // (0.11.5.1.OK) Base_TrendLine(94, RxPos01, rTime01[0], rates_total, high, low);
-
           //---* Base.Sup:1 Setup ---//
-          ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
+          // (0.11.8.1.OK) ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
           // (0.11.5.1.OK) ObjectMove( "BaseSup:1", 0, time[(int)sTime01[0]], sPrice01[0] );
 
           //---* Up.Entry Algorithm ---//
-          Entry_Sig( 30 );
+          // (0.11.8.1.OK) Entry_Sig( 30 );
+          Entry_Sig_BT( 30, rTime01 );
 
           //---* nxCheck=24 & B.Res:1 & B.Sup:0 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1685,8 +1723,10 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( ExUpPrice01, Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01, Digits )
+              /* (0.11.8.1.OK)
               + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01, Digits )
+              */
               /* (0.11.5.1.OK)
               + "/BR1." + TimeToStr( time[(int)rTime01[0]], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice01[0], Digits )
@@ -1713,6 +1753,11 @@ int OnCalculate(const int rates_total,
           ObjectMove( "EnPos:0", 0, (int)EnUpTime02, EnUpPrice02 );
           ObjectMove( "EnPos:1", 0, (int)EnDwTime01, EnDwPrice01 );
           // (0.11.3.58.OK) ObjectMove( "EnPos:0", 0, (int)EnUpTime01, EnUpPrice01 );
+
+          //--- B.Res:1 -> B.Sup:1 Setup ---//
+          Base_TrendLine_En(31, RnPos01, rTime01, rates_total, high, low);
+          //---* Base.Sup:1 Setup ---//
+          ObjectMove( "BaseSup:1", 0, time[(int)sTime01], sPrice01 );
 
           //*--- Trend.Up: 0 & 1 ---//
           //--- NewTL ---//
