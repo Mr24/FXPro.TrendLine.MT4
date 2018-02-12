@@ -27,7 +27,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright(c) 2016 -, VerysVery Inc. && Yoshio.Mr24"
 #property link      "https://github.com/VerysVery/MetaTrader4/"
-#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.2  Update:2018.02.11"
+#property description "VsV.MT4.VsVFX_TL - Ver.0.11.8.3  Update:2018.02.11"
 #property strict
 
 
@@ -469,6 +469,37 @@ void Entry_Sig_BT( // const double tLot,
         BufEnStory[0] = 1;
       }
     break;
+
+    case 60:  // (DwTL) B.Res:2, UpTL=2, DwTL=1, nxCheck=32
+      // if( tLot==-1 && Bid<=HLMid_01 && mdCheck_00==-1 && mdCheck_C00==-1 )
+      if( EnDwStory )
+      {
+        if( EnDwPrice02 == 0)
+        {
+          EnDwTime02 = (int)TimeCurrent();
+          EnDwPrice02 = Bid;
+        }
+        else if( EnDwPrice02 > 0)
+        {
+          EnDwTime01 = EnDwTime02;
+          EnDwPrice01 = EnDwPrice02;
+
+          EnDwTime02 = (int)TimeCurrent();
+          EnDwPrice02 = Bid;
+        }
+
+        // (0.11.3.63.OK) EnDwTime02 = (int)TimeCurrent();
+        // (0.11.3.63.OK) EnDwPrice02 = Bid;
+
+        nxCheck = 63;
+        // BaseTL = 93;
+        // bBTL = 99;
+        SnPos01 = srTime;
+
+        //*--- Entry.Dw.Story ---//
+        BufEnStory[0] = -1;
+      }
+    break;
   }
 }
 
@@ -715,7 +746,7 @@ void Exit_Sig( // const double tLot,
 
         nxCheck = 32;
         // BaseTL = 92;
-        SxPos01 = srTime;
+        // (0.11.8.2.OK) SxPos01 = srTime;
 
         //*--- Exit.Up.Story ---//
         BufExStory[0] = 1;
@@ -871,6 +902,27 @@ void Base_TrendLine_En(const int nx_Check,
       rs1 = RA - sPos01;
 
       // nxCheck = 10;
+    break;
+
+    case 63:  // rTime02.Setup
+      // xPos01 = srTime - SRxPos;
+      // xPos02 = xPos01; xPos01 = srTime - SRxPos;
+      nPos01 = srTime - SRnPos;
+
+      HighPos02 = ArrayMaximum( high, ((int)srTime-(int)nPos01), (int)nPos01 );
+      rPos02 = (int)HighPos02;
+      High02 = high[rPos02];
+
+      rTime02 = HighPos02;
+      rPrice02 = High02;
+      /* (0.11.5.1.OK)
+      rTime02[0] = HighPos02;
+      rPrice02[0] = High02;
+      */
+
+      rr2 = RA - rPos02;
+
+      // nxCheck = 20;
     break;
   }
 }
@@ -1826,19 +1878,21 @@ int OnCalculate(const int rates_total,
           BufNewTL[0] = ObjectGetValueByShift( "NewTL", 0 );
 
           //--- B.Sup:1 -> B.Res:2 Setup ---//
-          Base_TrendLine(32, SxPos01, sTime01, rates_total, high, low);
+          // (0.11.8.2.OK) Base_TrendLine(32, SxPos01, sTime01, rates_total, high, low);
           // (0.11.5.1.OK) Base_TrendLine(32, SxPos01, sTime01[0], rates_total, high, low);
-
           //---* Base.Res:1 & 2 Setup ---//
+          /* (0.11.8.2.OK)
           ObjectMove( "BaseRes:1", 0, time[(int)rTime02], rPrice02 );
           ObjectMove( "BaseRes:2", 0, time[(int)rTime01], rPrice01 );
+          */
           /* (0.11.5.1.OK)
           ObjectMove( "BaseRes:1", 0, time[(int)rTime02[0]], rPrice02[0] );
           ObjectMove( "BaseRes:2", 0, time[(int)rTime01[0]], rPrice01[0] );
           */
 
           //---* Dw.Entry Algorithm ---//
-          Entry_Sig( 60 );
+          // (0.11.8.2.OK) Entry_Sig( 60 );
+          Entry_Sig_BT( 60, sTime01 );
 
           //---* nxCheck=32 & B.Sup:1 & B.Res:2 : Print Out ---//
           Print( // "bTL=" + string(BaseTL)
@@ -1857,8 +1911,10 @@ int OnCalculate(const int rates_total,
               + "/" + DoubleToStr( EnDwPrice01, Digits )
               + "/X2." + TimeToStr( (int)ExDwTime01, TIME_SECONDS )
               + "/" + DoubleToStr( ExDwPrice01, Digits )
+              /* (0.11.8.2.OK)
               + "/BR2." + TimeToStr( time[(int)rTime02], TIME_MINUTES )
               + "/" + DoubleToStr( rPrice02, Digits )
+              */
               + "/BS1." + TimeToStr( time[(int)sTime01], TIME_MINUTES )
               + "/" + DoubleToStr( sPrice01, Digits )
               + "/BR1." + TimeToStr( time[(int)rTime01], TIME_MINUTES )
@@ -2157,6 +2213,12 @@ int OnCalculate(const int rates_total,
           //*--- Dw.Entry Arrow: 1 & 0 ---//
           ObjectMove( "EnPos:0", 0, (int)EnDwTime02, EnDwPrice02 );
           ObjectMove( "EnPos:1", 0, (int)EnUpTime02, EnUpPrice02 );
+
+          //--- B.Sup:1 -> B.Res:2 Setup ---//
+          Base_TrendLine_En(63, SnPos01, sTime01, rates_total, high, low);
+          //---* Base.Res:1 & 2 Setup ---//
+          ObjectMove( "BaseRes:1", 0, time[(int)rTime02], rPrice02 );
+          ObjectMove( "BaseRes:2", 0, time[(int)rTime01], rPrice01 );
 
           //*--- Trend.Dw: 0 & 1 ---//
           //--- NewTL ---//
